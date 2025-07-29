@@ -1,11 +1,16 @@
 package com.cstock.domain.model;
 
+import java.util.List;
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -16,13 +21,23 @@ public class Product {
 	@Id
 	private Long id;
 	@NotNull
+	@Column(name = "product_name")
 	private String productName;
 	@NotNull
 	private String brand;
 	@NotNull
 	private int quantity;
 	@NotNull
+	@Column(name = "unity_value")
 	private double unityValue;
+	@NotNull
+	@Column(name = "total_value")
+	private double totalValue;
+	@ManyToOne
+	@JoinColumn(name = "enterprise_id")
+	private Enterprise enterprise;
+	@OneToMany(mappedBy = "product")
+	private List<StockMovement> stockMovement;
 	public Long getId() {
 		return id;
 	}
@@ -52,6 +67,24 @@ public class Product {
 	}
 	public void setUnityValue(double unityValue) {
 		this.unityValue = unityValue;
+	}
+	public double getTotalValue() {
+		return totalValue;
+	}
+	public void setTotalValue(double totalValue) {
+		this.totalValue = totalValue;
+	}
+	public Enterprise getEnterprise() {
+		return enterprise;
+	}
+	public void setEnterprise(Enterprise enterprise) {
+		this.enterprise = enterprise;
+	}
+	public List<StockMovement> getStockMovement() {
+		return stockMovement;
+	}
+	public void setStockMovement(List<StockMovement> stockMovement) {
+		this.stockMovement = stockMovement;
 	}
 	@Override
 	public int hashCode() {

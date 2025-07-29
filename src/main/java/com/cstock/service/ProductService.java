@@ -31,12 +31,14 @@ public class ProductService {
 		if(!user.isPresent()) {
 			throw new NonExistentUserException();
 		}
+		product.setTotalValue(product.getUnityValue() * product.getQuantity());
 		return productRepository.save(product);
 	}
 	
 	public Product update(Long id, Product product) {
 		Product productSaved = findProductById(id);
 		BeanUtils.copyProperties(product, productSaved, "id");
+		productSaved.setTotalValue(productSaved.getUnityValue() * productSaved.getQuantity());
 		return productRepository.save(productSaved);	
 	}
 	
@@ -45,10 +47,14 @@ public class ProductService {
 		return productSaved;
 	}
 	
+	public List<Product> findProductByUserId(Long userId){
+		User user = userRepository.findById(userId).orElseThrow(() -> new EmptyResultDataAccessException(1));
+		Long enterpriseId = user.getEnterprise().getId();
+		return productRepository.findByEnterpriseId(enterpriseId);
+	}
+	
 	public List<Product> search(ProductFilter productFilter) {
 		return productRepository.filter(productFilter, Sort.by("productName").descending());
 	}
-	
-	
 	
 }

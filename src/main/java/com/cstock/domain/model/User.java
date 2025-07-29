@@ -3,12 +3,18 @@ package com.cstock.domain.model;
 import java.util.List;
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -27,12 +33,20 @@ public class User {
 	@Size(min = 6, max = 150)
 	private String password;
 	@NotNull
-	private String name;
+	@Column(name = "user_name")
+	private String userName;
 	@NotNull
-	private String position;
+	@Enumerated(EnumType.STRING)
+	private Position position;
+	@ManyToOne
+	@JoinColumn(name = "enterprise_id")
+	private Enterprise enterprise;
+	@ManyToMany
 	@JoinTable(name = "user_permission", joinColumns = @JoinColumn(name = "user_id"), 
 	inverseJoinColumns = @JoinColumn(name = "permission_id"))
 	private List<Permission> permission;
+	@OneToMany(mappedBy = "user")
+	private List<StockMovement> stockMovement;
 	public Long getId() {
 		return id;
 	}
@@ -51,16 +65,16 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	public String getName() {
-		return name;
+	public String getUserName() {
+		return userName;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
-	public String getPosition() {
+	public Position getPosition() {
 		return position;
 	}
-	public void setPosition(String position) {
+	public void setPosition(Position position) {
 		this.position = position;
 	}
 	public List<Permission> getPermission() {
@@ -68,6 +82,18 @@ public class User {
 	}
 	public void setPermission(List<Permission> permission) {
 		this.permission = permission;
+	}
+	public Enterprise getEnterprise() {
+		return enterprise;
+	}
+	public void setEnterprise(Enterprise enterprise) {
+		this.enterprise = enterprise;
+	}
+	public List<StockMovement> getStockMovement() {
+		return stockMovement;
+	}
+	public void setStockMovement(List<StockMovement> stockMovement) {
+		this.stockMovement = stockMovement;
 	}
 	@Override
 	public int hashCode() {
