@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router'; // Importação do Router e NavigationEnd
 
 @Component({
@@ -7,32 +7,14 @@ import { Router, NavigationEnd } from '@angular/router'; // Importação do Rout
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'workguru-ui';
+  title = 'cstock-ui';
   isInIframe: boolean = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, @Inject(PLATFORM_ID) private platformId: Object) {}
 
-  ngOnInit() {
-    this.isInIframe = window.self !== window.top;
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        const body = document.body;
-        body.classList.remove('pagina-home');
-
-        if (this.router.url === '/home') {
-          body.classList.add('pagina-home');
-        }
-      }
-    });
-  }
 
   showingNavbar(): boolean {
-    const isInIframe = window.self !== window.top;
-    return !isInIframe && this.router.url !== '/home';
-  }
-
-  showingNavhome(): boolean {
-    return this.router.url == '/home';
+    return this.router.url !== '/pagina-home'
   }
 
 }

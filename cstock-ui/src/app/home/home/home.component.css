@@ -1,0 +1,43 @@
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  padding: 2rem;
+}
+
+.form {
+  background-color: white;
+  border-radius: 5%;
+  border: 1px solid black;
+  padding: 2rem;
+  min-width: 300px;
+}
+
+.form .login {
+  text-align: center;
+}
+
+.form input {
+  display: block;
+  width: 100%;
+  height: 6vh;
+  margin-bottom: 2rem;
+  border-color: rgb(231, 231, 231);
+  font-size: 1.3rem;
+}
+
+footer {
+  text-align: center;
+  background: rgba(0,0,0,0.1);
+}
+
+button{
+  width: 103%;
+  background-color: rgb(120, 158, 148, 1);
+  height: 6vh;
+  border: none;
+  font-size: 1.3rem;
+
+}

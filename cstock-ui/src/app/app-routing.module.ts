@@ -1,95 +1,65 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthorizedComponent } from './security/authorized/authorized.component';
-import { JobsListComponent } from './jobs/jobs-list/jobs-list.component';
-import { JobRegisterComponent } from './jobs/job-register/job-register.component';
 import { PageNotFoundComponent } from './core/page-not-found.component';
 import { NotAuthorizedComponent } from './core/not-authorized.component';
 import { AuthGuard } from './security/auth.guard';
 import { HomeComponent } from './home/home/home.component';
 import { EnterpriseRegisterComponent } from './enterprises/enterprise-register/enterprise-register.component';
-import { CandidateRegisterComponent } from './candidates/candidate-register/candidate-register.component';
-import { JobViewComponent } from './jobs/job-view/job-view.component';
-import { CandidateViewProfileComponent } from './candidates/candidate-view-profile/candidate-view-profile.component';
-import { EnterpriseViewProfileComponent } from './enterprises/enterprise-view-profile/enterprise-view-profile.component';
-import { EnterpriseUpdateProfileComponent } from './enterprises/enterprise-update-profile/enterprise-update-profile.component';
-import { CandidateUpdateProfileComponent } from './candidates/candidate-update-profile/candidate-update-profile.component';
-import { GraduationRegisterComponent } from './graduations/graduation-register/graduation-register.component';
-import { ProfessionalHistoryRegisterComponent } from './professional-histories/professional-history-register/professional-history-register.component';
-import { JobUpdateComponent } from './jobs/job-update/job-update.component';
+import { ProductRegisterComponent } from './products/product-register/product-register.component';
+import { ProductViewComponent } from './products/product-view/product-view.component';
+import { ProductsListComponent } from './products/products-list/products-list.component';
+import { ProductUpdateComponent } from './products/product-update/product-update.component';
+import { UserRegisterComponent } from './users/user-register/user-register.component';
+import { UserUpdateComponent } from './users/user-update/user-update.component';
+import { EnterpriseUpdateComponent } from './enterprises/enterprise-update/enterprise-update.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent},
   { path: 'enterprises/new', component: EnterpriseRegisterComponent },
-  { path: 'enterprises/view/:id', component: EnterpriseViewProfileComponent},
-  { path: 'candidates/new', component: CandidateRegisterComponent },
-  { path: 'candidates/view/:id', component: CandidateViewProfileComponent},
+  { path: 'users/new', component: UserRegisterComponent },
   {
-    path: 'jobs/:id',
-    component: JobRegisterComponent,
+    path: 'products/:id',
+    component: ProductRegisterComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_REGISTER_JOB']}
+    data: { roles: ['ROLE_REGISTER_PRODUCT']}
   },
   {
-    path: 'jobs/view/:id',
-    component: JobViewComponent,
+    path: 'products/view/:id',
+    component: ProductViewComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_SEARCH_JOB']}
+    data: { roles: ['ROLE_SEARCH_PRODUCT']}
   },
   {
-    path: 'jobs',
-    component: JobsListComponent,
+    path: 'products',
+    component: ProductsListComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_SEARCH_JOB']}
+    data: { roles: ['ROLE_SEARCH_PRODUCT']}
   },
   {
-    path: 'jobs/new',
-    component: JobRegisterComponent,
+    path: 'products/new',
+    component: ProductRegisterComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_REGISTER_JOB'] }
-  },
-  {
-    path: 'apply/:id',
-    component: JobViewComponent,
-    canActivate: [AuthGuard],
-    data: { role: ['ROLE_APPLY_JOB'] }
-  },
-  {
-    path: 'isApplied/:id',
-    component: JobViewComponent,
-    canActivate: [AuthGuard],
-    data: { role: ['ROLE_APPLY_JOB'] }
+    data: { roles: ['ROLE_REGISTER_PRODUCT'] }
   },
   {
     path: 'enterprises/update/:id',
-    component: EnterpriseUpdateProfileComponent,
+    component: EnterpriseUpdateComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_REGISTER_USER']}
   },
   {
-    path: 'candidates/update/:id',
-    component: CandidateUpdateProfileComponent,
+    path: 'users/update/:id',
+    component: UserUpdateComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_REGISTER_USER']}
   },
   {
-    path: 'jobs/update/:id',
-    component: JobUpdateComponent,
+    path: 'product/update/:id',
+    component: ProductUpdateComponent,
     canActivate: [AuthGuard],
-    data: { roles: ['ROLE_REGISTER_JOB']}
-  },
-  {
-    path: 'graduations/new',
-    component: GraduationRegisterComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_APPLY_JOB'] }
-  },
-  {
-    path: 'professional_histories/new',
-    component: ProfessionalHistoryRegisterComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_APPLY_JOB'] }
+    data: { roles: ['ROLE_REGISTER_PRODUCT']}
   },
 
   { path: 'authorized', component: AuthorizedComponent },
