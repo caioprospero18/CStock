@@ -1,163 +1,289 @@
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { MessageService } from 'primeng/api';
 
+export interface UserPayload {
+  name?: string;
+  preferred_username?: string;
+  sub?: string;
+  exp?: number;
+  roles?: string[] | string;
+  user_id?: number;
+  [key: string]: any;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
-  oauthTokenUrl = 'http://localhost:8080/oauth2/token';
-  oauthAuthorizeUrl = 'http://localhost:8080/oauth2/authorize';
-  jwtPayload: any;
+  private authServerUrl = environment.authServerUrl;
+  private redirectUri = environment.redirectUri;
+  private clientId = environment.clientId;
+  private jwtHelper = new JwtHelperService();
+  private isBrowser: boolean;
 
   constructor(
     private http: HttpClient,
-    private jwtHelper: JwtHelperService,
-
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
   ) {
-    this.loadToken();
+    this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  login() {
-    const state = 'abc';
-    const codeVerifier = 'cstock';
-
-    localStorage.setItem('state', state);
-    localStorage.setItem('codeVerifier', codeVerifier);
-
-    const challengeMethod = 'S256'
-    const codeChallenge = 'z0Q0t1xK4hFoWMbWbNXsXAnmceL8K5Bj3rcaesrO6oc';
-
-    const redirectURI =
-      encodeURIComponent('http://local-cstock.com:8000/authorized');
-
-    const clientId = 'angular'
-    const scope = 'read write'
-    const responseType = 'code'
-
-    const params = [
-      'response_type=' + responseType,
-      'client_id=' + clientId,
-      'scope=' + scope,
-      'code_challenge=' + codeChallenge,
-      'code_challenge_method=' + challengeMethod,
-      'state=' + state,
-      'redirect_uri=' + redirectURI
-    ]
-
-    window.location.href = this.oauthAuthorizeUrl + '?' +  params.join('&');
-
-
+  debugToken() {
+  const token = this.getFromSessionStorage('access_token');
+  if (token) {
+    try {
+      const payload = this.jwtHelper.decodeToken(token);
+      console.log('🔍 Conteúdo completo do JWT:', payload);
+      console.log('📋 Campos disponíveis:', Object.keys(payload));
+    } catch (e) {
+      console.error('Erro ao decodificar token:', e);
+    }
+  }
+}
+  public getFromSessionStorage(key: string): string | null {
+    if (!this.isBrowser) return null;
+    try {
+      return sessionStorage.getItem(key);
+    } catch {
+      return null;
+    }
   }
 
-  async getNewAccessTokenWithCode(code: string, state: string): Promise<any> {
-    const stateSalvo = localStorage.getItem('state');
+  private setInSessionStoragePrivate(key: string, value: string): void {
+    if (!this.isBrowser) return;
+    try {
+      sessionStorage.setItem(key, value);
+    } catch {}
+  }
 
-    if (stateSalvo !== state) {
-      return Promise.reject(null);
+  private removeFromSessionStorage(key: string): void {
+    if (!this.isBrowser) return;
+    try {
+      sessionStorage.removeItem(key);
+    } catch {}
+  }
+
+  private clearSessionStorage(): void {
+    if (!this.isBrowser) return;
+    try {
+      sessionStorage.clear();
+    } catch {}
+  }
+
+  public setInSessionStorage(key: string, value: string): void {
+    this.setInSessionStoragePrivate(key, value);
+  }
+
+
+  login(): void {
+  if (!this.isBrowser) {
+    console.warn('login() chamado em ambiente não-browser');
+    return;
+  }
+
+  const codeVerifier = this.generateCodeVerifier();
+  this.setInSessionStorage('pkce_code_verifier', codeVerifier);
+
+  this.generateCodeChallenge(codeVerifier).then(codeChallenge => {
+    const params = new HttpParams()
+      .set('response_type', 'code')
+      .set('client_id', this.clientId)
+      .set('redirect_uri', this.redirectUri)
+      .set('scope', 'openid profile read write')
+      .set('code_challenge', codeChallenge)
+      .set('code_challenge_method', 'S256');
+
+    if (this.isBrowser) {
+      window.location.href = `${this.authServerUrl}/oauth2/authorize?${params.toString()}`;
+    }
+  }).catch(error => {
+    console.error('Erro ao gerar code challenge:', error);
+  });
+}
+
+  async exchangeCodeForToken(code: string, codeVerifier?: string): Promise<void> {
+  const verifier = codeVerifier || this.getFromSessionStorage('pkce_code_verifier');
+
+  console.log('=== 🔄 TROCA DE CODE POR TOKEN ===');
+  console.log('🔑 Code verifier:', verifier ? 'PRESENTE' : 'AUSENTE');
+  console.log('🎯 Authorization code:', code);
+
+  if (!verifier) {
+    const errorMsg = 'Code verifier não encontrado na sessionStorage';
+    console.error('❌', errorMsg);
+    throw new Error(errorMsg);
+  }
+
+  const body = new HttpParams()
+    .set('grant_type', 'authorization_code')
+    .set('code', code)
+    .set('redirect_uri', this.redirectUri)
+    .set('client_id', this.clientId)
+    .set('code_verifier', verifier);
+
+  try {
+    console.log('🔄 Enviando requisição para /oauth2/token...');
+
+    const tokenResponse = await this.http
+      .post<any>(`${this.authServerUrl}/oauth2/token`, body, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        }
+      })
+      .toPromise();
+
+
+    this.removeFromSessionStorage('pkce_code_verifier');
+
+    if (tokenResponse.access_token) {
+      this.setInSessionStorage('access_token', tokenResponse.access_token);
+    }
+    if (tokenResponse.refresh_token) {
+      this.setInSessionStorage('refresh_token', tokenResponse.refresh_token);
     }
 
-    const codeVerifier = localStorage.getItem('codeVerifier')!;
+    console.log('💾 Tokens armazenados na sessionStorage');
 
-    const payload = new HttpParams()
-      .append('grant_type', 'authorization_code')
-      .append('code', code)
-      .append('redirect_uri', 'http://local-workguru.com:8000/authorized')
-      .append('code_verifier', codeVerifier);
+  } catch (error: any) {
+    console.error('❌ Erro na troca de token:');
 
-    const headers = new HttpHeaders()
-      .append('Content-Type', 'application/x-www-form-urlencoded')
-      .append('Authorization', 'Basic YW5ndWxhcjpAbmd1bEByMA==');
+    if (error.status) {
+      console.error(`📊 Status: ${error.status}`);
+      console.error(`📝 Mensagem: ${error.message}`);
+    }
+
+    if (error.error && typeof error.error === 'string') {
+      console.error('📄 Resposta (texto):', error.error.substring(0, 300));
+    }
+
+    throw error;
+  }
+}
+
+  logout(): void {
+    this.clearSessionStorage();
+    this.router.navigate(['/home']);
+  }
+
+  get jwtPayload(): UserPayload | null {
+    const token = this.getFromSessionStorage('access_token');
+    if (!token) return null;
+    try {
+      return this.jwtHelper.decodeToken(token) as UserPayload;
+    } catch (e) {
+      console.error('Erro ao decodificar token:', e);
+      return null;
+    }
+  }
+
+  isAuthenticated(): boolean {
+    const token = this.getFromSessionStorage('access_token');
+    return !!token && !this.jwtHelper.isTokenExpired(token ?? '');
+  }
+
+  getAccessToken(): string | null {
+    return this.getFromSessionStorage('access_token');
+  }
+
+  async getNewAccessToken(): Promise<string | null> {
+    const refreshToken = this.getFromSessionStorage('refresh_token');
+    if (!refreshToken) return null;
+
+    const body = new HttpParams()
+      .set('grant_type', 'refresh_token')
+      .set('refresh_token', refreshToken)
+      .set('client_id', this.clientId);
 
     try {
-      const response =
-        await this.http.post<any>(this.oauthTokenUrl, payload, { headers })
+      const tokenResponse: any = await this.http
+        .post(`${this.authServerUrl}/oauth2/token`, body, {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          withCredentials: true
+        })
         .toPromise();
-      this.storeToken(response['access_token']);
-      this.storeRefreshToken(response['refresh_token']);
-      console.log('Novo access token criado!', response);
 
-      localStorage.removeItem('state');
-      localStorage.removeItem('codeVerifier');
-      return await Promise.resolve();
-    } catch (response_1) {
-      console.error('Erro ao gerar o token com o code.', response_1);
-      return await Promise.resolve();
-    }
-  }
-
-  async getNewAccessToken(): Promise<void> {
-    const headers = new HttpHeaders()
-      .append('Content-Type', 'application/x-www-form-urlencoded')
-      .append('Authorization', 'Basic YW5ndWxhcjpAbmd1bEByMA==');
-
-    const payload = new HttpParams()
-      .append('grant_type', 'refresh_token')
-      .append('refresh_token', localStorage.getItem('refreshToken')!)
-
-    try {
-      const response = await this.http.post<any>(this.oauthTokenUrl, payload,
-        { headers })
-        .toPromise();
-      this.storeToken(response['access_token']);
-      this.storeRefreshToken(response['refresh_token']);
-      console.log('Novo access token criado!');
-      return await Promise.resolve();
-    } catch (response_1) {
-      console.error('Erro ao renovar token.', response_1);
-      return await Promise.resolve();
-    }
-  }
-
-  public storeToken(token: string) {
-    this.jwtPayload = this.jwtHelper.decodeToken(token);
-    console.log(this.jwtPayload);
-
-    localStorage.setItem('token', token);
-  }
-
-  public loadToken() {
-    const token = localStorage.getItem('token');
-
-    if (token) {
-      this.storeToken(token);
-    }
-  }
-
-  private storeRefreshToken(refreshToken: string) {
-    localStorage.setItem('refreshToken', refreshToken);
-  }
-
-  isInvalidAccessToken() {
-    const token = localStorage.getItem('token');
-    return !token || this.jwtHelper.isTokenExpired(token);
-  }
-
-  hasPermission(permission: string): boolean {
-    return this.jwtPayload && this.jwtPayload.authorities.includes(permission);
-  }
-
-  hasAnyPermission(roles: any): boolean {
-    for (const role of roles) {
-      if (this.hasPermission(role)) {
-        return true;
+      if (tokenResponse && tokenResponse.access_token) {
+        this.setInSessionStoragePrivate('access_token', tokenResponse.access_token);
       }
+      if (tokenResponse && tokenResponse.refresh_token) {
+        this.setInSessionStoragePrivate('refresh_token', tokenResponse.refresh_token);
+      }
+
+      return tokenResponse.access_token;
+    } catch (e) {
+      console.error('Erro ao renovar token:', e);
+      return null;
     }
-    return false;
   }
 
-  clearAccessToken(): void {
-    localStorage.removeItem('token');
-    this.jwtPayload = null;
+  private getFromStorage(key: string): string | null {
+  if (!this.isBrowser) return null;
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+
+  private dec2hex(dec: number): string {
+    return ('0' + dec.toString(16)).substr(-2);
   }
 
-  logout() {
-    this.clearAccessToken();
-    localStorage.clear();
-    window.location.href = 'http://localhost:8080/logout?returnTo=' + 'http://local-cstock.com:8000/';
+  public generateCodeVerifier(): string {
+  if (!this.isBrowser) {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  }
+  const array = new Uint32Array(56);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
+}
+
+public async generateCodeChallenge(codeVerifier: string): Promise<string> {
+  if (!this.isBrowser) {
+    return '';
+  }
+  const data = new TextEncoder().encode(codeVerifier);
+  const digest = await window.crypto.subtle.digest('SHA-256', data);
+  return this.base64UrlEncode(new Uint8Array(digest));
+}
+
+  private base64UrlEncode(array: Uint8Array): string {
+    if (!this.isBrowser) return '';
+    return btoa(String.fromCharCode.apply(null, Array.from(array)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
   }
 
+  public getUserRoles(): string[] {
+  const user = this.jwtPayload;
+  if (!user || !user.roles) return [];
+
+  if (Array.isArray(user.roles)) {
+    return user.roles;
+  }
+
+  if (typeof user.roles === 'string') {
+    return user.roles.split(',').map((role: string) => role.trim());
+  }
+
+  return [];
+}
+
+public hasRole(role: string): boolean {
+  const roles = this.getUserRoles();
+  return roles.includes(role);
+}
+
+public isAdmin(): boolean {
+  const roles = this.getUserRoles();
+  return roles.includes('ROLE_REGISTER_ENTERPRISE')
+}
 }

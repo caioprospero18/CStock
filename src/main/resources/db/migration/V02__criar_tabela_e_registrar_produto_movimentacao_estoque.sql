@@ -3,14 +3,16 @@ CREATE TABLE product (
 	`product_name` VARCHAR(45) NOT NULL,
 	`brand` VARCHAR(45) NOT NULL,
 	`quantity` INT NOT NULL,
-	`unity_value` DOUBLE NOT NULL,
+	`unit_value` DOUBLE NOT NULL,
 	`total_value` DOUBLE NOT NULL,
 	`enterprise_id` BIGINT(20) NOT NULL,
 	FOREIGN KEY (enterprise_id) REFERENCES enterprise(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO product (id, product_name, brand, quantity, unity_value, total_value, enterprise_id) 
-	values (1, 'Furadeira', 'Makita' , 10, 5.55, 55.5, 1); 
+INSERT INTO product (id, product_name, brand, quantity, unit_value, total_value, enterprise_id) 
+	values (1, 'Furadeira', 'Makita' , 10, 5.55, 55.5, 2); 
+INSERT INTO product (id, product_name, brand, quantity, unit_value, total_value, enterprise_id) 
+	values (2, 'Martelo', 'Sparta' , 20, 20.2, 404.0, 2); 
 
 
 	

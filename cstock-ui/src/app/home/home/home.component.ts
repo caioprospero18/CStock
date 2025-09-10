@@ -1,20 +1,120 @@
-import { Component } from '@angular/core';
-import { ProductService } from '../../products/product.service';
-import { AuthService } from '../../security/auth.service';
+import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { MessageService } from 'primeng/api';
+import { AuthService, UserPayload } from '../../security/auth.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrls: ['./home.component.css'],
 })
-export class HomeComponent {
-  constructor(
-    private auth: AuthService,
-    private productService: ProductService
-  ){}
+export class HomeComponent implements OnInit {
+  username = '';
+  password = '';
+  loading = false;
+  currentUserName = '';
+  canRegisterEnterprise = false;
 
-  login(){
-    this.auth.login();
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private messageService: MessageService
+  ) {}
+
+  ngOnInit(): void {
+    const user: UserPayload | null = this.authService.jwtPayload;
+    if (user) {
+      this.currentUserName = user.name ?? user.preferred_username ?? user.sub ?? '';
+
+      const rolesRaw = user.roles ?? (user['authorities'] ?? undefined);
+      if (Array.isArray(rolesRaw)) {
+        this.canRegisterEnterprise = rolesRaw.includes('ROLE_REGISTER_ENTERPRISE');
+      } else if (typeof rolesRaw === 'string') {
+        this.canRegisterEnterprise = rolesRaw.split(',').map(r => r.trim()).includes('ROLE_REGISTER_ENTERPRISE');
+      } else {
+        this.canRegisterEnterprise = false;
+      }
+    }
   }
 
+  async login(): Promise<void> {
+    if (!this.username || !this.password) {
+        this.messageService.add({
+            severity: 'warn',
+            summary: 'Atenção',
+            detail: 'Preencha todos os campos'
+        });
+        return;
+    }
+
+    this.loading = true;
+
+    try {
+        const codeVerifier = this.authService.generateCodeVerifier();
+        const codeChallenge = await this.authService.generateCodeChallenge(codeVerifier);
+        this.authService.setInSessionStorage('pkce_code_verifier', codeVerifier);
+
+        const redirectUrl = `http://localhost:8080/login?` +
+            `username=${encodeURIComponent(this.username)}&` +
+            `password=${encodeURIComponent(this.password)}&` +
+            `code_challenge=${encodeURIComponent(codeChallenge)}&` +
+            `code_challenge_method=S256`;
+
+        window.location.href = redirectUrl;
+
+    } catch (error) {
+        console.error('Login error:', error);
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Erro',
+            detail: 'Erro no login'
+        });
+        this.loading = false;
+    }
+}
+
+private submitFormToSpring(username: string, password: string, codeChallenge: string): void {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'http://localhost:8080/login';
+
+    const addHiddenField = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    };
+
+    addHiddenField('username', username);
+    addHiddenField('password', password);
+    addHiddenField('code_challenge', codeChallenge);
+    addHiddenField('code_challenge_method', 'S256');
+
+    console.log('Submetendo form com code_challenge:', codeChallenge);
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+  logout(): void {
+    this.authService.logout();
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Logout',
+      detail: 'Você saiu com sucesso.'
+    });
+  }
+
+  goToEnterpriseRegister(): void {
+    if (this.canRegisterEnterprise) {
+      this.router.navigate(['/enterprise/register']);
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Acesso negado',
+        detail: 'Você não possui permissão.'
+      });
+    }
+  }
 }

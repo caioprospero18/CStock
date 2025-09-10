@@ -28,8 +28,8 @@ public class Product {
 	@NotNull
 	private int quantity;
 	@NotNull
-	@Column(name = "unity_value")
-	private double unityValue;
+	@Column(name = "unit_value")
+	private double unitValue;
 	@NotNull
 	@Column(name = "total_value")
 	private double totalValue;
@@ -62,11 +62,11 @@ public class Product {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
-	public double getUnityValue() {
-		return unityValue;
+	public double getUnitValue() {
+		return unitValue;
 	}
-	public void setUnityValue(double unityValue) {
-		this.unityValue = unityValue;
+	public void setUnitValue(double unitValue) {
+		this.unitValue = unitValue;
 	}
 	public double getTotalValue() {
 		return totalValue;

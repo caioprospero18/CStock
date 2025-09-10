@@ -4,23 +4,28 @@ import { AuthorizedComponent } from './authorized/authorized.component';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthGuard } from './auth.guard';
-import { CstockHttpInterceptor } from './cstock-http.interceptor';
+import { CStockHttpInterceptor } from './cstock-http.interceptor';
+import { AuthService } from './auth.service';
+import { RedirectOauthComponent } from './redirect-oauth/redirect-oauth.component';
 
-export function tokenGetter(): string {
-  return localStorage.getItem('token')!;
+export function tokenGetter(): string | null {
+  return localStorage.getItem('access_token');
 }
 
 @NgModule({
   declarations: [
-    AuthorizedComponent
+    AuthorizedComponent,
+    RedirectOauthComponent
   ],
   imports: [
     CommonModule,
     JwtModule.forRoot({
       config: {
         tokenGetter,
-        allowedDomains: [ /localhost:8080/ ],
-        disallowedRoutes: ['http://localhost:8080/oauth2/token', 'http://localhost:8080/users'
+        allowedDomains: [/localhost:8080/],
+        disallowedRoutes: [
+          'http://localhost:8080/oauth2/token',
+          'http://localhost:8080/oauth2/authorize'
         ]
       }
     })
@@ -28,9 +33,10 @@ export function tokenGetter(): string {
   providers: [
     JwtHelperService,
     AuthGuard,
+    AuthService,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: CstockHttpInterceptor,
+      useClass: CStockHttpInterceptor,
       multi: true
     }
   ]

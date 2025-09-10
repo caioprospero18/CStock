@@ -8,11 +8,19 @@
     <div class="login">
       <h1>Login</h1>
     </div>
-    <div>
-      <input pInputText placeholder="E-mail">
-      <input pInputText placeholder="Senha">
-      <button pButton severity="info" (click)="login()">Entrar</button>
-    </div>
+    <form (click)="login(); $event.preventDefault()">
+    <input pInputText type="email" placeholder="E-mail"
+           [(ngModel)]="username" name="username" [disabled]="loading">
+    <input pInputText type="password" placeholder="Senha"
+           [(ngModel)]="password" name="password" [disabled]="loading">
+    <button pButton
+            severity="info"
+            type="submit"
+            [disabled]="loading"
+            [label]="loading ? 'Carregando...' : 'Entrar'">
+    </button>
+</form>
+
   </div>
 </main>
 

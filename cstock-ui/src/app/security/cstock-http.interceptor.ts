@@ -1,41 +1,62 @@
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Observable, from } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
-
+import { switchMap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 
 @Injectable()
-export class CstockHttpInterceptor implements HttpInterceptor {
+export class CStockHttpInterceptor implements HttpInterceptor {
+
+  private refreshInProgress: Promise<string | null> | null = null;
 
   constructor(private auth: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!req.url.includes('/oauth2/token') && !req.url.includes('/users')
-      && this.auth.isInvalidAccessToken()) {
-      // from - transformar a Promise (retornada pelo método "obterNovoAccessToken")
-      // em um Observable, que é o tipo de retorno esperado pelo intercept
-      return from(this.auth.getNewAccessToken())
-        // o método "pipe" do Observable é utilizado para ajudar a encadear outras
-        // operações neste mesmo Observable
-        .pipe(
-          // mergeMap - faz a "junção" dos dois Observable, o primeiro é o
-          // método "getNewAccessToken" e o segundo é o retorno, que vem
-          // de "handle.next(req)"
-          mergeMap(() => {
-            req = req.clone({
-              // adiciona o Header Authorization, obtendo-o do localStorage
-              setHeaders: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
-              }
-            });
-
-            return next.handle(req);
-          })
-        );
+    console.log('🔄 Interceptando requisição:', req.url);
+    if (req.url.includes('/oauth2/token')) {
+      console.log('⏭️  Pulando interceptor para endpoint de token');
+      return next.handle(req);
     }
 
-    return next.handle(req);
+    const baseHeaders: { [key: string]: string } = {
+      'Accept': 'application/json'
+    };
+
+    const token = this.auth.getAccessToken();
+    console.log('🔐 Token disponível:', token ? 'SIM' : 'NÃO');
+    if (token) {
+      console.log('📋 Token:', token.substring(0, 50) + '...');
+      baseHeaders['Authorization'] = `Bearer ${token}`;
+    }
+
+    const authReq = req.clone({
+      setHeaders: baseHeaders
+    });
+
+    if (!token && !this.refreshInProgress) {
+      this.refreshInProgress = this.auth.getNewAccessToken();
+    }
+
+    if (this.refreshInProgress) {
+      return from(this.refreshInProgress).pipe(
+        switchMap(newToken => {
+          this.refreshInProgress = null;
+
+          if (newToken) {
+            const refreshedReq = req.clone({
+              setHeaders: {
+                'Authorization': `Bearer ${newToken}`,
+                'Accept': 'application/json'
+              }
+            });
+            return next.handle(refreshedReq);
+          }
+
+          return next.handle(authReq);
+        })
+      );
+    }
+
+    return next.handle(authReq);
   }
 }

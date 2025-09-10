@@ -14,7 +14,7 @@ export class AppComponent {
 
 
   showingNavbar(): boolean {
-    return this.router.url !== '/pagina-home'
+    return this.router.url !== '/home'
   }
 
 }

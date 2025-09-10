@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login - CStock</title>
+    <script>
+        // Redireciona imediatamente para sua home do Angular
+        // Mantendo os parâmetros de error/logout
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const logout = urlParams.get('logout');
+        
+        let redirectUrl = 'http://localhost:4200/home';
+        if (error) redirectUrl += '?error=true';
+        if (logout) redirectUrl += '?logout=true';
+        
+        window.location.href = redirectUrl;
+    </script>
+</head>
+<body>
+    <p>Redirecionando para login...</p>
+</body>
+</html>

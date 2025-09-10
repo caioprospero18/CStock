@@ -11,11 +11,16 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { SecurityModule } from './security/security.module';
 import { AuthService } from './security/auth.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { CoreModule } from './core/core.module';
 import { HomeModule } from './home/home.module';
 import { ProductsModule } from './products/products.module';
 import { UsersModule } from './users/users.module';
+import { CStockHttpInterceptor } from './security/cstock-http.interceptor';
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { CallbackComponent } from './callback/callback.component';
+
 
 
 
@@ -24,12 +29,14 @@ import { UsersModule } from './users/users.module';
 @NgModule({
   declarations: [
     AppComponent,
+    CallbackComponent,
   ],
   imports: [
+    
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-
+    BrowserAnimationsModule,
     ButtonModule,
     TableModule,
     TooltipModule,
@@ -37,11 +44,12 @@ import { UsersModule } from './users/users.module';
     SecurityModule,
     CoreModule,
     HomeModule,
-    UsersModule
+    UsersModule,
+    FormsModule
 
   ],
   providers: [
-    AuthService
+    { provide: HTTP_INTERCEPTORS, useClass: CStockHttpInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

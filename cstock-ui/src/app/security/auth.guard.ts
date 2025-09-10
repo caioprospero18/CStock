@@ -1,46 +1,33 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
+  private isBrowser: boolean;
 
   constructor(
-    private auth: AuthService,
-    private router: Router
-  ) {}
-
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-
-    if (this.auth.isInvalidAccessToken()) {
-      console.log('Navegação com access token inválido. Obtendo novo token...');
-
-      return this.auth.getNewAccessToken()
-        .then(() => {
-          if (this.auth.isInvalidAccessToken()) {
-            this.auth.login();
-            return false;
-          }
-
-          return this.podeAcessarRota(next.data['roles']);
-        });
-    }
-
-    return this.podeAcessarRota(next.data['roles']);
+    private authService: AuthService,
+    private router: Router,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
   }
 
-  podeAcessarRota(roles: string[]): boolean {
-    if (roles && !this.auth.hasAnyPermission(roles)) {
-      this.router.navigate(['/not-authorized']);
-      return false;
+  canActivate(): boolean {
+    
+    if (!this.isBrowser) {
+      return true;
     }
 
-    return true;
-  }
+    if (this.authService.isAuthenticated()) {
+      return true;
+    }
 
+    this.authService.login();
+    return false;
+  }
 }

@@ -49,7 +49,7 @@ public class StockMovementService {
 	    	}
 	    	product.setQuantity(currentQuantity - movementQuantity); 
 	    } 
-	    product.setTotalValue(product.getUnityValue() * product.getQuantity());
+	    product.setTotalValue(product.getUnitValue() * product.getQuantity());
 	    productRepository.save(product);
 	    return stockMovementRepository.save(stockMovement);
 	}

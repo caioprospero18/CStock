@@ -20,4 +20,4 @@ CREATE TABLE `user`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO user (id, email, password, user_name, position, enterprise_id)
-VALUES (2, 'claudio@ficacessorios.com', '$2a$10$sC9.rkoADQh3vzWvJoqMluJb2.w9H73a8xp25vMSRFS6pPreT4NZW', 'Claudio', 'Operador de Estoque', 1);
+VALUES (2, 'claudio@ficacessorios.com', '$2a$10$sC9.rkoADQh3vzWvJoqMluJb2.w9H73a8xp25vMSRFS6pPreT4NZW', 'Claudio', 'OPERATOR', 1);

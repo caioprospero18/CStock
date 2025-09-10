@@ -39,5 +39,9 @@ button{
   height: 6vh;
   border: none;
   font-size: 1.3rem;
+}
 
+button:hover{
+  background-color: rgb(100, 138, 128) !important;
+  border-color: rgb(100, 138, 128) !important;
 }

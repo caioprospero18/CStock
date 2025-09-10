@@ -13,12 +13,21 @@ import { ProductUpdateComponent } from './products/product-update/product-update
 import { UserRegisterComponent } from './users/user-register/user-register.component';
 import { UserUpdateComponent } from './users/user-update/user-update.component';
 import { EnterpriseUpdateComponent } from './enterprises/enterprise-update/enterprise-update.component';
+import { CallbackComponent } from './callback/callback.component';
+import { RedirectOauthComponent } from './security/redirect-oauth/redirect-oauth.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent},
+
+  { path: 'home', component: HomeComponent },
+
+  { path: 'callback', component: CallbackComponent },
+
+   { path: 'redirect-oauth', component: RedirectOauthComponent },
+
   { path: 'enterprises/new', component: EnterpriseRegisterComponent },
   { path: 'users/new', component: UserRegisterComponent },
+
   {
     path: 'products/:id',
     component: ProductRegisterComponent,
@@ -65,7 +74,8 @@ const routes: Routes = [
   { path: 'authorized', component: AuthorizedComponent },
   { path: 'page-not-found', component: PageNotFoundComponent },
   { path: 'not-authorized', component: NotAuthorizedComponent },
-  { path: '**', redirectTo: 'page-not-found'} // importante que seja a última rota
+
+  { path: '**', redirectTo: 'page-not-found'}
 ];
 
 @NgModule({

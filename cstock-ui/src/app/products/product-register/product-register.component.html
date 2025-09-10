@@ -1,1 +1,36 @@
-<p>product-register works!</p>
+<div class="container">
+  <form #f="ngForm" autocomplete="off" (ngSubmit)="save(f)">
+    <div class="p-grid" >
+      <div class="p-col-12">
+        <h1>Cadastrar produto</h1>
+      </div>
+        <div class="p-col-12 p-md-6 p-fluid" id="name">
+          <label>Nome*</label>
+          <input pInputText name="name" type="text"
+          [(ngModel)]="product.productName" #name="ngModel" required>
+        </div>
+        <div class="inputs">
+          <div class="p-col-12 p-md-6 p-fluid">
+            <label>Marca*</label>
+            <input pInputText name="brand" type="text"
+            [(ngModel)]="product.brand" #brand="ngModel" required>
+          </div>
+          <div class="p-col-12 p-md-6 p-fluid">
+            <label>Quantidade*</label>
+            <input pInputText name="quantity" type="text"
+            [(ngModel)]="product.quantity" #quantity="ngModel" required>
+          </div>
+          <div class="p-col-12 p-md-6 p-fluid">
+            <label>Valor da unidade*</label>
+            <input pInputText name="unitValue" type="text"
+            [(ngModel)]="product.unitValue" #unitValue="ngModel" required>
+          </div>
+        </div>
+      </div>
+      <div class="button-container">
+        <button pButton type="submit" label="Cadastrar" id="submit"></button>
+        <button pButton type="button" label="Cancelar"
+                class="p-button-secondary" (click)="cancel()"></button>
+      </div>
+  </form>
+</div>

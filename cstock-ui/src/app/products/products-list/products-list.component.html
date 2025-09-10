@@ -1,1 +1,60 @@
-<p>products-list works!</p>
+<div class="list">
+  <div class="products-container">
+    <p-table [value]="products" responsiveLayout="stack" [breakpoint]="'768px'">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Marca</th>
+          <th>Quantidade</th>
+          <th>Valor unitário</th>
+          <th>Valor total</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-product>
+        <tr>
+          <td>{{ product.id }}</td>
+          <td>{{ product.productName }}</td>
+          <td>{{ product.brand }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>R$ {{ product.unitValue }}</td>
+          <td>R$ {{ product.totalValue }}</td>
+          <td>
+            <a href="/products/update">Alterar</a>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="custom-table-empty">
+            <p>Nenhum produto cadastrado.</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="fixed-footer-buttons">
+    <button pButton label="Registrar produto" (click)="showRegisterForm()"></button>
+    <a pButton label="Registrar saída"></a>
+    <a pButton label="Registrar entrada"></a>
+    <a pButton label="Registrar pedido"></a>
+    <a pButton label="Registrar usuário"></a>
+    <a pButton label="Registrar empresa"></a>
+  </div>
+</div>
+
+<p-confirmDialog
+  [style]="{width: '600px'}"
+  [baseZIndex]="10000">
+</p-confirmDialog>
+
+<div class="form-overlay" [class.visible]="showForm">
+  <div class="form-container">
+    <app-product-register
+      (onSave)="onProductSaved($event)"
+      (onCancel)="showForm = false">
+    </app-product-register>
+  </div>
+</div>

@@ -1,5 +1,9 @@
 <nav class="navbar">
 
+  <div>
+    <a>CStock</a>
+  </div>
+
   <div class="container">
     <div class="p-grid">
       <div class="p-col-12">
@@ -10,9 +14,8 @@
   </div>
 
   <ul class="navbar-menu" [hidden]="!displayingMenu">
-    <li class="navbar-user">{{ auth.jwtPayload?.name }}</li>
-    <li class="navbar-menuitem"><a href="#">Estatísticas</a></li>
-    <li class="navbar-menuitem"><a href="javascript:;" (click)="logout()">Logout</a></li>
+    <li class="navbar-user">{{ auth.jwtPayload?.preferred_username }}</li>
+    <li class="navbar-menuitem"><a href="javascript:;" (click)="auth.logout()">Logout</a></li>
   </ul>
 
 </nav>

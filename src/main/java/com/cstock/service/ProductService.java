@@ -27,18 +27,17 @@ public class ProductService {
 	private UserRepository userRepository;
 	
 	public Product save(Product product) {
-		Optional<User> user = userRepository.findById(product.getId());
-		if(!user.isPresent()) {
-			throw new NonExistentUserException();
-		}
-		product.setTotalValue(product.getUnityValue() * product.getQuantity());
+		if (product.getEnterprise() == null || product.getEnterprise().getId() == null) {
+	        throw new IllegalArgumentException("Empresa é obrigatória");
+	    }
+		product.setTotalValue(product.getUnitValue() * product.getQuantity());
 		return productRepository.save(product);
 	}
 	
 	public Product update(Long id, Product product) {
 		Product productSaved = findProductById(id);
 		BeanUtils.copyProperties(product, productSaved, "id");
-		productSaved.setTotalValue(productSaved.getUnityValue() * productSaved.getQuantity());
+		productSaved.setTotalValue(productSaved.getUnitValue() * productSaved.getQuantity());
 		return productRepository.save(productSaved);	
 	}
 	

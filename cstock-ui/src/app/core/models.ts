@@ -56,8 +56,8 @@ export class Product {
       brand: product.brand,
       quantity: product.quantity,
       unitValue: product.unitValue,
-      totalValue: product.totalValue,
-      enterprise: product.enterprise
+      totalValue: product.quantity * product.unitValue,
+      enterprise: product.enterprise ? { id: product.enterprise.id } : null
     }
   }
 }

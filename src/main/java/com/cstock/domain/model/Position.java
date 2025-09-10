@@ -1,6 +1,7 @@
 package com.cstock.domain.model;
 
 public enum Position {
+	ADMIN("Admin"),
 	CEO("Presidente"),
 	MANAGER("Gerente de Estoque"),
 	OPERATOR("Operador de Estoque"),
