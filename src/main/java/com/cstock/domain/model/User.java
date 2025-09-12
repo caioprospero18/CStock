@@ -39,7 +39,7 @@ public class User {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	private Position position;
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "enterprise_id")
 	private Enterprise enterprise;
 	@ManyToMany(fetch = FetchType.EAGER)

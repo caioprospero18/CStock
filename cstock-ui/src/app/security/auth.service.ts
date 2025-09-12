@@ -24,6 +24,7 @@ export class AuthService {
   private clientId = environment.clientId;
   private jwtHelper = new JwtHelperService();
   private isBrowser: boolean;
+  private userInfoData: any = null;
 
   constructor(
     private http: HttpClient,
@@ -32,6 +33,21 @@ export class AuthService {
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
+
+  async loadUserInfo(): Promise<void> {
+  this.userInfoData = await this.getUserInfo();
+}
+
+get userDisplayName(): string {
+  if (this.userInfoData?.name) return this.userInfoData.name;
+  if (this.userInfoData?.preferred_username) return this.userInfoData.preferred_username;
+
+  if (this.jwtPayload?.name) return this.jwtPayload.name;
+  if (this.jwtPayload?.preferred_username) return this.jwtPayload.preferred_username;
+  if (this.jwtPayload?.sub) return this.jwtPayload.sub;
+
+  return 'Usuário';
+}
 
   debugToken() {
   const token = this.getFromSessionStorage('access_token');
@@ -106,6 +122,65 @@ export class AuthService {
   });
 }
 
+async getUserInfo(): Promise<any> {
+  const token = this.getAccessToken();
+  if (!token) {
+    console.log('❌ Nenhum token disponível');
+    return null;
+  }
+
+  try {
+    const response = await this.http.get<any>(`${this.authServerUrl}/userinfo`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    }).toPromise();
+
+    console.log('✅ UserInfo response:', response);
+    return response;
+  } catch (error: any) {
+    console.error('❌ Erro ao buscar UserInfo:');
+    if (error.status) {
+      console.error(`Status: ${error.status}`);
+      console.error(`Mensagem: ${error.error?.error_description || error.message}`);
+    }
+    return null;
+  }
+}
+
+async debugUserInfo(): Promise<void> {
+  console.log('🔍 Debugando UserInfo endpoint...');
+
+  const token = this.getAccessToken();
+  if (!token) {
+    console.log('❌ Nenhum token disponível');
+    return;
+  }
+
+  try {
+    const response = await this.http.get<any>(`${this.authServerUrl}/userinfo`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json'
+      }
+    }).toPromise();
+
+    console.log('🎉 UserInfo COMPLETO:', response);
+    console.log('📋 TODOS os campos:', Object.keys(response));
+
+    const possibleNameFields = ['name', 'preferred_username', 'given_name', 'family_name', 'full_name', 'username', 'email'];
+    possibleNameFields.forEach(field => {
+      if (response[field]) {
+        console.log(`✅ Campo "${field}":`, response[field]);
+      }
+    });
+
+  } catch (error: any) {
+    console.error('❌ Erro ao buscar UserInfo:', error);
+  }
+}
+
   async exchangeCodeForToken(code: string, codeVerifier?: string): Promise<void> {
   const verifier = codeVerifier || this.getFromSessionStorage('pkce_code_verifier');
 
@@ -118,6 +193,7 @@ export class AuthService {
     console.error('❌', errorMsg);
     throw new Error(errorMsg);
   }
+
 
   const body = new HttpParams()
     .set('grant_type', 'authorization_code')
@@ -141,6 +217,10 @@ export class AuthService {
 
     this.removeFromSessionStorage('pkce_code_verifier');
 
+    if (tokenResponse.access_token) {
+      this.setInSessionStorage('access_token', tokenResponse.access_token);
+      await this.loadUserInfo();
+    }
     if (tokenResponse.access_token) {
       this.setInSessionStorage('access_token', tokenResponse.access_token);
     }

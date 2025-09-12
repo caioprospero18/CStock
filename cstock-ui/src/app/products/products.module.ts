@@ -27,9 +27,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ProductUpdateComponent
   ],
  imports: [
+    CommonModule,
     ConfirmDialogModule,
-    BrowserModule,
-    BrowserAnimationsModule,
     FormsModule,
     InputTextModule,
     ButtonModule,

@@ -15,7 +15,7 @@ export interface ProductFilter {
 export class ProductService {
 
   productsUrl = 'http://localhost:8080/products';
-  email: any;
+
 
   constructor(
     private http: HttpClient,
@@ -48,15 +48,23 @@ export class ProductService {
 
 
   listByEnterprise(): Promise<any> {
-    this.email = this.auth.jwtPayload?.sub;
-    return this.http.get(`${this.productsUrl}/product/${this.email}`)
-      .toPromise()
-      .then(response => {
-        return response;
-      });
+  const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
+
+  if (!enterpriseId) {
+    return Promise.reject('Enterprise ID não encontrado no token');
   }
 
+  return this.http.get(`${this.productsUrl}/enterprise/${enterpriseId}`)
+    .toPromise()
+    .then(response => {
+      return response;
+    });
+}
+
   add(product: Product): Promise<Product> {
+    const productToSend = Product.toJson(product);
+    console.log('Enviando product:', productToSend);
+    console.log('Enterprise ID sendo enviado:', productToSend.enterprise?.id);
     const headers = new HttpHeaders()
       .append('Content-Type', 'application/json');
 

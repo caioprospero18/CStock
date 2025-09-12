@@ -9,7 +9,8 @@ import { Product } from '../../core/models';
 @Component({
   selector: 'app-products-list',
   templateUrl: './products-list.component.html',
-  styleUrl: './products-list.component.css'
+  styleUrl: './products-list.component.css',
+  standalone: false
 })
 export class ProductsListComponent {
 

@@ -11,12 +11,13 @@ import { NgForm } from '@angular/forms';
 @Component({
   selector: 'app-product-register',
   templateUrl: './product-register.component.html',
-  styleUrl: './product-register.component.css'
+  styleUrl: './product-register.component.css',
+  standalone: false
 })
 export class ProductRegisterComponent {
   @Output() onSave = new EventEmitter<any>();
   @Output() onCancel = new EventEmitter<void>();
-  product = new Product(this.auth.jwtPayload?.user_id || 0);
+  product = new Product(this.auth.jwtPayload?.['enterprise_id'] || 0);
 
   constructor(
     private productService: ProductService,
@@ -28,6 +29,9 @@ export class ProductRegisterComponent {
     private title: Title){}
 
     ngOnInit(): void {
+      console.log('Product ao inicializar:', this.product);
+      console.log('Enterprise ID:', this.product.enterprise?.id);
+      console.log('JWT Payload:', this.auth.jwtPayload);
       const id = this.route.snapshot.params[`id`];
       if(id !== undefined && id !== "new"){
         this.loadProduct(id);
