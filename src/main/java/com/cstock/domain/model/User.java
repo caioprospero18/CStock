@@ -1,7 +1,12 @@
 package com.cstock.domain.model;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +44,11 @@ public class User {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	private Position position;
+	@JsonFormat(pattern = "dd/MM/yyyy")
+	@JsonProperty("birthDate")
+	@NotNull
+	@Column(name = "birth_date")
+	private LocalDate birthDate;
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "enterprise_id")
 	private Enterprise enterprise;
@@ -47,6 +57,7 @@ public class User {
 	inverseJoinColumns = @JoinColumn(name = "permission_id"))
 	private List<Permission> permission;
 	@OneToMany(mappedBy = "user")
+	@JsonIgnore
 	private List<StockMovement> stockMovement;
 	public Long getId() {
 		return id;
@@ -95,6 +106,12 @@ public class User {
 	}
 	public void setStockMovement(List<StockMovement> stockMovement) {
 		this.stockMovement = stockMovement;
+	}
+	public LocalDate getBirthDate() {
+		return birthDate;
+	}
+	public void setBirthDate(LocalDate birthDate) {
+		this.birthDate = birthDate;
 	}
 	@Override
 	public int hashCode() {

@@ -5,7 +5,6 @@ import { AuthService } from '../../security/auth.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Title } from '@angular/platform-browser';
 import { NgForm } from '@angular/forms';
 
 @Component({
@@ -25,18 +24,13 @@ export class ProductRegisterComponent {
     private errorHandler: ErrorHandlerService,
     private messageService: MessageService,
     private route: ActivatedRoute,
-    private router: Router,
-    private title: Title){}
+    private router: Router){}
 
     ngOnInit(): void {
-      console.log('Product ao inicializar:', this.product);
-      console.log('Enterprise ID:', this.product.enterprise?.id);
-      console.log('JWT Payload:', this.auth.jwtPayload);
       const id = this.route.snapshot.params[`id`];
       if(id !== undefined && id !== "new"){
         this.loadProduct(id);
       }
-      this.title.setTitle('Cadastro de Produtos');
     }
 
     get editing(): boolean {

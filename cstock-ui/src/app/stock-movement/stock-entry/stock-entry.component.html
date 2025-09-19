@@ -1,1 +1,48 @@
-<p>stock-entry works!</p>
+<form #f="ngForm" autocomplete="off" (ngSubmit)="save(f)">
+  <div class="p-col-12 p-md-6 p-fluid">
+    <h1>Registrar entrada de produto</h1>
+    <label for="productId">ID do Produto*</label>
+    <p-inputNumber
+      id="productId"
+      [(ngModel)]="productId"
+      name="productId"
+      required
+      min="1"
+      (onInput)="searchProduct()"
+      placeholder="Digite o ID do produto">
+    </p-inputNumber>
+
+    <p-autoComplete
+      [(ngModel)]="selectedProduct"
+      name="selectedProduct"
+      [suggestions]="filteredProducts"
+      optionLabel="productName"
+      (completeMethod)="searchProductByName($event)"
+      (onSelect)="onProductSelect($event)"
+      placeholder="Ou busque pelo nome">
+    </p-autoComplete>
+
+    <label>Quantidade*</label>
+    <p-inputNumber id="quantity"
+                [(ngModel)]="stockMovement.quantity"
+                name="quantity"
+                required
+                min="1">
+    </p-inputNumber>
+  </div>
+
+  <div class="p-col-12" *ngIf="product">
+    <p-card header="Produto Selecionado">
+      <p><strong>ID:</strong> {{ product.id }}</p>
+      <p><strong>Nome:</strong> {{ product.productName }}</p>
+      <p><strong>Marca:</strong> {{ product.brand }}</p>
+      <p><strong>Estoque Atual:</strong> {{ product.quantity }}</p>
+    </p-card>
+  </div>
+
+  <div class="button-container">
+          <button pButton type="submit" label="Cadastrar" id="submit"></button>
+          <button pButton type="button" label="Cancelar"
+                  class="p-button-secondary" (click)="cancel()"></button>
+  </div>
+</form>

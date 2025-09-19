@@ -14,6 +14,8 @@ import com.cstock.domain.model.User;
 import com.cstock.repository.PermissionRepository;
 import com.cstock.repository.UserRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 	
@@ -50,7 +52,11 @@ public class UserService {
 		User userSaved = userRepository.findById(id).orElseThrow(() -> new EmptyResultDataAccessException(1));
 		return userSaved;
 	}
-
+	
+	public User findByEmail(String email) {
+	    return userRepository.findByEmail(email)
+	        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com email: " + email));
+	}
 
 }
 

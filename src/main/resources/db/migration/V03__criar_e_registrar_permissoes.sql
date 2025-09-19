@@ -12,7 +12,7 @@ CREATE TABLE user_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- senha admin
-INSERT INTO user (id, email, password, user_name, position, enterprise_id) values (1, 'admin@cstock.com', '$2a$10$X607ZPhQ4EgGNaYKt3n4SONjIv9zc.VMWdEuhCuba7oLAL5IvcL5.', 'Admin', 'ADMIN', 1);
+INSERT INTO user (id, email, password, user_name, position, birth_date, enterprise_id) values (1, 'admin@cstock.com', '$2a$10$X607ZPhQ4EgGNaYKt3n4SONjIv9zc.VMWdEuhCuba7oLAL5IvcL5.', 'Admin', 'ADMIN','2025/01/06', 1);
 
 -- usuario
 INSERT INTO permission (id, description) values (1, 'ROLE_REGISTER_ENTERPRISE');

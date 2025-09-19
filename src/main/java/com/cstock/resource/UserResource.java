@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cstock.domain.model.Enterprise;
 import com.cstock.domain.model.User;
+import com.cstock.repository.EnterpriseRepository;
 import com.cstock.repository.UserRepository;
 import com.cstock.service.UserService;
 
@@ -33,6 +38,9 @@ public class UserResource {
 	
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private EnterpriseRepository enterpriseRepository;
 
 	@GetMapping
 	@PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
@@ -40,11 +48,30 @@ public class UserResource {
 		return userRepository.findAll();
 	}
 	
+	@GetMapping("/by-email/{email}")
+	@PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
+	public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+	    User user = userService.findByEmail(email);
+	    if (user != null) {
+	        return ResponseEntity.ok(user);
+	    }
+	    return ResponseEntity.notFound().build();
+	}
+	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")
 	public User create(@Valid @RequestBody User user, HttpServletResponse response) {
-		return userRepository.save(user);
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    Jwt jwt = (Jwt) authentication.getPrincipal();
+	    Long enterpriseId = jwt.getClaim("enterprise_id"); 
+
+	    Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
+	            .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+
+	    user.setEnterprise(enterprise);
+
+	    return userRepository.save(user);
 	}
 	
 	@GetMapping("/{id}")

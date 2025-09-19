@@ -271,36 +271,66 @@ async debugUserInfo(): Promise<void> {
     return this.getFromSessionStorage('access_token');
   }
 
-  async getNewAccessToken(): Promise<string | null> {
-    const refreshToken = this.getFromSessionStorage('refresh_token');
-    if (!refreshToken) return null;
-
-    const body = new HttpParams()
-      .set('grant_type', 'refresh_token')
-      .set('refresh_token', refreshToken)
-      .set('client_id', this.clientId);
-
+  debugCompleteJwtPayload(): void {
+  const token = this.getAccessToken();
+  if (token) {
     try {
-      const tokenResponse: any = await this.http
-        .post(`${this.authServerUrl}/oauth2/token`, body, {
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          withCredentials: true
-        })
-        .toPromise();
+      const payload = this.jwtHelper.decodeToken(token);
+      console.log('🔍 JWT Payload COMPLETO:', payload);
 
-      if (tokenResponse && tokenResponse.access_token) {
-        this.setInSessionStoragePrivate('access_token', tokenResponse.access_token);
-      }
-      if (tokenResponse && tokenResponse.refresh_token) {
-        this.setInSessionStoragePrivate('refresh_token', tokenResponse.refresh_token);
-      }
+      Object.keys(payload).forEach(key => {
+        if (key.toLowerCase().includes('id') ||
+            key.toLowerCase().includes('user') ||
+            key.toLowerCase().includes('sub')) {
+          console.log(`✅ ${key}:`, payload[key]);
+        }
+      });
 
-      return tokenResponse.access_token;
     } catch (e) {
-      console.error('Erro ao renovar token:', e);
-      return null;
+      console.error('Erro ao decodificar token:', e);
     }
   }
+}
+
+  async getNewAccessToken(): Promise<string | null> {
+  const refreshToken = this.getFromSessionStorage('refresh_token');
+  console.log('🔄 Tentando renovar token. Refresh token presente:', !!refreshToken);
+
+  if (!refreshToken) {
+    console.log('❌ Refresh token não encontrado');
+    return null;
+  }
+
+  const body = new HttpParams()
+    .set('grant_type', 'refresh_token')
+    .set('refresh_token', refreshToken)
+    .set('client_id', this.clientId);
+
+  try {
+    console.log('🔄 Enviando refresh request...');
+
+    const tokenResponse: any = await this.http
+      .post(`${this.authServerUrl}/oauth2/token`, body, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+      .toPromise();
+
+    console.log('✅ Token renovado com sucesso');
+
+    if (tokenResponse?.access_token) {
+      this.setInSessionStorage('access_token', tokenResponse.access_token);
+    }
+    if (tokenResponse?.refresh_token) {
+      this.setInSessionStorage('refresh_token', tokenResponse.refresh_token);
+    }
+
+    return tokenResponse?.access_token || null;
+
+  } catch (error: any) {
+    console.error('❌ Erro ao renovar token:', error);
+    return null;
+  }
+}
 
   private getFromStorage(key: string): string | null {
   if (!this.isBrowser) return null;

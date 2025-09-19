@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +22,7 @@ import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "stock_movement")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StockMovement {
 	@Id
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
@@ -36,7 +38,6 @@ public class StockMovement {
 	@NotNull
 	@Min(1)
 	private int quantity;
-	@NotNull
 	private String observation;
 	@ManyToOne
 	@JoinColumn(name = "user_id")

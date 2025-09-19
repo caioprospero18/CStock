@@ -1,17 +1,13 @@
 package com.cstock.domain.model;
 
-public enum MovementType {
-	EXIT("Exit"),
-	ENTRY("Entry");
-	
-	private String movementType;
-	
-	private MovementType(String movementType) {
-		this.movementType = movementType;
-	}
-	
-	public String getMovementType() {
-		return movementType;
-	}
+import com.fasterxml.jackson.annotation.JsonCreator;
 
+public enum MovementType {
+    EXIT,
+    ENTRY;
+    
+    @JsonCreator
+    public static MovementType fromString(String value) {
+        return MovementType.valueOf(value.toUpperCase());
+    }
 }

@@ -62,9 +62,6 @@ export class ProductService {
 }
 
   add(product: Product): Promise<Product> {
-    const productToSend = Product.toJson(product);
-    console.log('Enviando product:', productToSend);
-    console.log('Enterprise ID sendo enviado:', productToSend.enterprise?.id);
     const headers = new HttpHeaders()
       .append('Content-Type', 'application/json');
 
@@ -102,5 +99,12 @@ export class ProductService {
       });
   }
 
+  findAll(): Promise<Product[]> {
+  return this.http.get<Product[]>(this.productsUrl)
+    .toPromise()
+    .then(response => {
+      return response || [];
+    });
+}
 
 }

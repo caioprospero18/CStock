@@ -1,0 +1,53 @@
+<div class="p-fluid">
+  <h2>Registrar Pedido de Compra</h2>
+
+  <div class="p-field">
+    <label for="product">Produto*</label>
+    <p-dropdown [options]="products" [(ngModel)]="selectedProduct"
+                optionLabel="productName" placeholder="Selecione o produto">
+    </p-dropdown>
+  </div>
+
+  <div class="p-field">
+    <label for="quantity">Quantidade*</label>
+    <p-inputNumber [(ngModel)]="quantity" min="1" mode="decimal">
+    </p-inputNumber>
+  </div>
+
+  <div class="p-field">
+    <label for="supplier">Email do Fornecedor</label>
+    <input type="email" pInputText [(ngModel)]="supplierEmail"
+           placeholder="fornecedor@email.com">
+  </div>
+
+  <div class="p-field">
+    <label for="observation">Observações</label>
+    <textarea pInputTextarea [(ngModel)]="observation" rows="3"
+              placeholder="Informações adicionais..."></textarea>
+  </div>
+
+  <div class="button-group">
+    <button pButton label="Abrir no Email"
+            (click)="openEmailClient()"
+            [disabled]="!selectedProduct">
+    </button>
+
+    <button pButton label="Enviar Email Direto"
+            (click)="sendEmail()"
+            [disabled]="!selectedProduct"
+            class="p-button-success">
+    </button>
+
+    <button pButton type="button" label="Cancelar"
+                class="p-button-secondary" (click)="cancel()"></button>
+  </div>
+
+  <div *ngIf="selectedProduct" class="email-preview">
+    <h4>Preview do Email:</h4>
+    <div class="preview-content">
+      <p><strong>Para:</strong> {{ supplierEmail }}</p>
+      <p><strong>Assunto:</strong> {{ generateEmail()?.subject }}</p>
+      <pre>{{ generateEmail()?.body }}</pre>
+    </div>
+  </div>
+</div>

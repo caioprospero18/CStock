@@ -1,1 +1,56 @@
-<p>user-register works!</p>
+<div class="container">
+  <form #f="ngForm" autocomplete="off" (ngSubmit)="save(f)">
+
+    <div class="p-grid" >
+      <div class="p-col-12">
+        <h1>Cadastrar usuário</h1>
+      </div>
+
+        <div class="p-col-12 p-md-6 p-fluid" id="name">
+          <label>Nome completo*</label>
+          <input pInputText name="name" type="text"
+          [(ngModel)]="user.userName" #name="ngModel" required minlength="3" maxlength="50">
+          <app-message [control]="name" error="required" text="Informe um nome"></app-message>
+          <app-message [control]="name" error="minlength"
+              text="Mínimo de {{ name.errors?.minlength?.requiredLength }} caracteres. Você digitou apenas {{ name.errors?.minlength?.actualLength }}"></app-message>
+        </div>
+
+          <div class="p-col-12 p-md-3 p-fluid" id="email">
+            <label>E-mail*</label>
+            <input pInputText name="email" type="email"
+            [(ngModel)]="user.email" #email="ngModel" required>
+            <app-message [control]="email" error="required" text="Informe um e-mail"></app-message>
+          </div>
+
+
+          <div class="p-col-12 p-md-3 p-fluid">
+            <label>Senha*</label>
+            <input pInputText name="password" type="password"
+            [(ngModel)]="user.password" #password="ngModel" required minlength="6" maxlength="8">
+            <app-message [control]="password" error="required" text="Informe uma senha de 6 a 8 caracteres."></app-message>
+            <app-message [control]="password" error="minlength"
+            text="Mínimo de {{ password.errors?.minlength?.requiredLength }} caracteres. Você digitou apenas {{ password.errors?.minlength?.actualLength }}"></app-message>
+          </div>
+        </div>
+      <div>
+        <div class="p-col-12 p-md-6 p-fluid" id="gender">
+          <label>Cargo*</label>
+          <p-dropdown name="position"  [options]="positions" placeholder="Selecione"
+          [(ngModel)]="user.position" #gender="ngModel" required=""></p-dropdown>
+        </div>
+      </div>
+
+        <div class="p-col-12 p-md-6 p-fluid" >
+          <label>Data de nascimento*</label>
+          <p-calendar  icon="pi pi-calendar" name="birthDate" dateFormat="dd/mm/yy" [inline]="false"
+          appendTo="body" [(ngModel)]="user.birthDate" #birthDate="ngModel" required></p-calendar>
+          <app-message [control]="birthDate" error="required" text="Informe uma data"></app-message>
+
+    </div>
+    <div class="button-container">
+          <button pButton type="submit" label="Cadastrar" id="submit"></button>
+          <button pButton type="button" label="Cancelar"
+                  class="p-button-secondary" (click)="cancel()"></button>
+    </div>
+  </form>
+</div>

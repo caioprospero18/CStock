@@ -1,0 +1,15 @@
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.button-container .p-button:first-child{
+  background-color: rgb(0, 128, 94) !important;
+  border-color: rgb(120, 158, 148) !important;
+}
+
+.button-container .p-button:first-child:hover{
+  background-color: rgb(100, 138, 128) !important;
+  border-color: rgb(100, 138, 128) !important;
+}

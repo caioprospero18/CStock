@@ -37,24 +37,92 @@
 
   <div class="fixed-footer-buttons">
     <button pButton label="Registrar produto" (click)="showRegisterForm()"></button>
-    <a pButton label="Registrar saída"></a>
-    <a pButton label="Registrar entrada"></a>
-    <a pButton label="Registrar pedido"></a>
-    <a pButton label="Registrar usuário"></a>
+    <button pButton label="Registrar saída" (click)="showStockExitForm()"></button>
+    <button pButton label="Registrar entrada" (click)="showStockEntryForm()"></button>
+    <button pButton label="Registrar pedido" (click)="showOrderRequestForm()"></button>
+    <a pButton label="Registrar usuário" (click)="showRegisterUserForm()"></a>
     <a pButton label="Registrar empresa"></a>
   </div>
 </div>
 
-<p-confirmDialog
-  [style]="{width: '600px'}"
-  [baseZIndex]="10000">
-</p-confirmDialog>
+<div class="form-product-register">
+  <p-confirmDialog
+    [style]="{width: '600px'}"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
 
-<div class="form-overlay" [class.visible]="showForm">
-  <div class="form-container">
-    <app-product-register
-      (onSave)="onProductSaved($event)"
-      (onCancel)="showForm = false">
-    </app-product-register>
+  <div class="form-overlay" [class.visible]="showProductForm">
+    <div class="form-container">
+      <app-product-register
+        (onSave)="onProductSaved($event)"
+        (onCancel)="showProductForm = false">
+      </app-product-register>
+    </div>
   </div>
 </div>
+
+<div class="form-stock-entry">
+  <p-confirmDialog
+    [style]="{width: '600px'}"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showEntryForm">
+    <div class="form-container">
+      <app-stock-entry
+        (onSave)="onEntrySaved($event)"
+        (onCancel)="showEntryForm = false">
+      </app-stock-entry>
+    </div>
+  </div>
+</div>
+
+<div class="form-stock-exit">
+  <p-confirmDialog
+    [style]="{width: '600px'}"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showExitForm">
+    <div class="form-container">
+      <app-stock-exit
+        (onSave)="onExitSaved($event)"
+        (onCancel)="showExitForm = false">
+      </app-stock-exit>
+    </div>
+  </div>
+</div>
+
+<div class="form-order-request">
+  <p-confirmDialog
+    [style]="{width: '600px'}"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showOrderForm">
+    <div class="form-container">
+      <app-order-request
+        (onSave)="onOrderRequestSaved($event)"
+        (onCancel)="showOrderForm = false">
+      </app-order-request>
+    </div>
+  </div>
+</div>
+
+<div class="form-register-user">
+  <p-confirmDialog
+    styleClass="custom-confirm-dialog"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showUserForm">
+    <div class="form-container">
+      <app-user-register
+        (onSave)="onRegisterUserSaved($event)"
+        (onCancel)="showUserForm = false">
+      </app-user-register>
+    </div>
+  </div>
+</div>
+
+

@@ -8,8 +8,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { SharedModule } from 'primeng/api';
 import { RouterModule } from '@angular/router';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { CardModule } from 'primeng/card';
+import { InputNumberModule } from 'primeng/inputnumber';
+
 
 
 
@@ -20,14 +23,16 @@ import { RouterModule } from '@angular/router';
   ],
   imports: [
     CommonModule,
-    ConfirmDialogModule,
     FormsModule,
-    InputTextModule,
+    InputNumberModule,
+    AutoCompleteModule,
+    CardModule,
     ButtonModule,
-    TableModule,
-    TooltipModule,
-    SharedModule,
-    RouterModule
+    InputTextModule
+  ],
+  exports:[
+    StockEntryComponent,
+    StockExitComponent
   ]
 })
 export class StockMovementModule { }

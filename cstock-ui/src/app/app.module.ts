@@ -1,3 +1,4 @@
+import { StockMovementModule } from './stock-movement/stock-movement.module';
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 
@@ -20,6 +21,8 @@ import { CStockHttpInterceptor } from './security/cstock-http.interceptor';
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CallbackComponent } from './callback/callback.component';
+import { OrderRequestModule } from './order-request/order-request.module';
+
 
 
 
@@ -29,10 +32,10 @@ import { CallbackComponent } from './callback/callback.component';
 @NgModule({
   declarations: [
     AppComponent,
-    CallbackComponent,
+    CallbackComponent
   ],
   imports: [
-    
+
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
@@ -45,7 +48,9 @@ import { CallbackComponent } from './callback/callback.component';
     CoreModule,
     HomeModule,
     UsersModule,
-    FormsModule
+    FormsModule,
+    StockMovementModule,
+    OrderRequestModule
 
   ],
   providers: [

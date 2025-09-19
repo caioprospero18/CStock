@@ -14,7 +14,11 @@ import { Product } from '../../core/models';
 })
 export class ProductsListComponent {
 
-  showForm = false;
+  showProductForm = false;
+  showEntryForm = false;
+  showExitForm = false;
+  showOrderForm = false;
+  showUserForm = false;
   productName ? : string
   brand ? : string
   products = [];
@@ -77,12 +81,47 @@ export class ProductsListComponent {
   }
 
   onProductSaved(savedProduct: any) {
-    this.showForm = false;
+    this.showProductForm = false;
     this.search();
   }
 
   showRegisterForm() {
-    this.showForm = true;
+    this.showProductForm = true;
   }
 
+  showStockEntryForm(){
+    this.showEntryForm = true;
+  }
+
+  onEntrySaved(savedStockMovement: any) {
+    this.showEntryForm = false;
+    this.search();
+  }
+
+  showStockExitForm(){
+    this.showExitForm = true;
+  }
+
+  onExitSaved(savedStockMovement: any) {
+    this.showExitForm = false;
+    this.search();
+  }
+
+  showOrderRequestForm(){
+    this.showOrderForm = true;
+  }
+
+  onOrderRequestSaved(savedOrderRequest: any) {
+    this.showOrderForm = false;
+    this.search();
+  }
+
+  showRegisterUserForm(){
+    this.showUserForm = true;
+  }
+
+  onRegisterUserSaved(savedRegisterUser: any) {
+    this.showUserForm = false;
+    this.search();
+  }
 }

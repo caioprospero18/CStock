@@ -1,4 +1,4 @@
-
+import moment from 'moment';
 export class Enterprise {
   id?: number;
   enterpriseName!: string;
@@ -19,6 +19,7 @@ export class User{
   password!: string;
   userName!: string;
   position!: string;
+  birthDate!: string;
   enterprise = new Enterprise();
 
   static toJson(user: User): any {
@@ -28,6 +29,7 @@ export class User{
       password: user.password,
       userName: user.userName,
       position: user.position,
+      birthDate: moment(user.birthDate).format('DD/MM/YYYY'),
       enterprise: user.enterprise
     }
   }
@@ -65,8 +67,8 @@ export class Product {
 
 export class StockMovement {
   id?: number;
-  movementType!: string;
-  movementDate!: Date;
+  movementType: string = '';
+  movementDate: Date = new Date();
   quantity!: number;
   observation!: string;
   user!: User;
@@ -110,4 +112,16 @@ export class StockMovement {
       product: { id: stockMovement.product.id }
     }
   }
+}
+
+export interface OrderRequest {
+  id?: number;
+  productId: number;
+  productName?: string;
+  quantity: number;
+  supplierEmail: string;
+  observation: string;
+  status: 'PENDENTE' | 'ENVIADO' | 'RECEBIDO';
+  createdAt?: Date;
+  updatedAt?: Date;
 }

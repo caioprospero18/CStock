@@ -16,6 +16,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { SharedModule } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { StockMovementModule } from '../stock-movement/stock-movement.module';
+import { OrderRequestModule } from '../order-request/order-request.module';
+import { UsersModule } from '../users/users.module';
 
 
 
@@ -37,7 +40,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     CalendarModule,
     DropdownModule,
     SharedModule,
-    RouterModule
+    RouterModule,
+    StockMovementModule,
+    OrderRequestModule,
+    UsersModule
   ],
   exports: [
     ProductsListComponent,

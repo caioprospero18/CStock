@@ -15,6 +15,7 @@ import { UserUpdateComponent } from './users/user-update/user-update.component';
 import { EnterpriseUpdateComponent } from './enterprises/enterprise-update/enterprise-update.component';
 import { CallbackComponent } from './callback/callback.component';
 import { RedirectOauthComponent } from './security/redirect-oauth/redirect-oauth.component';
+import { StockEntryComponent } from './stock-movement/stock-entry/stock-entry.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -67,6 +68,12 @@ const routes: Routes = [
   {
     path: 'product/update/:id',
     component: ProductUpdateComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ROLE_REGISTER_PRODUCT']}
+  },
+  {
+    path: 'stockmovements/new',
+    component: StockEntryComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_REGISTER_PRODUCT']}
   },
