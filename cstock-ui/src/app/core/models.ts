@@ -13,7 +13,7 @@ export class Enterprise {
   }
 }
 
-export class User{
+export class User {
   id!: number;
   email!: string;
   password!: string;
@@ -22,18 +22,47 @@ export class User{
   birthDate!: string;
   enterprise = new Enterprise();
 
-  static toJson(user: User): any {
-    return {
-      id: user.id,
+  static toCreateJson(user: User): any {
+    console.log('📤 CREATE JSON - Dados para criação:');
+
+    const json: any = {
+      userName: user.userName,
       email: user.email,
       password: user.password,
-      userName: user.userName,
       position: user.position,
       birthDate: moment(user.birthDate).format('DD/MM/YYYY'),
-      enterprise: user.enterprise
-    }
+      enterprise: { id: user.enterprise.id }
+    };
+
+    console.log('✅ CREATE JSON:', json);
+    return json;
   }
 
+  static toUpdateJson(user: User): any {
+    console.log('📤 UPDATE JSON - Dados para atualização:');
+
+    const json: any = {
+      userName: user.userName,
+      email: user.email,
+      position: user.position,
+      birthDate: moment(user.birthDate).format('DD/MM/YYYY')
+    };
+
+    if (user.password && user.password.trim() !== '') {
+      json.password = user.password;
+      console.log('🔐 Password incluído no update');
+    } else {
+      console.log('🔐 Password não enviado (manter atual)');
+    }
+
+    console.log('✅ UPDATE JSON:', json);
+    return json;
+  }
+
+  static toJson(user: User): any {
+    console.warn('⚠️  Usando toJson() genérico - prefira toCreateJson() ou toUpdateJson()');
+    return this.toCreateJson(user);
+  }
 }
 
 export class Product {

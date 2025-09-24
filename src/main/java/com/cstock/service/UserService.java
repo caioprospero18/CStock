@@ -9,8 +9,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.cstock.domain.model.Enterprise;
 import com.cstock.domain.model.Permission;
 import com.cstock.domain.model.User;
+import com.cstock.dto.UserUpdateDTO;
 import com.cstock.repository.PermissionRepository;
 import com.cstock.repository.UserRepository;
 
@@ -26,9 +28,12 @@ public class UserService {
 	private PermissionRepository permissionRepository;
 	
 	public User save(User user) {
-		user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
-		user.setPermission(addCommonUserPermissions());
-		return userRepository.save(user);
+	    if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+	        throw new IllegalArgumentException("Senha é obrigatória para novo usuário");
+	    }
+	    user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+	    user.setPermission(addCommonUserPermissions());
+	    return userRepository.save(user);
 	}
 	
 	public List<Permission> addCommonUserPermissions(){
@@ -41,10 +46,23 @@ public class UserService {
 		return permissions;
 	}
 	
-	public User update(Long id, User user) {
-		User userSaved = findUserById(id);
-		BeanUtils.copyProperties(user, userSaved, "id");
-		return userRepository.save(userSaved);
+	public User update(Long id, UserUpdateDTO userDTO) {
+	    User userSaved = findUserById(id);
+	    
+	    userSaved.setUserName(userDTO.getUserName());
+	    userSaved.setEmail(userDTO.getEmail());
+	    userSaved.setPosition(userDTO.getPosition());
+	    userSaved.setBirthDate(userDTO.getBirthDate());
+	    
+	    if (userDTO.getPassword() != null && !userDTO.getPassword().trim().isEmpty()) {
+	        if (userDTO.getPassword().length() >= 6) {
+	            userSaved.setPassword(new BCryptPasswordEncoder().encode(userDTO.getPassword()));
+	        } else {
+	            throw new IllegalArgumentException("A senha deve ter pelo menos 6 caracteres");
+	        }
+	    }
+	    
+	    return userRepository.save(userSaved);
 	}
 
 	
@@ -56,6 +74,11 @@ public class UserService {
 	public User findByEmail(String email) {
 	    return userRepository.findByEmail(email)
 	        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com email: " + email));
+	}
+	
+	public void delete(Long id) {
+	    User user = findUserById(id);
+	    userRepository.delete(user);
 	}
 
 }

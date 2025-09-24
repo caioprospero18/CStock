@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { User } from '../../core/models';
 import { UserService } from '../user.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 
@@ -14,8 +14,12 @@ import { NgForm } from '@angular/forms';
 export class UserRegisterComponent {
   @Output() onSave = new EventEmitter<any>();
   @Output() onCancel = new EventEmitter<void>();
+  @Output() onUpdateRequest  = new EventEmitter<void>();
+  @Output() onDelete = new EventEmitter<number>();
+  @Input() userInput: any;
   user = new User();
   isEditing = false;
+  showDeleteConfirm = false;
 
   positions = [
     {label: 'Administrador', value: 'ADMIN'},
@@ -30,7 +34,7 @@ export class UserRegisterComponent {
     private userService: UserService,
     private errorHandler: ErrorHandlerService,
     private messageService: MessageService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ){}
 
   ngOnInit(): void {
@@ -40,35 +44,69 @@ export class UserRegisterComponent {
     }
   }
 
+   ngOnChanges(changes: SimpleChanges) {
+    if (changes['userInput'] && this.userInput) {
+
+
+      if (this.userInput.id) {
+        this.user = { ...this.userInput };
+        this.user.password = '';
+        this.isEditing = true;
+
+      } else {
+        this.user = new User();
+        this.isEditing = false;
+      }
+    }
+}
   get editing(): boolean {
     return this.isEditing;
   }
 
   loadUser(id: number) {
-    this.userService.findById(id)
-      .then((user: User) => {
-        this.user = user;
-        this.isEditing = true;
-      })
-      .catch((error: any) => this.errorHandler.handle(error));
-  }
+  this.userService.findById(id)
+    .then((user: User) => {
+      this.user = user;
+      this.user.password = '';
+      this.isEditing = true;
+    })
+    .catch((error: any) => this.errorHandler.handle(error));
+}
+
+
 
   save(userForm: NgForm) {
-    if (userForm.invalid) {
-      Object.keys(userForm.controls).forEach(key => {
-        userForm.controls[key].markAsTouched();
-      });
-      return;
-    }
 
-    if (this.editing) {
-      this.updateUser();
-    } else {
-      this.addUser();
-    }
+  if (userForm.invalid) {
+
+    Object.keys(userForm.controls).forEach(key => {
+      const control = userForm.controls[key];
+      if (control.invalid) {
+        console.log(`   🚫 ${key}:`, {
+          valor: control.value,
+          erros: control.errors,
+          touched: control.touched,
+          untouched: control.untouched
+        });
+      }
+    });
+
+    Object.keys(userForm.controls).forEach(key => {
+      userForm.controls[key].markAsTouched();
+    });
+    return;
   }
 
+
+  if (this.isEditing) {
+    this.updateUser();
+  } else {
+    this.addUser();
+  }
+}
+
   addUser() {
+
     this.userService.add(this.user)
       .then((savedUser: any) => {
         this.messageService.add({
@@ -76,8 +114,11 @@ export class UserRegisterComponent {
           detail: 'Usuário cadastrado com sucesso!'
         });
         this.onSave.emit(savedUser);
+        this.resetForm();
       })
-      .catch((error: any) => this.errorHandler.handle(error));
+      .catch((error: any) => {
+        this.errorHandler.handle(error);
+      });
   }
 
   updateUser() {
@@ -88,11 +129,51 @@ export class UserRegisterComponent {
           detail: 'Usuário atualizado com sucesso!'
         });
         this.onSave.emit(updatedUser);
+        this.resetForm();
       })
-      .catch((error: any) => this.errorHandler.handle(error));
+      .catch((error: any) => {
+        this.errorHandler.handle(error);
+      });
+  }
+
+  private resetForm() {
+    this.user = new User();
+    this.isEditing = false;
   }
 
   cancel() {
+    this.resetForm();
     this.onCancel.emit();
+  }
+
+  showUpdateUserForm(){
+    this.onUpdateRequest.emit();
+  }
+
+  confirmDelete() {
+    this.showDeleteConfirm = true;
+  }
+
+  deleteUser() {
+    if (!this.user.id) return;
+
+    this.userService.remove(this.user.id)
+      .then(() => {
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Usuário excluído com sucesso!'
+        });
+        this.onDelete.emit(this.user.id);
+        this.resetForm();
+        this.showDeleteConfirm = false;
+      })
+      .catch((error: any) => {
+        this.errorHandler.handle(error);
+        this.showDeleteConfirm = false;
+      });
+  }
+
+  cancelDelete() {
+    this.showDeleteConfirm = false;
   }
 }

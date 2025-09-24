@@ -3,7 +3,7 @@
 
     <div class="p-grid" >
       <div class="p-col-12">
-        <h1>Cadastrar usuário</h1>
+        <h1>{{ isEditing ? 'Editar usuário' : 'Cadastrar usuário' }}</h1>
       </div>
 
         <div class="p-col-12 p-md-6 p-fluid" id="name">
@@ -24,19 +24,30 @@
 
 
           <div class="p-col-12 p-md-3 p-fluid">
-            <label>Senha*</label>
+            <label>Senha{{ isEditing ? '' : '*' }}</label>
             <input pInputText name="password" type="password"
-            [(ngModel)]="user.password" #password="ngModel" required minlength="6" maxlength="8">
-            <app-message [control]="password" error="required" text="Informe uma senha de 6 a 8 caracteres."></app-message>
-            <app-message [control]="password" error="minlength"
-            text="Mínimo de {{ password.errors?.minlength?.requiredLength }} caracteres. Você digitou apenas {{ password.errors?.minlength?.actualLength }}"></app-message>
+              [(ngModel)]="user.password" #password="ngModel"
+              [required]="!isEditing"
+              [minlength]="isEditing && user.password ? 6 : 0"
+              maxlength="8"
+              placeholder="{{ isEditing ? 'Deixe vazio para manter a senha atual' : 'Digite a senha' }}">
+
+            <div *ngIf="!isEditing">
+              <app-message [control]="password" error="required" text="Informe uma senha de 6 a 8 caracteres."></app-message>
+              <app-message [control]="password" error="minlength"
+                          text="Mínimo de {{ password.errors?.minlength?.requiredLength }} caracteres. Você digitou apenas {{ password.errors?.minlength?.actualLength }}"></app-message>
+            </div>
+
+            <div *ngIf="isEditing && !user.password" class="field-info">
+              <small>Deixe em branco para manter a senha atual</small>
+            </div>
           </div>
         </div>
       <div>
         <div class="p-col-12 p-md-6 p-fluid" id="gender">
           <label>Cargo*</label>
           <p-dropdown name="position"  [options]="positions" placeholder="Selecione"
-          [(ngModel)]="user.position" #gender="ngModel" required=""></p-dropdown>
+          [(ngModel)]="user.position" #position="ngModel" required=""></p-dropdown>
         </div>
       </div>
 
@@ -48,9 +59,38 @@
 
     </div>
     <div class="button-container">
-          <button pButton type="submit" label="Cadastrar" id="submit"></button>
+          <button pButton type="submit" [label]="isEditing ? 'Atualizar' : 'Cadastrar'" id="submit"></button>
+          <button *ngIf="!isEditing" pButton type="button" label="Alterar"
+            class="p-button-secondary" (click)="showUpdateUserForm()"></button>
+          <button *ngIf="isEditing" pButton type="button" label="Excluir Usuário"
+                  class="p-button-danger" (click)="confirmDelete()"></button>
           <button pButton type="button" label="Cancelar"
                   class="p-button-secondary" (click)="cancel()"></button>
     </div>
   </form>
+
+  <div *ngIf="showDeleteConfirm" class="delete-confirm-overlay">
+    <div class="delete-confirm-modal">
+      <div class="confirm-header">
+        <i class="pi pi-exclamation-triangle confirm-icon"></i>
+        <h3>Confirmar Exclusão</h3>
+      </div>
+
+      <div class="confirm-body">
+        <p>Tem certeza que deseja excluir o usuário <strong>{{user.userName}}</strong>?</p>
+        <p>Esta ação não pode ser desfeita.</p>
+      </div>
+
+      <div class="confirm-footer">
+        <button pButton type="button" label="Cancelar"
+                class="p-button-secondary"
+                (click)="cancelDelete()"></button>
+        <button pButton type="button" label="Sim, Excluir"
+                class="p-button-danger"
+                (click)="deleteUser()"></button>
+      </div>
+    </div>
+  </div>
 </div>
+
+

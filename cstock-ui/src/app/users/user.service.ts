@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { User } from '../core/models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs'; // Importe isso
 
 @Injectable({
   providedIn: 'root'
@@ -15,40 +16,56 @@ export class UserService {
     const headers = new HttpHeaders()
       .append('Content-Type', 'application/json');
 
-    return this.http.post<any>(this.usersUrl, User.toJson(user), { headers })
-      .toPromise();
+    const userJson = User.toCreateJson(user);
+
+    return lastValueFrom(this.http.post<any>(this.usersUrl, userJson, { headers }))
+      .then(response => {
+        return response;
+      })
+      .catch(error => {
+        throw error;
+      });
   }
 
   findAll(): Promise<User[]> {
-    return this.http.get<User[]>(this.usersUrl)
-      .toPromise()
+    return lastValueFrom(this.http.get<User[]>(this.usersUrl))
       .then(response => {
         return response || [];
       });
   }
 
   findById(id: number): Promise<any> {
-    return this.http.get<any>(`${this.usersUrl}/${id}`)
-      .toPromise()
+    return lastValueFrom(this.http.get<any>(`${this.usersUrl}/${id}`))
       .then(response => {
         return response;
       });
   }
 
   remove(id: number): Promise<any> {
-    return this.http.delete(`${this.usersUrl}/${id}`)
-      .toPromise()
+    return lastValueFrom(this.http.delete(`${this.usersUrl}/${id}`))
       .then(() => null);
   }
 
-  update(user: User): Promise<any> {
+   update(user: User): Promise<any> {
+
     const headers = new HttpHeaders()
       .append('Content-Type', 'application/json');
 
-    return this.http.put<any>(`${this.usersUrl}/${user.id}`, User.toJson(user), { headers })
-      .toPromise()
+    const userJson = User.toUpdateJson(user);
+
+    return lastValueFrom(this.http.put<any>(`${this.usersUrl}/${user.id}`, userJson, { headers }))
       .then(response => {
         return response;
+      })
+      .catch(error => {
+        throw error;
+      });
+  }
+
+  findByEnterpriseId(enterpriseId: number): Promise<User[]> {
+    return lastValueFrom(this.http.get<User[]>(`${this.usersUrl}?enterpriseId=${enterpriseId}`))
+      .then(response => {
+        return response || [];
       });
   }
 }

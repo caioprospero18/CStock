@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cstock.domain.model.Enterprise;
 import com.cstock.domain.model.User;
+import com.cstock.dto.UserUpdateDTO;
 import com.cstock.repository.EnterpriseRepository;
 import com.cstock.repository.UserRepository;
 import com.cstock.service.UserService;
@@ -71,7 +72,7 @@ public class UserResource {
 
 	    user.setEnterprise(enterprise);
 
-	    return userRepository.save(user);
+	    return userService.save(user);
 	}
 	
 	@GetMapping("/{id}")
@@ -88,14 +89,18 @@ public class UserResource {
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	@PreAuthorize("hasAuthority('ROLE_REMOVE_USER') and hasAuthority('SCOPE_write')")
 	public void remove(@PathVariable Long id) {
-		userRepository.deleteById(id);
+		userService.delete(id);
 	}
 
 	@PutMapping("/{id}")
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")
-	public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody User user) {
-		User userSaved = userService.update(id, user);
-		return ResponseEntity.ok(userSaved);
+	public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userDTO) {
+	    try {
+	        User updatedUser = userService.update(id, userDTO);
+	        return ResponseEntity.ok(updatedUser);
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.badRequest().build();
+	    }
 	}
 	
 	

@@ -118,9 +118,28 @@
   <div class="form-overlay" [class.visible]="showUserForm">
     <div class="form-container">
       <app-user-register
+        [userInput]="selectedUserForUpdate"
         (onSave)="onRegisterUserSaved($event)"
-        (onCancel)="showUserForm = false">
+        (onUpdateRequest)="showUpdateUserForm()"
+        (onDelete)="onUserDeleted($event)"
+        (onCancel)="onUserFormCancel()">
       </app-user-register>
+    </div>
+  </div>
+</div>
+
+<div class="form-user-update">
+  <p-confirmDialog
+    styleClass="custom-confirm-dialog"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showUpdateForm">
+    <div class="form-container">
+      <app-user-update
+        (onUpdate)="onUserSelectedForUpdate($event)"
+        (onCancel)="onUpdateUserCancel()">
+    </app-user-update>
     </div>
   </div>
 </div>

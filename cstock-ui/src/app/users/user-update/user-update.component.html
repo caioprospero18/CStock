@@ -1,1 +1,111 @@
-<p>user-update works!</p>
+<div class="container">
+  <h2>Selecionar Usuário para Alterar</h2>
+
+  <div class="search-filters">
+    <div class="p-grid">
+      <div class="p-col-12 p-md-6">
+        <label>Pesquisar por ID:</label>
+        <input pInputText type="text"
+               [(ngModel)]="searchId"
+               (input)="filterUsers()"
+               (keyup.enter)="autoSelectFromSearch()"
+               placeholder="Digite o ID exato do usuário"
+               style="width: 100%">
+      </div>
+
+      <div class="p-col-12 p-md-6">
+        <label>Pesquisar por Nome:</label>
+        <input pInputText type="text"
+               [(ngModel)]="searchName"
+               (input)="filterUsers()"
+               (keyup.enter)="autoSelectFromSearch()"
+               placeholder="Digite parte do nome do usuário"
+               style="width: 100%">
+      </div>
+
+      <div class="p-col-12">
+        <button pButton type="button" label="Limpar Filtros"
+                class="p-button-secondary"
+                (click)="clearFilters()"
+                [disabled]="!searchId && !searchName"></button>
+      </div>
+    </div>
+
+    <div *ngIf="searchId || searchName" class="quick-results">
+      <div *ngIf="filteredUsers.length === 1" class="single-result">
+        <p><strong>Usuário encontrado:</strong> ID {{filteredUsers[0].id}} - {{filteredUsers[0].userName}}</p>
+        <p><small>Usuário selecionado automaticamente</small></p>
+      </div>
+
+      <div *ngIf="filteredUsers.length > 1" class="multiple-results">
+        <p><strong>🔍 {{filteredUsers.length}} usuários encontrados</strong></p>
+        <small>Use o dropdown abaixo para selecionar um</small>
+      </div>
+
+      <div *ngIf="filteredUsers.length === 0 && (searchId || searchName)" class="no-results">
+        <p><strong> Nenhum usuário encontrado</strong></p>
+        <small>Tente ajustar os termos da pesquisa</small>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando usuários...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredUsers.length === 0 && !searchId && !searchName" class="no-users">
+    <p>Nenhum usuário encontrado para esta empresa.</p>
+  </div>
+
+  <div *ngIf="!loading && filteredUsers.length > 0" class="selection-section">
+    <label>Selecione o usuário:</label>
+    <p-dropdown [options]="filteredUsers"
+                [(ngModel)]="selectedUser"
+                optionLabel="userName"
+                [filter]="true"
+                filterBy="userName,id,email"
+                [showClear]="true"
+                placeholder="Selecione um usuário"
+                [style]="{'width':'100%'}"
+                appendTo="body">
+      <ng-template let-user pTemplate="item">
+        <div class="user-option">
+          <div><strong>ID {{user.id}}:</strong> {{user.userName}}</div>
+          <div class="user-details">
+            <small>{{user.email}} | {{getPositionLabel(user.position)}}</small>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template let-user pTemplate="selectedItem">
+        <div *ngIf="user">
+          <strong>{{user.userName}}</strong> (ID: {{user.id}})
+        </div>
+      </ng-template>
+    </p-dropdown>
+  </div>
+
+  <div *ngIf="selectedUser" class="user-info">
+    <h3>Usuário Selecionado:</h3>
+    <div class="user-details-grid">
+      <div><strong>ID:</strong> {{selectedUser.id}}</div>
+      <div><strong>Nome:</strong> {{selectedUser.userName}}</div>
+      <div><strong>Email:</strong> {{selectedUser.email}}</div>
+      <div><strong>Cargo:</strong> {{getPositionLabel(selectedUser.position)}}</div>
+      <div><strong>Data de Nascimento:</strong> {{selectedUser.birthDate}}</div>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button pButton type="button" label="Selecionar Usuário"
+            class="p-button-primary"
+            (click)="selectUser()"
+            [disabled]="!selectedUser"
+            icon="pi pi-check"></button>
+    <button pButton type="button" label="Cancelar"
+            class="p-button-secondary"
+            (click)="cancel()"
+            icon="pi pi-times"></button>
+  </div>
+</div>

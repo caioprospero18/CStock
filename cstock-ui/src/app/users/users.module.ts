@@ -35,7 +35,8 @@ import { TableModule } from 'primeng/table';
     TooltipModule
   ],
   exports: [
-    UserRegisterComponent
+    UserRegisterComponent,
+    UserUpdateComponent
   ]
 })
 export class UsersModule { }

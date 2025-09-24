@@ -19,6 +19,8 @@ export class ProductsListComponent {
   showExitForm = false;
   showOrderForm = false;
   showUserForm = false;
+  showUpdateForm = false;
+  selectedUserForUpdate: any = null;
   productName ? : string
   brand ? : string
   products = [];
@@ -118,10 +120,47 @@ export class ProductsListComponent {
 
   showRegisterUserForm(){
     this.showUserForm = true;
+    this.showUpdateForm = false;
+    this.selectedUserForUpdate = null;
   }
 
   onRegisterUserSaved(savedRegisterUser: any) {
     this.showUserForm = false;
     this.search();
+  }
+
+
+  showUpdateUserForm() {
+    this.showUpdateForm = true;
+    this.showUserForm = false;
+  }
+
+  onRegisterUserUpdated(updatedUser: any) {
+    this.showUpdateForm = false;
+    this.search();
+  }
+
+  onUserFormCancel() {
+    this.showUserForm = false;
+    this.selectedUserForUpdate = null;
+  }
+
+  onUserSelectedForUpdate(selectedUser: any) {
+    this.selectedUserForUpdate = selectedUser;
+    this.showUpdateForm = false;
+    this.showUserForm = true;
+  }
+
+  onUpdateUserCancel() {
+    this.showUpdateForm = false;
+  }
+
+  onUserDeleted(deletedUserId: number) {
+    this.showUserForm = false;
+    this.search(); 
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Usuário excluído com sucesso!'
+    });
   }
 }
