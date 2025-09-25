@@ -88,6 +88,31 @@ export class ProductService {
       });
   }
 
+  searchByEnterprise(productName?: string, brand?: string): Promise<any> {
+  const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
+
+  if (!enterpriseId) {
+    return Promise.reject('Enterprise ID não encontrado no token');
+  }
+
+  let params = new HttpParams()
+    .set('enterpriseId', enterpriseId.toString());
+
+  if (productName) {
+    params = params.set('productName', productName);
+  }
+
+  if (brand) {
+    params = params.set('brand', brand);
+  }
+
+  return this.http.get(`${this.productsUrl}/enterprise/search`, { params })
+    .toPromise()
+    .then(response => {
+      return response;
+    });
+}
+
 
   findById(id: number): Promise<any> {
     return this.http.get<Product>(`${this.productsUrl}/${id}`)

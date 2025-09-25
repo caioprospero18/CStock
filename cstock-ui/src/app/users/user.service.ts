@@ -13,19 +13,20 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   add(user: User): Promise<User> {
-    const headers = new HttpHeaders()
-      .append('Content-Type', 'application/json');
+  console.log("🔧 UserService.add() - Enviando para API:");
+  console.log("   URL:", this.usersUrl);
+  console.log("   Payload:", user);
 
-    const userJson = User.toCreateJson(user);
-
-    return lastValueFrom(this.http.post<any>(this.usersUrl, userJson, { headers }))
-      .then(response => {
-        return response;
-      })
-      .catch(error => {
-        throw error;
-      });
-  }
+  return lastValueFrom(this.http.post<User>(this.usersUrl, user))
+    .then(response => {
+      console.log("🔧 UserService.add() - Resposta da API:", response);
+      return response;
+    })
+    .catch(error => {
+      console.error("🔧 UserService.add() - Erro na API:", error);
+      throw error;
+    });
+}
 
   findAll(): Promise<User[]> {
     return lastValueFrom(this.http.get<User[]>(this.usersUrl))

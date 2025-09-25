@@ -35,20 +35,12 @@ public class ProductService {
 		if (product.getEnterprise() == null || product.getEnterprise().getId() == null) {
 	        throw new IllegalArgumentException("Empresa é obrigatória");
 	    }
-		//apagar depois
-		Long enterpriseId = product.getEnterprise().getId();
-	    System.out.println("Buscando enterprise com ID: " + enterpriseId);
-	    //apagar depois
-	    boolean exists = enterpriseRepository.existsById(enterpriseId);
-	    System.out.println("Enterprise existe no banco? " + exists);
+
 	    
 		Enterprise enterprise = enterpriseRepository.findById(product.getEnterprise().getId())
 				.orElseThrow(() -> {
-		            System.out.println("ERROR: Enterprise não encontrada com ID: " + enterpriseId);
 		            return new IllegalArgumentException("Enterprise não encontrada");
 		        });
-		//apagar depois
-		System.out.println("Enterprise encontrada: " + enterprise.getEnterpriseName());
 	        
 	        product.setEnterprise(enterprise);
 		product.setTotalValue(product.getUnitValue() * product.getQuantity());
@@ -82,5 +74,9 @@ public class ProductService {
 	public List<Product> search(ProductFilter productFilter) {
 		return productRepository.filter(productFilter, Sort.by("productName").descending());
 	}
+	
+	public List<Product> findByEnterpriseId(Long enterpriseId) {
+        return productRepository.findByEnterpriseId(enterpriseId);
+    }
 	
 }

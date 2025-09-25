@@ -39,20 +39,42 @@ export class UserUpdateComponent {
   }
 
   async loadUsers() {
-    this.loading = true;
+  this.loading = true;
 
-    try {
-      const users = await this.userService.findAll();
+  try {
+    const users = await this.userService.findAll();
+
+    const isAdmin = this.isCurrentUserAdmin();
+
+    if (isAdmin) {
+      this.users = users;
+    } else {
       const currentEnterpriseId = this.getCurrentUserEnterpriseId();
-
       this.users = users.filter((user: User) => user.enterprise?.id === currentEnterpriseId);
-      this.filteredUsers = [...this.users];
-      this.loading = false;
-    } catch (error: any) {
-      this.errorHandler.handle(error);
-      this.loading = false;
+    }
+
+    this.filteredUsers = [...this.users];
+    this.loading = false;
+  } catch (error: any) {
+    this.errorHandler.handle(error);
+    this.loading = false;
+  }
+}
+
+private isCurrentUserAdmin(): boolean {
+  const accessToken = sessionStorage.getItem('access_token');
+  if (accessToken) {
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      const roles = payload.roles || [];
+      return roles.includes('ROLE_REGISTER_ENTERPRISE');
+    } catch (error) {
+      return false;
     }
   }
+  return false;
+}
+
 
   private getCurrentUserEnterpriseId(): number {
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');

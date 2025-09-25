@@ -34,7 +34,6 @@ export class StockEntryComponent {
   ) {}
 
   ngOnInit(): void {
-    this.auth.debugCompleteJwtPayload();
     const productId = this.route.snapshot.params['id'];
     const userId = this.auth.jwtPayload?.['user_id'];
 

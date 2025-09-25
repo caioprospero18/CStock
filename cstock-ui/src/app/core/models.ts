@@ -34,12 +34,14 @@ export class User {
       enterprise: { id: user.enterprise.id }
     };
 
-    console.log('✅ CREATE JSON:', json);
+    if (user.enterprise && user.enterprise.id) {
+      json.enterprise = { id: user.enterprise.id };
+    }
+
     return json;
   }
 
   static toUpdateJson(user: User): any {
-    console.log('📤 UPDATE JSON - Dados para atualização:');
 
     const json: any = {
       userName: user.userName,
@@ -50,12 +52,8 @@ export class User {
 
     if (user.password && user.password.trim() !== '') {
       json.password = user.password;
-      console.log('🔐 Password incluído no update');
-    } else {
-      console.log('🔐 Password não enviado (manter atual)');
     }
-
-    console.log('✅ UPDATE JSON:', json);
+    
     return json;
   }
 

@@ -2,10 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductRegisterComponent } from './product-register/product-register.component';
 import { ProductsListComponent } from './products-list/products-list.component';
-import { ProductViewComponent } from './product-view/product-view.component';
 import { ProductUpdateComponent } from './product-update/product-update.component';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -26,7 +24,6 @@ import { UsersModule } from '../users/users.module';
   declarations: [
     ProductRegisterComponent,
     ProductsListComponent,
-    ProductViewComponent,
     ProductUpdateComponent
   ],
  imports: [
@@ -48,7 +45,7 @@ import { UsersModule } from '../users/users.module';
   exports: [
     ProductsListComponent,
     ProductRegisterComponent,
-    ProductViewComponent
+    ProductUpdateComponent
   ]
 })
 export class ProductsModule { }

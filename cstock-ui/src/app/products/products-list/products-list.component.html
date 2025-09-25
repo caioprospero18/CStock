@@ -1,5 +1,57 @@
 <div class="list">
   <div class="products-container">
+    <div class="search-bar">
+
+      <div class="search-grid">
+        <div class="search-field">
+          <label for="productName">Nome do Produto</label>
+          <div class="input-with-icon">
+            <i class="fas fa-box"></i>
+            <input
+              id="productName"
+              type="text"
+              class="search-input"
+              placeholder="Digite o nome do produto"
+              [(ngModel)]="productName"
+              (keyup.enter)="search()"
+              [disabled]="loading">
+          </div>
+        </div>
+
+        <div class="search-field">
+          <label for="brand">Marca</label>
+          <div class="input-with-icon">
+            <i class="fas fa-tag"></i>
+            <input
+              id="brand"
+              type="text"
+              class="search-input"
+              placeholder="Digite a marca"
+              [(ngModel)]="brand"
+              (keyup.enter)="search()"
+              [disabled]="loading">
+          </div>
+        </div>
+
+        <div class="search-buttons">
+          <button
+            class="btn btn-primary"
+            (click)="search()"
+            [disabled]="loading">
+            <i class="fas fa-search"></i>
+            Pesquisar
+          </button>
+          <button
+            class="btn btn-secondary"
+            (click)="clearFilters()"
+            [disabled]="loading">
+            <i class="fas fa-eraser"></i>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <p-table [value]="products" responsiveLayout="stack" [breakpoint]="'768px'">
       <ng-template pTemplate="header">
         <tr>
@@ -21,7 +73,7 @@
           <td>R$ {{ product.unitValue }}</td>
           <td>R$ {{ product.totalValue }}</td>
           <td>
-            <a href="/products/update">Alterar</a>
+            <a href="javascript:void(0)" (click)="showProductUpdateForm(product)">Alterar</a>
           </td>
         </tr>
       </ng-template>
@@ -40,7 +92,7 @@
     <button pButton label="Registrar saída" (click)="showStockExitForm()"></button>
     <button pButton label="Registrar entrada" (click)="showStockEntryForm()"></button>
     <button pButton label="Registrar pedido" (click)="showOrderRequestForm()"></button>
-    <a pButton label="Registrar usuário" (click)="showRegisterUserForm()"></a>
+    <button pButton label="Registrar/Alterar usuário" (click)="showRegisterUserForm()"></button>
     <a pButton label="Registrar empresa"></a>
   </div>
 </div>
@@ -140,6 +192,23 @@
         (onUpdate)="onUserSelectedForUpdate($event)"
         (onCancel)="onUpdateUserCancel()">
     </app-user-update>
+    </div>
+  </div>
+</div>
+
+<div class="form-product-update">
+  <p-confirmDialog
+    [style]="{width: '600px'}"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showProductUForm">
+    <div class="form-container">
+      <app-product-update
+        [productInput]="selectedProduct"
+        (onSave)="onProductUpdateSaved($event)"
+        (onCancel)="showProductUForm = false">
+      </app-product-update>
     </div>
   </div>
 </div>

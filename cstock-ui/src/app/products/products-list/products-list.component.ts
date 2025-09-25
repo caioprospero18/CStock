@@ -3,7 +3,6 @@ import { ProductFilter, ProductService } from '../product.service';
 import { AuthService } from '../../security/auth.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorHandlerService } from '../../core/error-handler.service';
-import { Title } from '@angular/platform-browser';
 import { Product } from '../../core/models';
 
 @Component({
@@ -20,71 +19,143 @@ export class ProductsListComponent {
   showOrderForm = false;
   showUserForm = false;
   showUpdateForm = false;
+  showProductUForm = false;
+  selectedProduct: Product | null = null;
   selectedUserForUpdate: any = null;
-  productName ? : string
-  brand ? : string
-  products = [];
-
+  productName?: string;
+  brand?: string;
+  products: Product[] = [];
+  isAdmin = false;
+  loading = false;
 
   constructor(
     private productService: ProductService,
     private auth: AuthService,
     private confirmation: ConfirmationService,
     private messageService: MessageService,
-    private errorHandler: ErrorHandlerService,
-    private title: Title)
-  { }
+    private errorHandler: ErrorHandlerService
+
+  ) { }
 
   ngOnInit(): void {
-    this.title.setTitle('Produtos');
-    this.search();
+    this.isAdmin = this.auth.isAdmin();
+    this.loadProducts();
   }
 
+  loadProducts(): void {
+    this.loading = true;
 
+    if (this.isAdmin) {
+      this.searchAllProducts();
+    } else {
+      this.listEnterpriseProducts();
+    }
+  }
 
-      search(): void {
-        const filter: ProductFilter = {
-          productName: this.productName,
-          brand: this.brand,
-        }
+  searchAllProducts(): void {
+    const filter: ProductFilter = {
+      productName: this.productName,
+      brand: this.brand,
+    }
 
-        this.productService.search(filter)
-          .then(result => {
-            this.products = result;
-          })
-          .catch(error => this.errorHandler.handle(error));
-
-      }
+    this.productService.search(filter)
+      .then(result => {
+        this.products = result;
+        this.loading = false;
+      })
+      .catch(error => {
+        this.errorHandler.handle(error);
+        this.loading = false;
+      });
+  }
 
   listEnterpriseProducts(): void {
     this.productService.listByEnterprise()
       .then(result => {
         this.products = result;
+
+        if (this.productName || this.brand) {
+          this.products = this.products.filter(product =>
+            (!this.productName ||
+             product.productName.toLowerCase().includes(this.productName!.toLowerCase())) &&
+            (!this.brand ||
+             product.brand.toLowerCase().includes(this.brand!.toLowerCase()))
+          );
+        }
+
+        this.loading = false;
       })
-      .catch(error => this.errorHandler.handle(error));
+      .catch(error => {
+        this.errorHandler.handle(error);
+        this.loading = false;
+      });
   }
 
-  confirmRemoval(product: any): void {
+  search(): void {
+    this.loading = true;
+
+    if (this.isAdmin) {
+      this.searchAllProducts();
+    } else {
+      this.listEnterpriseProducts();
+    }
+  }
+
+  clearFilters(): void {
+    this.productName = '';
+    this.brand = '';
+    this.loadProducts();
+  }
+
+  hasActiveFilters(): boolean {
+    return !!(this.productName || this.brand);
+  }
+
+  editProduct(product: Product) {
+    if (product.id) {
+      this.showProductUpdateForm(product);
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        detail: 'ID do produto não encontrado'
+      });
+    }
+  }
+
+  confirmRemoval(product: Product): void {
     this.confirmation.confirm({
-      message: 'Tem certeza que deseja excluir?',
+      message: `Tem certeza que deseja excluir o produto "${product.productName}"?`,
+      header: 'Confirmar Exclusão',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sim, Excluir',
+      rejectLabel: 'Cancelar',
       accept: () => {
         this.remove(product);
       }
     });
   }
 
-  remove(product: any): void {
+  remove(product: Product): void {
+    if (!product.id) {
+      console.error('ID do produto não encontrado');
+      return;
+    }
+
     this.productService.remove(product.id)
       .then(() => {
-        this.search();
-        this.messageService.add({ severity: 'success', detail: 'Atividade excluída com sucesso!' });
+        this.loadProducts();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Produto excluído com sucesso!'
+        });
       })
       .catch(error => this.errorHandler.handle(error));
   }
 
   onProductSaved(savedProduct: any) {
     this.showProductForm = false;
-    this.search();
+    this.loadProducts();
   }
 
   showRegisterForm() {
@@ -97,7 +168,7 @@ export class ProductsListComponent {
 
   onEntrySaved(savedStockMovement: any) {
     this.showEntryForm = false;
-    this.search();
+    this.loadProducts();
   }
 
   showStockExitForm(){
@@ -106,7 +177,7 @@ export class ProductsListComponent {
 
   onExitSaved(savedStockMovement: any) {
     this.showExitForm = false;
-    this.search();
+    this.loadProducts();
   }
 
   showOrderRequestForm(){
@@ -115,7 +186,7 @@ export class ProductsListComponent {
 
   onOrderRequestSaved(savedOrderRequest: any) {
     this.showOrderForm = false;
-    this.search();
+    this.loadProducts();
   }
 
   showRegisterUserForm(){
@@ -126,9 +197,8 @@ export class ProductsListComponent {
 
   onRegisterUserSaved(savedRegisterUser: any) {
     this.showUserForm = false;
-    this.search();
+    this.loadProducts();
   }
-
 
   showUpdateUserForm() {
     this.showUpdateForm = true;
@@ -137,7 +207,7 @@ export class ProductsListComponent {
 
   onRegisterUserUpdated(updatedUser: any) {
     this.showUpdateForm = false;
-    this.search();
+    this.loadProducts();
   }
 
   onUserFormCancel() {
@@ -157,10 +227,38 @@ export class ProductsListComponent {
 
   onUserDeleted(deletedUserId: number) {
     this.showUserForm = false;
-    this.search(); 
+    this.loadProducts();
     this.messageService.add({
       severity: 'success',
       detail: 'Usuário excluído com sucesso!'
+    });
+  }
+
+  showProductUpdateForm(product: Product) {
+  console.log('=== DEBUG showProductUForm ===');
+  console.log('Produto recebido:', product);
+  console.log('ID do produto:', product?.id);
+
+  if (product && product.id) {
+    this.selectedProduct = product;
+    this.showProductUForm = true;
+    console.log('Modal aberto com produto:', this.selectedProduct);
+  } else {
+    console.error('Produto inválido recebido');
+    this.messageService.add({
+      severity: 'error',
+      detail: 'Erro ao carregar dados do produto'
+    });
+  }
+}
+
+  onProductUpdateSaved(updatedProduct: any) {
+    this.showProductUForm = false;
+    this.selectedProduct = null;
+    this.loadProducts();
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Produto atualizado com sucesso!'
     });
   }
 }

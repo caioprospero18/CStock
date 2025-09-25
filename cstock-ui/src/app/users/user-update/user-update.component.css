@@ -114,6 +114,10 @@
   width: 100% !important;
 }
 
+::ng-deep .p-button-primary{
+  background-color: rgb(0, 128, 94) !important;
+}
+
 ::ng-deep .p-dropdown-panel {
   width: auto !important;
   min-width: 300px !important;

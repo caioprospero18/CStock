@@ -14,6 +14,16 @@
   border-color: rgb(100, 138, 128) !important;
 }
 
+.update-btn{
+  background-color: rgb(1, 151, 111) !important;
+  border-color: rgb(120, 158, 148) !important;
+}
+
+.update-btn:hover{
+  background-color: rgb(100, 138, 128) !important;
+  border-color: rgb(100, 138, 128) !important;
+}
+
 ::ng-deep .p-button-danger {
   background-color: #dc3545 !important;
   border-color: #dc3545 !important;
@@ -97,4 +107,23 @@
   .confirm-footer button {
     width: 100%;
   }
+}
+
+.enterprise-dropdown {
+  margin-top: 15px;
+}
+
+.enterprise-option {
+  padding: 8px 5px;
+  line-height: 1.4;
+}
+
+.enterprise-option strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.enterprise-option small {
+  color: #666;
+  font-size: 0.8em;
 }

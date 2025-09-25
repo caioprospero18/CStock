@@ -58,10 +58,33 @@
           <app-message [control]="birthDate" error="required" text="Informe uma data"></app-message>
 
     </div>
+    <div *ngIf="canRegisterEnterprise && !isEditing" class="p-grid">
+      <div class="p-col-12 p-fluid">
+        <label>Empresa*</label>
+        <p-dropdown [options]="enterprises"
+                    optionLabel="enterpriseName"
+                    optionValue="id"
+                    [(ngModel)]="user.enterprise.id"
+                    name="enterprise"
+                    placeholder="Selecione a empresa"
+                    [showClear]="true"
+                    [loading]="loadingEnterprises"
+                    required>
+          <ng-template let-enterprise pTemplate="item">
+            <div>
+              <div><strong>{{ enterprise.enterpriseName }}</strong></div>
+              <div style="font-size: 0.8em; color: #666;">CNPJ: {{ enterprise.cnpj }}</div>
+            </div>
+          </ng-template>
+        </p-dropdown>
+        <small *ngIf="loadingEnterprises">Carregando empresas...</small>
+        <app-message [control]="f.controls['enterprise']" error="required" text="Selecione uma empresa"></app-message>
+      </div>
+    </div>
     <div class="button-container">
           <button pButton type="submit" [label]="isEditing ? 'Atualizar' : 'Cadastrar'" id="submit"></button>
           <button *ngIf="!isEditing" pButton type="button" label="Alterar"
-            class="p-button-secondary" (click)="showUpdateUserForm()"></button>
+             class="update-btn"(click)="showUpdateUserForm()"></button>
           <button *ngIf="isEditing" pButton type="button" label="Excluir Usuário"
                   class="p-button-danger" (click)="confirmDelete()"></button>
           <button pButton type="button" label="Cancelar"

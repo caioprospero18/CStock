@@ -12,8 +12,6 @@ export class CStockHttpInterceptor implements HttpInterceptor {
   constructor(private auth: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log('🔗 Interceptando:', req.url);
-    console.log('🔐 Token presente:', !!this.auth.getAccessToken());
 
     if (req.url.includes('/oauth2/token')) {
       return next.handle(req);

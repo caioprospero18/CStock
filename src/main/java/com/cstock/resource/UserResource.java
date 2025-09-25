@@ -33,88 +33,92 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/users")
 public class UserResource {
-	
-	@Autowired
-	private UserRepository userRepository;
-	
-	@Autowired
-	private UserService userService;
-	
-	@Autowired
-	private EnterpriseRepository enterpriseRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private EnterpriseRepository enterpriseRepository;
 
-	@GetMapping
-	@PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
-	public List<User> list(){
-		return userRepository.findAll();
-	}
-	
-	@GetMapping("/by-email/{email}")
-	@PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
-	public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-	    User user = userService.findByEmail(email);
-	    if (user != null) {
-	        return ResponseEntity.ok(user);
-	    }
-	    return ResponseEntity.notFound().build();
-	}
-	
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")
-	public User create(@Valid @RequestBody User user, HttpServletResponse response) {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    Jwt jwt = (Jwt) authentication.getPrincipal();
-	    Long enterpriseId = jwt.getClaim("enterprise_id"); 
+    @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
+    public List<User> list(){
+        return userRepository.findAll();
+    }
+    
+    @GetMapping("/by-email/{email}")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
+    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
+        User user = userService.findByEmail(email);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.notFound().build();
+    }
+    
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")
+    public User create(@Valid @RequestBody User user, HttpServletResponse response) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+        
+        boolean admin = isAdmin(authentication);
+        
+        if (admin) {
+            if (user.getEnterprise() != null && user.getEnterprise().getId() != null) {
+                Long enterpriseId = user.getEnterprise().getId();
+                
+                Enterprise selectedEnterprise = enterpriseRepository.findById(enterpriseId)
+                        .orElseThrow(() -> new RuntimeException("Empresa selecionada não encontrada: " + enterpriseId));
+                
+                user.setEnterprise(selectedEnterprise);
+            } else {
+                throw new RuntimeException("Empresa é obrigatória para cadastro por administrador");
+            }
+        } else {
+            Long enterpriseId = jwt.getClaim("enterprise_id");
+            Enterprise userEnterprise = enterpriseRepository.findById(enterpriseId)
+                    .orElseThrow(() -> new RuntimeException("Empresa do usuário logado não encontrada"));
+            user.setEnterprise(userEnterprise);
+        }
+        
+        return userService.save(user);
+    }
 
-	    Enterprise enterprise = enterpriseRepository.findById(enterpriseId)
-	            .orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
+    private boolean isAdmin(Authentication authentication) {
+        return authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_REGISTER_ENTERPRISE"));
+    }
+    
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
+    public ResponseEntity<User> findById(@PathVariable Long id){
+        Optional<User> user = userRepository.findById(id);
+        if(user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
 
-	    user.setEnterprise(enterprise);
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ROLE_REMOVE_USER') and hasAuthority('SCOPE_write')")
+    public void remove(@PathVariable Long id) {
+        userService.delete(id);
+    }
 
-	    return userService.save(user);
-	}
-	
-	@GetMapping("/{id}")
-	@PreAuthorize("hasRole('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
-	public ResponseEntity<User> findById(@PathVariable Long id){
-		Optional<User> user = userRepository.findById(id);
-		if(user.isPresent()) {
-			return ResponseEntity.ok(user.get());
-		}
-		return ResponseEntity.notFound().build();
-	}
-
-	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasAuthority('ROLE_REMOVE_USER') and hasAuthority('SCOPE_write')")
-	public void remove(@PathVariable Long id) {
-		userService.delete(id);
-	}
-
-	@PutMapping("/{id}")
-	@PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")
-	public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userDTO) {
-	    try {
-	        User updatedUser = userService.update(id, userDTO);
-	        return ResponseEntity.ok(updatedUser);
-	    } catch (IllegalArgumentException e) {
-	        return ResponseEntity.badRequest().build();
-	    }
-	}
-	
-	
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<User> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO userDTO) {
+        try {
+            User updatedUser = userService.update(id, userDTO);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

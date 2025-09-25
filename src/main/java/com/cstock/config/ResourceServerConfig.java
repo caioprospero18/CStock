@@ -33,7 +33,7 @@ public class ResourceServerConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/login", "/assets/**", "/public/**", 
                                "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                .requestMatchers("/api/**", "/products/**", "/admin/**").authenticated() // ⬅️ APIs protegidas
+                .requestMatchers("/api/**", "/products/**", "/admin/**").authenticated() 
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

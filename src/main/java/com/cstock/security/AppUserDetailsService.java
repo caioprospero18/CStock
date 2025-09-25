@@ -37,7 +37,6 @@ public class AppUserDetailsService implements UserDetailsService {
         
         if (user.getEnterprise() != null) {
             Hibernate.initialize(user.getEnterprise()); 
-            System.out.println("Enterprise carregada: " + user.getEnterprise().getId());
         }
         
         return new SystemUser(user, getPermissions(user));
@@ -51,10 +50,7 @@ public class AppUserDetailsService implements UserDetailsService {
     }
     
     public OidcUserInfo loadUserInfo(SystemUser systemUser) {
-    	System.out.println("=== 🎯 LOAD USER INFO CHAMADO ===");
         User user = systemUser.getUser();
-        System.out.println("User: " + user.getEmail());
-        System.out.println("Enterprise: " + (user.getEnterprise() != null ? user.getEnterprise().getId() : "null")); 
         Map<String, Object> claims = new HashMap<>();
         
         claims.put(StandardClaimNames.SUB, user.getEmail());

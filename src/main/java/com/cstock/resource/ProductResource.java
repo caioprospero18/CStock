@@ -49,6 +49,11 @@ public class ProductResource {
 		return ResponseEntity.notFound().build();
 	}
 	
+	@GetMapping("/enterprise/{enterpriseId}")
+    public List<Product> listByEnterprise(@PathVariable Long enterpriseId) {
+        return productService.findByEnterpriseId(enterpriseId);
+    }
+	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")

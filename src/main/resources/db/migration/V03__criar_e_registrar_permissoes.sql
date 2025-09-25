@@ -15,16 +15,16 @@ CREATE TABLE user_permission (
 INSERT INTO user (id, email, password, user_name, position, birth_date, enterprise_id) values (1, 'admin@cstock.com', '$2a$10$X607ZPhQ4EgGNaYKt3n4SONjIv9zc.VMWdEuhCuba7oLAL5IvcL5.', 'Admin', 'ADMIN','2025/01/06', 1);
 
 -- usuario
-INSERT INTO permission (id, description) values (1, 'ROLE_REGISTER_ENTERPRISE');
-INSERT INTO permission (id, description) values (2, 'ROLE_REGISTER_USER');
-INSERT INTO permission (id, description) values (3, 'ROLE_REMOVE_USER');
-INSERT INTO permission (id, description) values (4, 'ROLE_SEARCH_USER');
+INSERT INTO permission (id, description) values (1, 'REGISTER_ENTERPRISE');
+INSERT INTO permission (id, description) values (2, 'REGISTER_USER');
+INSERT INTO permission (id, description) values (3, 'REMOVE_USER');
+INSERT INTO permission (id, description) values (4, 'SEARCH_USER');
 
 -- produto
-INSERT INTO permission (id, description) values (5, 'ROLE_REGISTER_PRODUCT');
-INSERT INTO permission (id, description) values (6, 'ROLE_REMOVE_PRODUCT');
-INSERT INTO permission (id, description) values (7, 'ROLE_SEARCH_PRODUCT');
-INSERT INTO permission (id, description) values (8, 'ROLE_REGISTER_STOCK_MOVEMENT');
+INSERT INTO permission (id, description) values (5, 'REGISTER_PRODUCT');
+INSERT INTO permission (id, description) values (6, 'REMOVE_PRODUCT');
+INSERT INTO permission (id, description) values (7, 'SEARCH_PRODUCT');
+INSERT INTO permission (id, description) values (8, 'REGISTER_STOCK_MOVEMENT');
 
 -- admin
 INSERT INTO user_permission (user_id, permission_id) values (1, 1);

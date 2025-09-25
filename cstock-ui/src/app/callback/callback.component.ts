@@ -47,7 +47,6 @@ export class CallbackComponent implements OnInit {
       if (code) {
         try {
           const verifier = this.authService.getFromSessionStorage('pkce_code_verifier');
-          console.log('Code verifier no callback (browser):', verifier);
 
           if (!verifier) {
             this.error = 'Sessão expirada. Faça login novamente.';
@@ -57,10 +56,9 @@ export class CallbackComponent implements OnInit {
 
           await this.authService.exchangeCodeForToken(code);
 
-          this.redirectBasedOnUserRole();
+          this.router.navigate(['/products']);
 
         } catch (err) {
-          console.error('Authorization code exchange failed:', err);
           this.error = 'Falha na autenticação';
           setTimeout(() => this.router.navigate(['/home']), 3000);
         }
@@ -69,13 +67,4 @@ export class CallbackComponent implements OnInit {
       }
     });
   }
-
-  private redirectBasedOnUserRole(): void {
-  if (this.authService.isAdmin()) {
-    this.router.navigate(['/admin']);
-  } else {
-    this.router.navigate(['/products']);
-  }
-}
-
 }

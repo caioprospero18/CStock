@@ -131,10 +131,66 @@
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
 .form-user-update .form-container .container {
   max-width: 100%;
   overflow-x: hidden;
+}
+
+.search-bar {
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.search-grid {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+}
+
+.search-field {
+  flex: 1;
+}
+
+.search-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+  font-family: inherit;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.search-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
 }

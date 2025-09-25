@@ -1,10 +1,12 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { User } from '../../core/models';
+import { Enterprise, User } from '../../core/models';
 import { UserService } from '../user.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { AuthService } from '../../security/auth.service';
+import { EnterpriseService } from '../../enterprises/enterprise.service';
 
 @Component({
   selector: 'app-user-register',
@@ -20,6 +22,9 @@ export class UserRegisterComponent {
   user = new User();
   isEditing = false;
   showDeleteConfirm = false;
+  enterprises: Enterprise[] = [];
+  canRegisterEnterprise = false;
+  loadingEnterprises = false;
 
   positions = [
     {label: 'Administrador', value: 'ADMIN'},
@@ -32,9 +37,11 @@ export class UserRegisterComponent {
 
   constructor(
     private userService: UserService,
+    private enterpriseService: EnterpriseService,
     private errorHandler: ErrorHandlerService,
     private messageService: MessageService,
     private route: ActivatedRoute,
+    private authService: AuthService
   ){}
 
   ngOnInit(): void {
@@ -42,72 +49,88 @@ export class UserRegisterComponent {
     if (id && id !== 'new') {
       this.loadUser(Number(id));
     }
+    this.checkEnterprisePermission();
   }
 
    ngOnChanges(changes: SimpleChanges) {
     if (changes['userInput'] && this.userInput) {
-
-
       if (this.userInput.id) {
         this.user = { ...this.userInput };
         this.user.password = '';
         this.isEditing = true;
-
       } else {
         this.user = new User();
         this.isEditing = false;
       }
     }
-}
+  }
+
+  private checkEnterprisePermission() {
+    this.canRegisterEnterprise = this.authService.hasRole('ROLE_REGISTER_ENTERPRISE');
+    if (this.canRegisterEnterprise) {
+      this.loadEnterprises();
+    }
+  }
+
   get editing(): boolean {
     return this.isEditing;
   }
 
+  private loadEnterprises() {
+    this.loadingEnterprises = true;
+
+    this.enterpriseService.findAll()
+      .then((enterprises: Enterprise[]) => {
+        this.enterprises = enterprises;
+        this.loadingEnterprises = false;
+      })
+      .catch((error: any) => {
+        this.errorHandler.handle(error);
+        this.loadingEnterprises = false;
+      });
+  }
+
   loadUser(id: number) {
-  this.userService.findById(id)
-    .then((user: User) => {
-      this.user = user;
-      this.user.password = '';
-      this.isEditing = true;
-    })
-    .catch((error: any) => this.errorHandler.handle(error));
-}
-
-
+    this.userService.findById(id)
+      .then((user: User) => {
+        this.user = user;
+        this.user.password = '';
+        this.isEditing = true;
+      })
+      .catch((error: any) => this.errorHandler.handle(error));
+  }
 
   save(userForm: NgForm) {
+    if (userForm.invalid) {
+      Object.keys(userForm.controls).forEach(key => {
+        userForm.controls[key].markAsTouched();
+      });
+      return;
+    }
 
-  if (userForm.invalid) {
-
-    Object.keys(userForm.controls).forEach(key => {
-      const control = userForm.controls[key];
-      if (control.invalid) {
-        console.log(`   🚫 ${key}:`, {
-          valor: control.value,
-          erros: control.errors,
-          touched: control.touched,
-          untouched: control.untouched
-        });
-      }
-    });
-
-    Object.keys(userForm.controls).forEach(key => {
-      userForm.controls[key].markAsTouched();
-    });
-    return;
+    if (this.isEditing) {
+      this.updateUser();
+    } else {
+      this.addUser();
+    }
   }
-
-
-  if (this.isEditing) {
-    this.updateUser();
-  } else {
-    this.addUser();
-  }
-}
 
   addUser() {
+    const userToSave = { ...this.user };
 
-    this.userService.add(this.user)
+    if (userToSave.birthDate) {
+      const date = new Date(userToSave.birthDate);
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      userToSave.birthDate = `${day}/${month}/${year}`;
+    }
+
+    if (userToSave.enterprise && userToSave.enterprise.id) {
+      userToSave.enterprise = { id: userToSave.enterprise.id } as any;
+    }
+
+    this.userService.add(userToSave)
       .then((savedUser: any) => {
         this.messageService.add({
           severity: 'success',

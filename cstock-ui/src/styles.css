@@ -1,5 +1,15 @@
-html, body {
-  height: 100%;
+html {
+  background: linear-gradient(
+    180deg,
+    rgba(165, 209, 189, 0.78) 0%,
+    rgba(120, 158, 148, 1) 50%,
+    rgba(55, 163, 113, 1) 100%
+  );
+  background-attachment: fixed;
+  min-height: 100%;
+}
+
+body {
   margin: 0;
   font-family: sans-serif;
 }

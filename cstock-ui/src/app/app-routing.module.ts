@@ -7,7 +7,6 @@ import { AuthGuard } from './security/auth.guard';
 import { HomeComponent } from './home/home/home.component';
 import { EnterpriseRegisterComponent } from './enterprises/enterprise-register/enterprise-register.component';
 import { ProductRegisterComponent } from './products/product-register/product-register.component';
-import { ProductViewComponent } from './products/product-view/product-view.component';
 import { ProductsListComponent } from './products/products-list/products-list.component';
 import { ProductUpdateComponent } from './products/product-update/product-update.component';
 import { UserRegisterComponent } from './users/user-register/user-register.component';
@@ -36,12 +35,6 @@ const routes: Routes = [
     data: { roles: ['ROLE_REGISTER_PRODUCT']}
   },
   {
-    path: 'products/view/:id',
-    component: ProductViewComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['ROLE_SEARCH_PRODUCT']}
-  },
-  {
     path: 'products',
     component: ProductsListComponent,
     canActivate: [AuthGuard],
@@ -66,7 +59,7 @@ const routes: Routes = [
     data: { roles: ['ROLE_REGISTER_USER']}
   },
   {
-    path: 'product/update/:id',
+    path: 'products/update/:id',
     component: ProductUpdateComponent,
     canActivate: [AuthGuard],
     data: { roles: ['ROLE_REGISTER_PRODUCT']}

@@ -28,14 +28,11 @@ public class LoginController {
                        @RequestParam(value = "logout", required = false) String logout,
                        @RequestParam(value = "code_challenge", required = false) String codeChallenge,
                        @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
-                       @RequestParam(value = "username", required = false) String username, // ⬅️ NOVO
-                       @RequestParam(value = "password", required = false) String password, // ⬅️ NOVO
+                       @RequestParam(value = "username", required = false) String username, 
+                       @RequestParam(value = "password", required = false) String password, 
                        HttpSession session,
                        Model model) {
         
-        System.out.println("=== GET LOGIN ===");
-        System.out.println("Code challenge from URL: " + codeChallenge);
-        System.out.println("Username from URL: " + username);
         
         if (username != null && password != null && codeChallenge != null) {
             try {
@@ -96,9 +93,6 @@ public class LoginController {
                               HttpSession session) {
         
         try {
-            System.out.println("=== PROCESS LOGIN POST ===");
-            System.out.println("Username: " + username);
-            System.out.println("Code challenge from form: " + codeChallenge);
             
             UsernamePasswordAuthenticationToken token = 
                 new UsernamePasswordAuthenticationToken(username, password);
@@ -107,18 +101,15 @@ public class LoginController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
-            // ⬇️ Tenta recuperar da sessão se não veio no form
             String finalChallenge = codeChallenge;
             String finalMethod = codeChallengeMethod;
             
             if (finalChallenge == null) {
                 finalChallenge = (String) session.getAttribute("pkce_code_challenge");
                 finalMethod = (String) session.getAttribute("pkce_code_challenge_method");
-                System.out.println("Using challenge from session: " + finalChallenge);
             }
             
             if (finalChallenge == null) {
-                System.out.println("❌ ERRO: Code challenge não encontrado!");
                 return "redirect:/login?error=true";
             }
             
@@ -138,7 +129,6 @@ public class LoginController {
             return "redirect:" + redirectUrl;
             
         } catch (Exception e) {
-            System.out.println("❌ Login error: " + e.getMessage());
             return "redirect:/login?error=true";
         }
     }
