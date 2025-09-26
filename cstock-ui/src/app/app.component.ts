@@ -1,5 +1,5 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router'; // Importação do Router e NavigationEnd
+import { Router, NavigationEnd } from '@angular/router'; 
 
 @Component({
   selector: 'app-root',

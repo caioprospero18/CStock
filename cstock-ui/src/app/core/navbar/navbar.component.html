@@ -1,21 +1,23 @@
 <nav class="navbar">
-
-  <div>
-    <a>CStock</a>
+  <div class="nav-logo">
+    <img src="assets/logo.png">
   </div>
 
-  <div class="container">
-    <div class="p-grid">
-      <div class="p-col-12">
-        <a href="javascript:;" class="navbar-toggle" (click)="displayingMenu = !displayingMenu">
-	  <i class="pi pi-bars"></i></a>
-      </div>
-    </div>
+  <div class="a">
+    <a class="navbar-toggle">Registros de entrada</a>
+    <a class="navbar-toggle">Registros de saída</a>
+  </div>
+
+  <div class="nav-controls">
+    <a href="javascript:;" class="navbar-toggle" (click)="displayingMenu = !displayingMenu">
+      {{ auth.userDisplayName }}
+    </a>
   </div>
 
   <ul class="navbar-menu" [hidden]="!displayingMenu">
-    <li class="navbar-user">{{ auth.userDisplayName }}</li>
-    <li class="navbar-menuitem"><a href="javascript:;" (click)="auth.logout()">Logout</a></li>
-  </ul>
 
+    <li class="navbar-menuitem">
+      <a href="javascript:;" (click)="auth.logout()">Logout</a>
+    </li>
+  </ul>
 </nav>

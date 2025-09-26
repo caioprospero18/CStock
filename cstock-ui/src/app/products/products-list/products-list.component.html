@@ -4,7 +4,7 @@
 
       <div class="search-grid">
         <div class="search-field">
-          <label for="productName">Nome do Produto</label>
+          <label for="productName"><strong>Nome do Produto</strong></label>
           <div class="input-with-icon">
             <i class="fas fa-box"></i>
             <input
@@ -19,7 +19,7 @@
         </div>
 
         <div class="search-field">
-          <label for="brand">Marca</label>
+          <label for="brand"><strong>Marca</strong></label>
           <div class="input-with-icon">
             <i class="fas fa-tag"></i>
             <input
@@ -207,6 +207,7 @@
       <app-product-update
         [productInput]="selectedProduct"
         (onSave)="onProductUpdateSaved($event)"
+        (onDelete)="onProductDeleted($event)"
         (onCancel)="showProductUForm = false">
       </app-product-update>
     </div>

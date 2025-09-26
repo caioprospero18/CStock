@@ -122,6 +122,18 @@ export class ProductsListComponent {
     }
   }
 
+   onProductDeleted(deletedProductId: number) {
+    this.products = this.products.filter(product => product.id !== deletedProductId);
+
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Produto excluído com sucesso!'
+    });
+
+    this.showProductUForm = false;
+  }
+
+
   confirmRemoval(product: Product): void {
     this.confirmation.confirm({
       message: `Tem certeza que deseja excluir o produto "${product.productName}"?`,

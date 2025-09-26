@@ -18,10 +18,10 @@ import { FormControl } from '@angular/forms';
 })
 export class MessageComponent {
   @Input() error!: string;
-  @Input() control!: FormControl;
+  @Input() control?: FormControl;
   @Input() text!: string;
 
   hasError(): boolean {
-    return this.control.hasError(this.error) && this.control.dirty;
+    return this.control ? this.control.hasError(this.error) && this.control.dirty : false;
   }
 }

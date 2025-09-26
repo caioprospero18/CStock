@@ -34,3 +34,7 @@ body {
     rgba(55, 163, 113, 1) 100%
   );
 }
+
+router-outlet + * {
+  padding-top: 30px;
+}
