@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, Pipe } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductRegisterComponent } from './product-register/product-register.component';
 import { ProductsListComponent } from './products-list/products-list.component';
@@ -11,12 +11,14 @@ import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { CalendarModule } from 'primeng/calendar';
 import { DropdownModule } from 'primeng/dropdown';
-import { SharedModule } from 'primeng/api';
+
 import { RouterModule } from '@angular/router';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { StockMovementModule } from '../stock-movement/stock-movement.module';
 import { OrderRequestModule } from '../order-request/order-request.module';
 import { UsersModule } from '../users/users.module';
+import { SharedModule } from '../shared/shared.module';
+import { EnterprisesModule } from '../enterprises/enterprises.module';
 
 
 
@@ -40,7 +42,8 @@ import { UsersModule } from '../users/users.module';
     RouterModule,
     StockMovementModule,
     OrderRequestModule,
-    UsersModule
+    UsersModule,
+    EnterprisesModule
   ],
   exports: [
     ProductsListComponent,

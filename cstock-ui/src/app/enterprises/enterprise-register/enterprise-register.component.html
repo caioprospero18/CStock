@@ -1,1 +1,60 @@
-<p>enterprise-register works!</p>
+<div class="container">
+  <form #f="ngForm" autocomplete="off" (ngSubmit)="save(f)">
+
+    <div class="p-grid" >
+      <div class="p-col-12">
+        <h1>{{ isEditing ? 'Editar empresa' : 'Cadastrar empresa' }}</h1>
+      </div>
+
+        <div class="p-col-12 p-md-6 p-fluid" id="name">
+          <label>Nome da empresa*</label>
+          <input pInputText name="name" type="text"
+          [(ngModel)]="enterprise.enterpriseName" #name="ngModel" required minlength="3" maxlength="50">
+          <app-message [control]="name" error="required" text="Informe um nome"></app-message>
+          <app-message [control]="name" error="minlength"
+              text="Mínimo de {{ name.errors?.minlength?.requiredLength }} caracteres. Você digitou apenas {{ name.errors?.minlength?.actualLength }}"></app-message>
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>CNPJ*</label>
+          <input pInputText name="cnpj" type="text"
+          [(ngModel)]="enterprise.cnpj" #cnpj="ngModel" pattern="[0-9]{2}.[0-9]{3}.[0-9]{3}/[0-9]{4}-[0-9]{2}"
+          placeholder="00.000.000/0000-00" required >
+          <app-message [control]="cnpj" error="required" text="Formato de CNPJ errado."></app-message>
+        </div>
+    </div>
+    <div class="button-container">
+          <button pButton type="submit" [label]="isEditing ? 'Atualizar' : 'Cadastrar'" id="submit"></button>
+          <button *ngIf="!isEditing" pButton type="button" label="Alterar"
+             class="update-btn"(click)="showUpdateEnterpriseForm()"></button>
+          <button *ngIf="isEditing" pButton type="button" label="Excluir Empresa"
+                  class="p-button-danger" (click)="confirmDelete()"></button>
+          <button pButton type="button" label="Cancelar"
+                  class="p-button-secondary" (click)="cancel()"></button>
+    </div>
+  </form>
+
+  <div *ngIf="showDeleteConfirm" class="delete-confirm-overlay">
+    <div class="delete-confirm-modal">
+      <div class="confirm-header">
+        <i class="pi pi-exclamation-triangle confirm-icon"></i>
+        <h3>Confirmar Exclusão</h3>
+      </div>
+
+      <div class="confirm-body">
+        <p>Tem certeza que deseja excluir a empresa <strong>{{enterprise.enterpriseName}}</strong>?</p>
+        <p>Esta ação não pode ser desfeita.</p>
+      </div>
+
+      <div class="confirm-footer">
+        <button pButton type="button" label="Cancelar"
+                class="p-button-secondary"
+                (click)="cancelDelete()"></button>
+        <button pButton type="button" label="Sim, Excluir"
+                class="p-button-danger"
+                (click)="deleteEnterprise()"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+

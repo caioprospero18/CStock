@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { User } from '../core/models';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs'; // Importe isso
+import { lastValueFrom } from 'rxjs'; 
 
 @Injectable({
   providedIn: 'root'
@@ -13,17 +13,12 @@ export class UserService {
   constructor(private http: HttpClient) { }
 
   add(user: User): Promise<User> {
-  console.log("🔧 UserService.add() - Enviando para API:");
-  console.log("   URL:", this.usersUrl);
-  console.log("   Payload:", user);
 
   return lastValueFrom(this.http.post<User>(this.usersUrl, user))
     .then(response => {
-      console.log("🔧 UserService.add() - Resposta da API:", response);
       return response;
     })
     .catch(error => {
-      console.error("🔧 UserService.add() - Erro na API:", error);
       throw error;
     });
 }

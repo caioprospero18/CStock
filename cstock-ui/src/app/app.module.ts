@@ -22,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CallbackComponent } from './callback/callback.component';
 import { OrderRequestModule } from './order-request/order-request.module';
+import { EnterprisesModule } from './enterprises/enterprises.module';
 
 
 
@@ -50,7 +51,8 @@ import { OrderRequestModule } from './order-request/order-request.module';
     UsersModule,
     FormsModule,
     StockMovementModule,
-    OrderRequestModule
+    OrderRequestModule,
+    EnterprisesModule
 
   ],
   providers: [

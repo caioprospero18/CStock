@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../../security/auth.service';
 import { EnterpriseService } from '../../enterprises/enterprise.service';
+import { UserStateService } from '../../core/services/user-state.service';
 
 @Component({
   selector: 'app-user-register',
@@ -41,7 +42,8 @@ export class UserRegisterComponent {
     private errorHandler: ErrorHandlerService,
     private messageService: MessageService,
     private route: ActivatedRoute,
-    private authService: AuthService
+    private authService: AuthService,
+    private userStateService: UserStateService
   ){}
 
   ngOnInit(): void {
@@ -138,6 +140,7 @@ export class UserRegisterComponent {
         });
         this.onSave.emit(savedUser);
         this.resetForm();
+        this.userStateService.notifyUserListUpdate();
       })
       .catch((error: any) => {
         this.errorHandler.handle(error);
@@ -153,6 +156,7 @@ export class UserRegisterComponent {
         });
         this.onSave.emit(updatedUser);
         this.resetForm();
+        this.userStateService.notifyUserListUpdate();
       })
       .catch((error: any) => {
         this.errorHandler.handle(error);
@@ -189,6 +193,7 @@ export class UserRegisterComponent {
         this.onDelete.emit(this.user.id);
         this.resetForm();
         this.showDeleteConfirm = false;
+        this.userStateService.notifyUserListUpdate();
       })
       .catch((error: any) => {
         this.errorHandler.handle(error);

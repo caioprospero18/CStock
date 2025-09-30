@@ -1,7 +1,9 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { User } from '../../core/models';
 import { UserService } from '../user.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
+import { Subscription } from 'rxjs';
+import { UserStateService } from '../../core/services/user-state.service';
 
 @Component({
   selector: 'app-user-update',
@@ -11,6 +13,7 @@ import { ErrorHandlerService } from '../../core/error-handler.service';
 export class UserUpdateComponent {
   @Output() onUpdate = new EventEmitter<User>();
   @Output() onCancel = new EventEmitter<void>();
+  @Input() isOpen: boolean = false;
 
   users: User[] = [];
   filteredUsers: User[] = [];
@@ -19,6 +22,8 @@ export class UserUpdateComponent {
 
   searchId: string = '';
   searchName: string = '';
+
+  private subscription = new Subscription();
 
   positions = [
     {label: 'Administrador', value: 'ADMIN'},
@@ -31,11 +36,27 @@ export class UserUpdateComponent {
 
   constructor(
     private userService: UserService,
-    private errorHandler: ErrorHandlerService
+    private errorHandler: ErrorHandlerService,
+    private userStateService: UserStateService
   ) {}
 
   ngOnInit(): void {
     this.loadUsers();
+    this.subscription.add(
+      this.userStateService.userListUpdated$.subscribe(() => {
+        this.loadUsers();
+      })
+      );
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
+      this.resetComponent();
+    }
   }
 
   async loadUsers() {
@@ -156,5 +177,14 @@ private isCurrentUserAdmin(): boolean {
 
   cancel() {
     this.onCancel.emit();
+  }
+
+  resetComponent() {
+    this.selectedUser = null;
+    this.searchId = '';
+    this.searchName = '';
+    if (this.users.length > 0) {
+      this.filteredUsers = [...this.users];
+    }
   }
 }

@@ -1,1 +1,106 @@
-<p>enterprise-update works!</p>
+<div class="container">
+  <h2>Selecionar Empresa para Alterar</h2>
+
+  <div class="search-filters">
+    <div class="p-grid">
+      <div class="p-col-12 p-md-6">
+        <label>Pesquisar por CNPJ:</label>
+        <input pInputText type="text"
+               [(ngModel)]="searchCnpj"
+               (input)="filterEnterprises()"
+               (keyup.enter)="autoSelectFromSearch()"
+               placeholder="Digite o CNPJ exato da empresa"
+               style="width: 100%">
+      </div>
+
+      <div class="p-col-12 p-md-6">
+        <label>Pesquisar por Nome:</label>
+        <input pInputText type="text"
+               [(ngModel)]="searchName"
+               (input)="filterEnterprises()"
+               (keyup.enter)="autoSelectFromSearch()"
+               placeholder="Digite parte do nome da empresa"
+               style="width: 100%">
+      </div>
+
+      <div class="p-col-12">
+        <button pButton type="button" label="Limpar Filtros"
+                class="p-button-secondary"
+                (click)="clearFilters()"
+                [disabled]="!searchCnpj && !searchName"></button>
+      </div>
+    </div>
+
+    <div *ngIf="searchCnpj || searchName" class="quick-results">
+      <div *ngIf="filteredEnterprises.length === 1" class="single-result">
+        <p><strong>Empresa encontrada:</strong> ID {{filteredEnterprises[0].id}} - {{filteredEnterprises[0].enterpriseName}}</p>
+        <p><small>Empresa selecionada automaticamente</small></p>
+      </div>
+
+      <div *ngIf="filteredEnterprises.length > 1" class="multiple-results">
+        <p><strong>🔍 {{filteredEnterprises.length}} empresas encontradas</strong></p>
+        <small>Use o dropdown abaixo para selecionar um</small>
+      </div>
+
+      <div *ngIf="filteredEnterprises.length === 0 && (searchCnpj || searchName)" class="no-results">
+        <p><strong> Nenhuma empresa encontrada</strong></p>
+        <small>Tente ajustar os termos da pesquisa</small>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando empresas...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredEnterprises.length === 0 && !searchCnpj && !searchName" class="no-users">
+    <p>Nenhuma empresa encontrada.</p>
+  </div>
+
+  <div *ngIf="!loading && filteredEnterprises.length > 0" class="selection-section">
+    <label>Selecione o empresa:</label>
+    <p-dropdown [options]="filteredEnterprises"
+                [(ngModel)]="selectedEnterprise"
+                optionLabel="enterpriseName"
+                [filter]="true"
+                filterBy="enterpriseName,id"
+                [showClear]="true"
+                placeholder="Selecione uma empresa"
+                [style]="{'width':'100%'}"
+                appendTo="body">
+      <ng-template let-enterprise pTemplate="item">
+        <div class="enterprise-option">
+          <div><strong>ID {{enterprise.id}}:</strong> {{enterprise.enterpriseName}}</div>
+        </div>
+      </ng-template>
+
+      <ng-template let-enterprise pTemplate="selectedItem">
+        <div *ngIf="enterprise">
+          <strong>{{enterprise.enterpriseName}}</strong> (ID: {{enterprise.id}})
+        </div>
+      </ng-template>
+    </p-dropdown>
+  </div>
+
+  <div *ngIf="selectedEnterprise" class="enterprise-info">
+    <h3>Empresa Selecionada:</h3>
+    <div class="enterprise-details-grid">
+      <div><strong>ID:</strong> {{selectedEnterprise.id}}</div>
+      <div><strong>Nome:</strong> {{selectedEnterprise.enterpriseName}}</div>
+      <div><strong>CNPJ:</strong> {{selectedEnterprise.cnpj}}</div>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button pButton type="button" label="Selecionar Empresa"
+            class="p-button-primary"
+            (click)="selectEnterprise()"
+            [disabled]="!selectedEnterprise"
+            icon="pi pi-check"></button>
+    <button pButton type="button" label="Cancelar"
+            class="p-button-secondary"
+            (click)="cancel()"
+            icon="pi pi-times"></button>
+  </div>
+</div>

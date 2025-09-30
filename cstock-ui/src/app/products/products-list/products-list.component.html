@@ -88,12 +88,12 @@
   </div>
 
   <div class="fixed-footer-buttons">
-    <button pButton label="Registrar produto" (click)="showRegisterForm()"></button>
-    <button pButton label="Registrar saída" (click)="showStockExitForm()"></button>
-    <button pButton label="Registrar entrada" (click)="showStockEntryForm()"></button>
-    <button pButton label="Registrar pedido" (click)="showOrderRequestForm()"></button>
-    <button pButton label="Registrar/Alterar usuário" (click)="showRegisterUserForm()"></button>
-    <a pButton label="Registrar empresa"></a>
+    <button *ngIf="'ROLE_REGISTER_PRODUCT' | hasRole" pButton label="Registrar produto" (click)="showRegisterForm()"></button>
+    <button *ngIf="'ROLE_REGISTER_STOCK_MOVEMENT' | hasRole" pButton label="Registrar saída" (click)="showStockExitForm()"></button>
+    <button *ngIf="'ROLE_REGISTER_STOCK_MOVEMENT' | hasRole" pButton label="Registrar entrada" (click)="showStockEntryForm()"></button>
+    <button *ngIf="'ROLE_REGISTER_STOCK_MOVEMENT' | hasRole" pButton label="Registrar pedido" (click)="showOrderRequestForm()"></button>
+    <button *ngIf="'ROLE_REGISTER_USER' | hasRole" pButton label="Registrar/Alterar usuário" (click)="showRegisterUserForm()"></button>
+    <button *ngIf="'ROLE_REGISTER_ENTERPRISE' | hasRole" pButton label="Registrar/Alterar empresa" (click)="showRegisterEnterpriseForm()"></button>
   </div>
 </div>
 
@@ -189,6 +189,7 @@
   <div class="form-overlay" [class.visible]="showUpdateForm">
     <div class="form-container">
       <app-user-update
+        [isOpen]="showUpdateForm"
         (onUpdate)="onUserSelectedForUpdate($event)"
         (onCancel)="onUpdateUserCancel()">
     </app-user-update>
@@ -210,6 +211,42 @@
         (onDelete)="onProductDeleted($event)"
         (onCancel)="showProductUForm = false">
       </app-product-update>
+    </div>
+  </div>
+</div>
+
+<div class="form-register-enterprise">
+  <p-confirmDialog
+    styleClass="custom-confirm-dialog"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showEnterpriseForm">
+    <div class="form-container">
+      <app-enterprise-register
+        [enterpriseInput]="selectedEnterpriseForUpdate"
+        (onSave)="onRegisterEnterpriseSaved($event)"
+        (onUpdateRequest)="showUpdateEnterpriseForm()"
+        (onDelete)="onEnterpriseDeleted($event)"
+        (onCancel)="onEnterpriseFormCancel()">
+      </app-enterprise-register>
+    </div>
+  </div>
+</div>
+
+<div class="form-enterprise-update">
+  <p-confirmDialog
+    styleClass="custom-confirm-dialog"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showUpdateEForm">
+    <div class="form-container">
+      <app-enterprise-update
+        [isOpen]="showUpdateEForm"
+        (onUpdate)="onEnterpriseSelectedForUpdate($event)"
+        (onCancel)="onUpdateEnterpriseCancel()">
+    </app-enterprise-update>
     </div>
   </div>
 </div>

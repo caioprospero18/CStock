@@ -3,7 +3,7 @@ import { ProductFilter, ProductService } from '../product.service';
 import { AuthService } from '../../security/auth.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorHandlerService } from '../../core/error-handler.service';
-import { Product } from '../../core/models';
+import { Enterprise, Product } from '../../core/models';
 
 @Component({
   selector: 'app-products-list',
@@ -20,8 +20,12 @@ export class ProductsListComponent {
   showUserForm = false;
   showUpdateForm = false;
   showProductUForm = false;
+  showEnterpriseForm = false;
+  showUpdateEForm = false;
   selectedProduct: Product | null = null;
   selectedUserForUpdate: any = null;
+  selectedEnterprise: Enterprise | null = null;
+  selectedEnterpriseForUpdate: any = null;
   productName?: string;
   brand?: string;
   products: Product[] = [];
@@ -247,16 +251,10 @@ export class ProductsListComponent {
   }
 
   showProductUpdateForm(product: Product) {
-  console.log('=== DEBUG showProductUForm ===');
-  console.log('Produto recebido:', product);
-  console.log('ID do produto:', product?.id);
-
   if (product && product.id) {
     this.selectedProduct = product;
     this.showProductUForm = true;
-    console.log('Modal aberto com produto:', this.selectedProduct);
   } else {
-    console.error('Produto inválido recebido');
     this.messageService.add({
       severity: 'error',
       detail: 'Erro ao carregar dados do produto'
@@ -273,4 +271,50 @@ export class ProductsListComponent {
       detail: 'Produto atualizado com sucesso!'
     });
   }
+
+  showRegisterEnterpriseForm(){
+    this.showEnterpriseForm = true;
+    this.showUpdateEForm = false;
+    this.selectedEnterpriseForUpdate = null;
+  }
+
+  onRegisterEnterpriseSaved(savedRegisterEnterprise: any) {
+    this.showEnterpriseForm = false;
+    this.loadProducts();
+  }
+
+  showUpdateEnterpriseForm() {
+    this.showUpdateEForm = true;
+    this.showEnterpriseForm = false;
+  }
+
+  onRegisterEnterpriseUpdated(updatedEnterprise: any) {
+    this.showUpdateEForm = false;
+    this.loadProducts();
+  }
+
+  onEnterpriseFormCancel() {
+    this.showEnterpriseForm = false;
+    this.selectedEnterpriseForUpdate = null;
+  }
+
+  onEnterpriseSelectedForUpdate(selectedEnterprise: any) {
+    this.selectedEnterpriseForUpdate = selectedEnterprise;
+    this.showUpdateEForm = false;
+    this.showEnterpriseForm = true;
+  }
+
+  onUpdateEnterpriseCancel() {
+    this.showUpdateEForm = false;
+  }
+
+  onEnterpriseDeleted(deletedEntepriseId: number) {
+    this.showEnterpriseForm = false;
+    this.loadProducts();
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Empresa excluída com sucesso!'
+    });
+  }
+
 }

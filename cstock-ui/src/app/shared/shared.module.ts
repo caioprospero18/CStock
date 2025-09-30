@@ -1,16 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MessageComponent } from './message/message.component';
+import { HasRolePipe } from '../pipes/has-role.pipe';
 
 
 
 @NgModule({
-  declarations: [MessageComponent],
+  declarations: [
+    MessageComponent,
+    HasRolePipe
+  ],
   imports: [
     CommonModule
   ],
   exports: [
-    MessageComponent
+    MessageComponent,
+    HasRolePipe
   ]
 })
 export class SharedModule { }
