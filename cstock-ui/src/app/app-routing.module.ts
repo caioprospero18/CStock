@@ -15,6 +15,7 @@ import { EnterpriseUpdateComponent } from './enterprises/enterprise-update/enter
 import { CallbackComponent } from './callback/callback.component';
 import { RedirectOauthComponent } from './security/redirect-oauth/redirect-oauth.component';
 import { StockEntryComponent } from './stock-movement/stock-entry/stock-entry.component';
+import { StockMovementChartComponent } from './stock-movement/stock-movement-chart/stock-movement-chart.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -27,6 +28,8 @@ const routes: Routes = [
 
   { path: 'enterprises/new', component: EnterpriseRegisterComponent },
   { path: 'users/new', component: UserRegisterComponent },
+  { path: 'dashboard/entradas', component: StockMovementChartComponent, data: { type: 'entradas' } },
+  { path: 'dashboard/saidas', component: StockMovementChartComponent, data: { type: 'saidas' } },
 
   {
     path: 'products/:id',

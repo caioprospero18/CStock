@@ -52,7 +52,6 @@ public class StockMovementResource {
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
 	public StockMovement create(@Valid @RequestBody StockMovement stockMovement) {
-		System.out.println("📦 Dados recebidos: " + stockMovement.toString());
 		return stockMovementService.save(stockMovement);
 	}
 	

@@ -68,8 +68,11 @@ private formatDateForBackend(date: Date): string {
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
 
-  return `${day}/${month}/${year}`;
+  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
   findByProductId(productId: number): Promise<StockMovement[]> {
@@ -135,7 +138,6 @@ private formatDateForBackend(date: Date): string {
     return user.id;
 
   } catch (error) {
-    console.error('Erro ao buscar ID do usuário:', error);
     throw new Error('Não foi possível obter o ID do usuário');
   }
 }

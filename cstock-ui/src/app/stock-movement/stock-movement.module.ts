@@ -12,6 +12,7 @@ import { RouterModule } from '@angular/router';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { StockMovementChartComponent } from './stock-movement-chart/stock-movement-chart.component';
 
 
 
@@ -19,7 +20,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 @NgModule({
   declarations: [
     StockEntryComponent,
-    StockExitComponent
+    StockExitComponent,
   ],
   imports: [
     CommonModule,
@@ -32,7 +33,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
   ],
   exports:[
     StockEntryComponent,
-    StockExitComponent
+    StockExitComponent,
+    
   ]
 })
 export class StockMovementModule { }

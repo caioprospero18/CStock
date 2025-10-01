@@ -1,6 +1,7 @@
 package com.cstock.domain.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,7 +16,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -32,9 +32,9 @@ public class StockMovement {
 	@Enumerated(EnumType.STRING)
 	private MovementType movementType;
 	@NotNull
-	@JsonFormat(pattern = "dd/MM/yyyy")
+	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
 	@Column(name = "movement_date")
-	private LocalDate movementDate;
+	private LocalDateTime movementDate;
 	@NotNull
 	@Min(1)
 	private int quantity;
@@ -57,10 +57,10 @@ public class StockMovement {
 	public void setMovementType(MovementType movementType) {
 		this.movementType = movementType;
 	}
-	public LocalDate getMovementDate() {
+	public LocalDateTime getMovementDate() {
 		return movementDate;
 	}
-	public void setMovementDate(LocalDate movementDate) {
+	public void setMovementDate(LocalDateTime movementDate) {
 		this.movementDate = movementDate;
 	}
 	public int getQuantity() {

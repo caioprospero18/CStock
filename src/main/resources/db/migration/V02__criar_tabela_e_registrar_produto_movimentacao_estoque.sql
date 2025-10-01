@@ -19,7 +19,7 @@ INSERT INTO product (id, product_name, brand, quantity, unit_value, total_value,
 CREATE TABLE stock_movement (
 	`id` BIGINT(20) PRIMARY KEY AUTO_INCREMENT,
 	`movement_type` VARCHAR(45) NOT NULL,
-	`movement_date` DATE NOT NULL,
+	`movement_date` TIMESTAMP NOT NULL,
 	`quantity` INT NOT NULL,
 	`observation` TEXT NOT NULL,
 	`user_id` BIGINT(20),

@@ -1,0 +1,91 @@
+<div class="container">
+  <div class="header">
+    <h2>Top 5 Produtos - Movimentações de Estoque</h2>
+
+    <div class="controls">
+      <div class="period-selector">
+        <label for="periodSelect">Período:</label>
+        <p-dropdown
+          [options]="periodOptions"
+          [(ngModel)]="selectedPeriod"
+          (onChange)="onPeriodChange()"
+          placeholder="Selecione o período"
+          [style]="{'width': '200px'}">
+        </p-dropdown>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p-progressSpinner></p-progressSpinner>
+    <span>Carregando dados...</span>
+  </div>
+
+  <div *ngIf="!loading && !hasData()" class="no-data">
+    <p>Nenhum dado de movimentação encontrado para o período selecionado.</p>
+  </div>
+
+  <!-- Container dos gráficos - sempre visível, mas o canvas só é manipulado no browser -->
+  <div *ngIf="!loading && hasData()" class="charts-container">
+    <!-- Gráfico de Entradas -->
+    <div class="chart-card">
+      <h3>Top 5 Entradas - {{ getPeriodLabel() }}</h3>
+
+      <div *ngIf="topEntries.length > 0" class="chart-wrapper">
+        <!-- Canvas sempre presente no DOM, mas só usado no browser -->
+        <canvas #entryChart width="400" height="300"></canvas>
+      </div>
+
+      <div *ngIf="topEntries.length === 0" class="no-chart-data">
+        <p>Nenhuma entrada registrada no período</p>
+      </div>
+
+      <div class="data-table" *ngIf="topEntries.length > 0">
+        <p-table [value]="topEntries" [paginator]="false" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Produto</th>
+              <th>Quantidade Total</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.productName }}</td>
+              <td class="quantity entry">{{ item.totalQuantity }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+    <!-- Gráfico de Saídas -->
+    <div class="chart-card">
+      <h3>Top 5 Saídas - {{ getPeriodLabel() }}</h3>
+
+      <div *ngIf="topExits.length > 0" class="chart-wrapper">
+        <canvas #exitChart width="400" height="300"></canvas>
+      </div>
+
+      <div *ngIf="topExits.length === 0" class="no-chart-data">
+        <p>Nenhuma saída registrada no período</p>
+      </div>
+
+      <div class="data-table" *ngIf="topExits.length > 0">
+        <p-table [value]="topExits" [paginator]="false" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Produto</th>
+              <th>Quantidade Total</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.productName }}</td>
+              <td class="quantity exit">{{ item.totalQuantity }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>

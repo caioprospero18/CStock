@@ -23,6 +23,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CallbackComponent } from './callback/callback.component';
 import { OrderRequestModule } from './order-request/order-request.module';
 import { EnterprisesModule } from './enterprises/enterprises.module';
+import { StockMovementChartsModule } from './stock-movement/stock-movement-chart.module';
 
 
 
@@ -52,7 +53,8 @@ import { EnterprisesModule } from './enterprises/enterprises.module';
     FormsModule,
     StockMovementModule,
     OrderRequestModule,
-    EnterprisesModule
+    EnterprisesModule,
+    StockMovementChartsModule
 
   ],
   providers: [

@@ -1,12 +1,12 @@
 <nav class="navbar">
   <div class="nav-logo">
-    <img src="assets/logo.png">
+    <a href="/products"><img src="assets/logo.png"></a>
   </div>
 
   <div class="a">
-    <a class="navbar-toggle">Registros de entrada</a>
-    <a class="navbar-toggle">Registros de saída</a>
-  </div>
+    <a class="navbar-toggle" routerLink="/dashboard/entradas">Registros de entrada</a>
+    <a class="navbar-toggle" routerLink="/dashboard/saidas">Registros de saída</a>
+</div>
 
   <div class="nav-controls">
     <a href="javascript:;" class="navbar-toggle" (click)="displayingMenu = !displayingMenu">
