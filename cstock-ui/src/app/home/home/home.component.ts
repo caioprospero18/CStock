@@ -14,6 +14,7 @@ export class HomeComponent implements OnInit {
   loading = false;
   currentUserName = '';
   canRegisterEnterprise = false;
+  attemptedLogin = false;
 
   constructor(
     private authService: AuthService,
@@ -22,6 +23,8 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.checkForAuthError();
+
     const user: UserPayload | null = this.authService.jwtPayload;
     if (user) {
       this.currentUserName = user.name ?? user.preferred_username ?? user.sub ?? '';
@@ -37,7 +40,24 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  private checkForAuthError(): void {
+    const urlParams = new URLSearchParams(window.location.search);
+    const error = urlParams.get('error');
+
+    if (error === 'true') {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro de Login',
+        detail: 'E-mail ou senha incorretos. Tente novamente.'
+      });
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }
+
   async login(): Promise<void> {
+    this.attemptedLogin = true;
+
     if (!this.username || !this.password) {
         this.messageService.add({
             severity: 'warn',
@@ -67,13 +87,13 @@ export class HomeComponent implements OnInit {
         this.messageService.add({
             severity: 'error',
             summary: 'Erro',
-            detail: 'Erro no login'
+            detail: 'Erro no login. Tente novamente.'
         });
         this.loading = false;
     }
-}
+  }
 
-private submitFormToSpring(username: string, password: string, codeChallenge: string): void {
+  private submitFormToSpring(username: string, password: string, codeChallenge: string): void {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'http://localhost:8080/login';
@@ -95,7 +115,7 @@ private submitFormToSpring(username: string, password: string, codeChallenge: st
 
     document.body.appendChild(form);
     form.submit();
-}
+  }
 
   logout(): void {
     this.authService.logout();
@@ -115,6 +135,12 @@ private submitFormToSpring(username: string, password: string, codeChallenge: st
         summary: 'Acesso negado',
         detail: 'Você não possui permissão.'
       });
+    }
+  }
+
+  onFieldInput(): void {
+    if (this.attemptedLogin) {
+      this.attemptedLogin = false;
     }
   }
 }

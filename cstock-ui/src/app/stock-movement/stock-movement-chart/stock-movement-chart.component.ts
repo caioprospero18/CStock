@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, ViewChild, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { StockMovementChartService, ProductSummary } from '../stock-movement-chart.service';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -7,7 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
   templateUrl: './stock-movement-chart.component.html',
   styleUrls: ['./stock-movement-chart.component.scss']
 })
-export class StockMovementChartComponent implements OnInit {
+export class StockMovementChartComponent implements OnInit, OnDestroy {
   @ViewChild('entryChart') entryChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('exitChart') exitChartCanvas!: ElementRef<HTMLCanvasElement>;
 
@@ -16,6 +16,9 @@ export class StockMovementChartComponent implements OnInit {
   topExits: ProductSummary[] = [];
   loading = false;
   chartsInitialized = false;
+
+  private refreshInterval: any;
+  private readonly REFRESH_INTERVAL = 30000; // 30 segundos
 
   // Opções do dropdown
   periodOptions = [
@@ -32,6 +35,26 @@ export class StockMovementChartComponent implements OnInit {
   ngOnInit() {
     console.log('🚀 Componente de gráficos inicializado');
     this.loadCharts();
+    this.startAutoRefresh();
+  }
+
+  ngOnDestroy() {
+    this.stopAutoRefresh();
+  }
+
+  private startAutoRefresh() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.refreshInterval = setInterval(() => {
+        console.log('🔄 Atualização automática dos gráficos');
+        this.loadCharts();
+      }, this.REFRESH_INTERVAL);
+    }
+  }
+
+  private stopAutoRefresh() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
   }
 
   async onPeriodChange() {
@@ -39,31 +62,54 @@ export class StockMovementChartComponent implements OnInit {
     await this.loadCharts();
   }
 
-  async loadCharts() {
+    async loadCharts() {
+    // Não recarregar se já estiver carregando
+    if (this.loading) {
+      console.log('⏸️  Já está carregando, pulando...');
+      return;
+    }
+
     console.log('📈 Carregando gráficos...');
     this.loading = true;
 
     try {
+      // Busca dados em paralelo
       const [entries, exits] = await Promise.all([
         this.stockMovementChartService.getTopProductsByPeriod(this.selectedPeriod, 'ENTRY'),
         this.stockMovementChartService.getTopProductsByPeriod(this.selectedPeriod, 'EXIT')
       ]);
 
+      console.log('📊 Dados recebidos - Entradas:', entries.length, 'Saídas:', exits.length);
+
+      // SEMPRE atualiza os dados - remove a verificação de mudança
       this.topEntries = entries;
       this.topExits = exits;
 
-      // Marca que os gráficos podem ser inicializados
-      this.chartsInitialized = true;
-
-      // Aguarda o próximo ciclo para garantir que o DOM está pronto
-      setTimeout(() => {
-        this.initializeCharts();
-      }, 0);
+      console.log('🎨 Atualizando gráficos...');
+      this.updateCharts();
 
     } catch (error) {
       console.error('❌ Erro ao carregar gráficos:', error);
     } finally {
       this.loading = false;
+      console.log('🏁 Carregamento finalizado');
+    }
+  }
+
+  private hasDataChanged(newEntries: ProductSummary[], newExits: ProductSummary[]): boolean {
+    const currentData = JSON.stringify({ entries: this.topEntries, exits: this.topExits });
+    const newData = JSON.stringify({ entries: newEntries, exits: newExits });
+    return currentData !== newData;
+  }
+
+  private updateCharts() {
+    this.chartsInitialized = true;
+
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => {
+        this.drawChart('entry');
+        this.drawChart('exit');
+      }, 0);
     }
   }
 
@@ -80,27 +126,33 @@ export class StockMovementChartComponent implements OnInit {
 
   drawChart(type: 'entry' | 'exit') {
     // Verificação extra de segurança
-    if (typeof window === 'undefined' ||
-      typeof document === 'undefined' ||
-      !isPlatformBrowser(this.platformId)) {
+    if (!isPlatformBrowser(this.platformId)) {
     console.log('⏸️  SSR - Pulando desenho do gráfico');
     return;
   }
 
-    const data = type === 'entry' ? this.topEntries : this.topExits;
-    const canvas = type === 'entry' ? this.entryChartCanvas?.nativeElement : this.exitChartCanvas?.nativeElement;
+  const data = type === 'entry' ? this.topEntries : this.topExits;
+  const canvas = type === 'entry' ? this.entryChartCanvas?.nativeElement : this.exitChartCanvas?.nativeElement;
 
-    console.log(`🎨 Desenhando gráfico ${type}:`, data.length, 'itens');
+  if (!canvas) {
+    console.warn('⚠️ Canvas não encontrado para:', type);
+    return;
+  }
 
-    if (!canvas) {
-      console.warn('⚠️ Canvas não encontrado para:', type);
-      return;
+  if (data.length === 0) {
+    console.log('ℹ️  Sem dados para desenhar no gráfico:', type);
+    // Limpa o canvas mesmo sem dados
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#999';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('Sem dados disponíveis', canvas.width / 2, canvas.height / 2);
     }
+    return;
+  }
 
-    if (data.length === 0) {
-      console.log('ℹ️  Sem dados para desenhar no gráfico:', type);
-      return;
-    }
 
     try {
       const ctx = canvas.getContext('2d');
@@ -174,6 +226,17 @@ export class StockMovementChartComponent implements OnInit {
         20
       );
 
+      // Adiciona timestamp da última atualização
+      ctx.fillStyle = '#999';
+      ctx.font = '10px Arial';
+      ctx.textAlign = 'right';
+      const now = new Date();
+      ctx.fillText(
+        `Atualizado: ${now.toLocaleTimeString()}`,
+        canvas.width - 10,
+        canvas.height - 10
+      );
+
       console.log(`✅ Gráfico ${type} desenhado com sucesso`);
     } catch (error) {
       console.error(`❌ Erro ao desenhar gráfico ${type}:`, error);
@@ -196,4 +259,23 @@ export class StockMovementChartComponent implements OnInit {
   hasData(): boolean {
     return this.topEntries.length > 0 || this.topExits.length > 0;
   }
+
+  // Método para forçar atualização manual
+  forceRefresh() {
+    console.log('🔄 Forçando atualização manual...');
+    this.loadCharts();
+  }
+
+  // Método para ver status do auto-refresh
+  getAutoRefreshStatus(): string {
+    return this.refreshInterval ? '🟢 ATIVO' : '🔴 INATIVO';
+  }
+
+  getCurrentTime(): string {
+  return new Date().toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+}
 }

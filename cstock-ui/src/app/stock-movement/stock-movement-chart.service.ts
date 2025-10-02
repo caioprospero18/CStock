@@ -20,18 +20,14 @@ export class StockMovementChartService {
     try {
       console.log('🚀 INICIANDO BUSCA - Período:', period, 'Tipo:', movementType);
 
-      // APENAS DADOS REAIS DO BACKEND
       const allMovements = await this.stockMovementService.findAll();
-
       console.log('📦 Total de movimentos no banco:', allMovements.length);
 
-      // Log dos primeiros movimentos para ver as datas
-      if (allMovements.length > 0) {
-        console.log('📅 Primeiros 3 movimentos:');
-        allMovements.slice(0, 3).forEach((movement, index) => {
-          console.log(`  ${index + 1}. ID: ${movement.id}, Data: ${movement.movementDate}, Tipo: ${movement.movementType}, Produto: ${movement.product?.productName}`);
-        });
-      }
+      // DEBUG: Verifique as datas já convertidas
+      console.log('🔍 VERIFICAÇÃO DAS DATAS CONVERTIDAS:');
+      allMovements.forEach((movement, index) => {
+        console.log(`  ${index + 1}. ID: ${movement.id}, Data: ${movement.movementDate}, Tipo: ${typeof movement.movementDate}, É Date: ${movement.movementDate instanceof Date}`);
+      });
 
       const now = new Date();
       let startDate: Date;
@@ -60,15 +56,18 @@ export class StockMovementChartService {
           return false;
         }
 
-        // Converte a string de data para Date object
-        const movementDate = new Date(movement.movementDate);
+        // AGORA movementDate já é Date, pode usar diretamente
+        const movementDate = movement.movementDate;
 
         const isInPeriod = movementDate >= startDate;
         const isCorrectType = movement.movementType === movementType;
 
-        if (isInPeriod && isCorrectType) {
-          console.log(`✅ MOVIMENTO INCLUÍDO - ID: ${movement.id}, Data: ${movementDate}, Tipo: ${movement.movementType}, Qtd: ${movement.quantity}`);
-        }
+        console.log(`📋 Movimento ${movement.id}:`, {
+          data: movementDate,
+          dataLegivel: movementDate.toLocaleString('pt-BR'),
+          noPeriodo: isInPeriod,
+          tipoCorreto: isCorrectType
+        });
 
         return isInPeriod && isCorrectType;
       });
@@ -84,10 +83,7 @@ export class StockMovementChartService {
       const productMap = new Map<number, ProductSummary>();
 
       filteredMovements.forEach((movement: StockMovement) => {
-        if (!movement.product?.id) {
-          console.warn('⚠️ Movimento sem produto:', movement);
-          return;
-        }
+        if (!movement.product?.id) return;
 
         const productId = movement.product.id;
         const productName = movement.product.productName || `Produto ${productId}`;
@@ -95,7 +91,6 @@ export class StockMovementChartService {
 
         if (existing) {
           existing.totalQuantity += movement.quantity;
-          console.log(`➕ Somando quantidade para ${productName}: +${movement.quantity} = ${existing.totalQuantity}`);
         } else {
           productMap.set(productId, {
             productId: productId,
@@ -103,7 +98,6 @@ export class StockMovementChartService {
             totalQuantity: movement.quantity,
             type: movementType
           });
-          console.log(`🆕 Novo produto: ${productName}, Qtd: ${movement.quantity}`);
         }
       });
 

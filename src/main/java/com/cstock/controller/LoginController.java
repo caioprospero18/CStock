@@ -36,7 +36,6 @@ public class LoginController {
         
         if (username != null && password != null && codeChallenge != null) {
             try {
-                System.out.println("Processando login automático via GET");
                 
                 UsernamePasswordAuthenticationToken token = 
                     new UsernamePasswordAuthenticationToken(username, password);
@@ -56,22 +55,18 @@ public class LoginController {
                         "code_challenge_method=" + (codeChallengeMethod != null ? codeChallengeMethod : "S256") + "&" +
                         "redirect_uri=" + encodedRedirect;
                 
-                System.out.println("🔗 Redirect URL: " + redirectUrl);
                 
                 return "redirect:" + redirectUrl;
                 
             } catch (Exception e) {
-                System.out.println("❌ Login error: " + e.getMessage());
-                model.addAttribute("error", "Usuário ou senha inválidos");
+            	return "redirect:http://localhost:4200?error=true";
             }
         }
         
         if (codeChallenge != null) {
             session.setAttribute("pkce_code_challenge", codeChallenge);
             session.setAttribute("pkce_code_challenge_method", codeChallengeMethod);
-            System.out.println("Stored in session: " + codeChallenge);
         } else {
-            System.out.println("⚠️ Code challenge não veio na URL");
         }
         
         if (error != null) {
@@ -124,12 +119,11 @@ public class LoginController {
                     "code_challenge_method=" + (finalMethod != null ? finalMethod : "S256") + "&" +
                     "redirect_uri=" + encodedRedirect;
             
-            System.out.println("🔗 Redirect URL: " + redirectUrl);
             
             return "redirect:" + redirectUrl;
             
         } catch (Exception e) {
-            return "redirect:/login?error=true";
+        	return "redirect:http://localhost:4200?error=true";
         }
     }
 }

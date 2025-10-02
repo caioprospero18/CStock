@@ -181,13 +181,56 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    const token = this.getFromSessionStorage('access_token');
-    return !!token && !this.jwtHelper.isTokenExpired(token ?? '');
+    const token = this.getAccessToken();
+
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const isExpired = this.jwtHelper.isTokenExpired(token);
+      if (isExpired) {
+        console.warn('🔐 Token expirado');
+        this.removeFromSessionStorage('access_token');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('🔐 Erro ao verificar token:', error);
+      return false;
+    }
   }
 
   getAccessToken(): string | null {
-    return this.getFromSessionStorage('access_token');
+  const sessionToken = this.getFromSessionStorage('access_token');
+  if (sessionToken) {
+    console.log('🔐 Token encontrado no sessionStorage');
+    return sessionToken;
   }
+
+  if (this.isBrowser) {
+    try {
+      const localToken = localStorage.getItem('access_token');
+      if (localToken) {
+        console.log('🔐 Token encontrado no localStorage');
+        this.setInSessionStorage('access_token', localToken);
+        return localToken;
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao acessar localStorage:', error);
+    }
+  }
+
+  if (this.jwtPayload && this.jwtPayload['access_token']) {
+    console.log('🔐 Token encontrado no jwtPayload');
+    return this.jwtPayload['access_token'];
+  }
+
+  console.warn('🔐 Nenhum token de autenticação encontrado');
+  return null;
+}
+
+
 
   async getNewAccessToken(): Promise<string | null> {
     const refreshToken = this.getFromSessionStorage('refresh_token');

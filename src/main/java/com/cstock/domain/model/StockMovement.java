@@ -1,6 +1,5 @@
 package com.cstock.domain.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -87,6 +86,12 @@ public class StockMovement {
 	public void setObservation(String observation) {
 		this.observation = observation;
 	}
+	public Double getMovementValue() {
+        if (this.movementType == MovementType.EXIT && this.product != null) {
+            return this.product.getUnitValue() * this.quantity;
+        }
+        return 0.0; 
+    }
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

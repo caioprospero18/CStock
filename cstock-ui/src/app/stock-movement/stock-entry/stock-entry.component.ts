@@ -38,7 +38,6 @@ export class StockEntryComponent {
     const userId = this.auth.jwtPayload?.['user_id'];
 
     this.initializeStockMovement(productId, userId);
-    this.stockMovement.movementType = 'ENTRY'
 
     if (productId && productId !== "new") {
       this.loadProduct(productId);

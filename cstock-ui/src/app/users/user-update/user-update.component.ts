@@ -24,6 +24,7 @@ export class UserUpdateComponent {
   searchName: string = '';
 
   private subscription = new Subscription();
+  private positionHierarchy = ['ADMIN', 'CEO', 'FINANCIAL', 'MANAGER', 'OPERATOR', 'VIEWER'];
 
   positions = [
     {label: 'Administrador', value: 'ADMIN'},
@@ -171,6 +172,10 @@ private isCurrentUserAdmin(): boolean {
 
   selectUser() {
     if (this.selectedUser) {
+      if (!this.canModifyUser(this.selectedUser)) {
+        alert('Você não tem permissão para modificar usuários com cargo superior ao seu.');
+        return;
+      }
       this.onUpdate.emit(this.selectedUser);
     }
   }
@@ -186,5 +191,30 @@ private isCurrentUserAdmin(): boolean {
     if (this.users.length > 0) {
       this.filteredUsers = [...this.users];
     }
+  }
+
+  canModifyUser(targetUser: User): boolean {
+    const currentUserPosition = this.getCurrentUserPosition();
+    const targetUserPosition = targetUser.position;
+
+    if (!currentUserPosition) return false;
+
+    const currentUserIndex = this.positionHierarchy.indexOf(currentUserPosition);
+    const targetUserIndex = this.positionHierarchy.indexOf(targetUserPosition);
+
+    return currentUserIndex <= targetUserIndex;
+  }
+
+  private getCurrentUserPosition(): string {
+    const accessToken = sessionStorage.getItem('access_token');
+    if (accessToken) {
+      try {
+        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        return payload.position || '';
+      } catch (error) {
+        return '';
+      }
+    }
+    return '';
   }
 }

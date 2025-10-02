@@ -1,5 +1,5 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
-import { Router, NavigationEnd } from '@angular/router'; 
+import { Router, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,8 @@ export class AppComponent {
 
 
   showingNavbar(): boolean {
-    return this.router.url !== '/home'
+    const currentUrl = this.router.url;
+    return currentUrl !== '/home' && !currentUrl.includes('?error=true');
   }
 
 }

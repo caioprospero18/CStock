@@ -53,6 +53,12 @@
     </div>
 
     <p-table [value]="products" responsiveLayout="stack" [breakpoint]="'768px'">
+      <ng-template  pTemplate="caption">
+        <div class="table-caption">
+          <strong>Faturamento Total ({{revenuePeriod}}):</strong>
+          <span class="total-revenue">R$ {{ totalSystemRevenue | number:'1.2-2' }}</span>
+        </div>
+      </ng-template>
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
@@ -61,6 +67,7 @@
           <th>Quantidade</th>
           <th>Valor unitário</th>
           <th>Valor total</th>
+          <th>Faturamento ({{revenuePeriod}})</th>
           <th></th>
         </tr>
       </ng-template>
@@ -70,8 +77,9 @@
           <td>{{ product.productName }}</td>
           <td>{{ product.brand }}</td>
           <td>{{ product.quantity }}</td>
-          <td>R$ {{ product.unitValue }}</td>
-          <td>R$ {{ product.totalValue }}</td>
+          <td>R$ {{ product.unitValue | number:'1.2-2' }}</td>
+          <td>R$ {{ product.totalValue | number:'1.2-2' }}</td>
+          <td>R$ {{ getProductRevenue(product.id) | number:'1.2-2' }}</td>
           <td>
             <a href="javascript:void(0)" (click)="showProductUpdateForm(product)">Alterar</a>
           </td>

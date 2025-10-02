@@ -22,8 +22,9 @@
           </div>
           <div class="p-col-12 p-md-6 p-fluid">
             <label>Valor da unidade*</label>
-            <input pInputText name="unitValue" type="text"
+            <p-inputNumber  name="unitValue" locale="pt-BR" mode="currency" currency="BRL"
             [(ngModel)]="product.unitValue" #unitValue="ngModel" required>
+            </p-inputNumber>
           </div>
         </div>
       </div>

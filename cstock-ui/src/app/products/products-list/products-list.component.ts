@@ -4,6 +4,7 @@ import { AuthService } from '../../security/auth.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorHandlerService } from '../../core/error-handler.service';
 import { Enterprise, Product } from '../../core/models';
+import { StockMovementService } from '../../stock-movement/stock-movement.service';
 
 @Component({
   selector: 'app-products-list',
@@ -32,18 +33,83 @@ export class ProductsListComponent {
   isAdmin = false;
   loading = false;
 
+  productRevenues: { [productId: number]: number } = {};
+  totalSystemRevenue: number = 0;
+  revenuePeriod: string = '30D';
+  periodOptions: any[] = [
+    { label: '24 Horas', value: '24H' },
+    { label: '7 Dias', value: '7D' },
+    { label: '30 Dias', value: '30D' },
+    { label: '90 Dias', value: '90D' }
+  ];
+  loadingRevenue: boolean = false;
+
   constructor(
     private productService: ProductService,
     private auth: AuthService,
     private confirmation: ConfirmationService,
     private messageService: MessageService,
-    private errorHandler: ErrorHandlerService
-
+    private errorHandler: ErrorHandlerService,
+    private stockMovementService: StockMovementService
   ) { }
 
   ngOnInit(): void {
     this.isAdmin = this.auth.isAdmin();
     this.loadProducts();
+  }
+
+  loadRevenueData(): void {
+    this.loadingRevenue = true;
+
+    this.stockMovementService.getTotalRevenue(this.revenuePeriod)
+      .subscribe({
+        next: (revenue) => {
+          this.totalSystemRevenue = revenue;
+
+          this.loadProductRevenues();
+        },
+        error: (error) => {
+          console.error('Erro ao carregar faturamento total:', error);
+          this.loadingRevenue = false;
+        }
+      });
+  }
+
+  private loadProductRevenues(): void {
+    this.stockMovementService.getTopProducts(this.revenuePeriod, 100)
+      .subscribe({
+        next: (topProducts) => {
+          this.productRevenues = this.convertProductRevenues(topProducts);
+          this.loadingRevenue = false;
+        },
+        error: (error) => {
+          console.error('Erro ao carregar faturamento por produto:', error);
+          this.loadingRevenue = false;
+        }
+      });
+  }
+
+  private convertProductRevenues(topProducts: { [productName: string]: number }): { [productId: number]: number } {
+    const revenues: { [productId: number]: number } = {};
+
+    Object.keys(topProducts).forEach(productName => {
+      const product = this.products.find(p =>
+        p.productName.toLowerCase() === productName.toLowerCase()
+      );
+      if (product && product.id) {
+        revenues[product.id] = topProducts[productName];
+      }
+    });
+
+    return revenues;
+  }
+
+  getProductRevenue(productId: number): number {
+    return this.productRevenues[productId] || 0;
+  }
+
+  onPeriodChange(): void {
+    this.loadRevenueData();
   }
 
   loadProducts(): void {
@@ -66,6 +132,7 @@ export class ProductsListComponent {
       .then(result => {
         this.products = result;
         this.loading = false;
+        this.loadRevenueData();
       })
       .catch(error => {
         this.errorHandler.handle(error);
@@ -88,6 +155,7 @@ export class ProductsListComponent {
         }
 
         this.loading = false;
+        this.loadRevenueData();
       })
       .catch(error => {
         this.errorHandler.handle(error);
@@ -126,7 +194,7 @@ export class ProductsListComponent {
     }
   }
 
-   onProductDeleted(deletedProductId: number) {
+  onProductDeleted(deletedProductId: number) {
     this.products = this.products.filter(product => product.id !== deletedProductId);
 
     this.messageService.add({
@@ -136,7 +204,6 @@ export class ProductsListComponent {
 
     this.showProductUForm = false;
   }
-
 
   confirmRemoval(product: Product): void {
     this.confirmation.confirm({
@@ -251,16 +318,16 @@ export class ProductsListComponent {
   }
 
   showProductUpdateForm(product: Product) {
-  if (product && product.id) {
-    this.selectedProduct = product;
-    this.showProductUForm = true;
-  } else {
-    this.messageService.add({
-      severity: 'error',
-      detail: 'Erro ao carregar dados do produto'
-    });
+    if (product && product.id) {
+      this.selectedProduct = product;
+      this.showProductUForm = true;
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        detail: 'Erro ao carregar dados do produto'
+      });
+    }
   }
-}
 
   onProductUpdateSaved(updatedProduct: any) {
     this.showProductUForm = false;
@@ -316,5 +383,4 @@ export class ProductsListComponent {
       detail: 'Empresa excluída com sucesso!'
     });
   }
-
 }

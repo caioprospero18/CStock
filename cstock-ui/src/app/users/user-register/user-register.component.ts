@@ -184,24 +184,59 @@ export class UserRegisterComponent {
   deleteUser() {
     if (!this.user.id) return;
 
-    this.userService.remove(this.user.id)
-      .then(() => {
+    if (!this.canModifyUser(this.user)) {
         this.messageService.add({
-          severity: 'success',
-          detail: 'Usuário excluído com sucesso!'
+            severity: 'error',
+            detail: 'Você não tem permissão para excluir usuários com cargo superior ao seu.'
         });
-        this.onDelete.emit(this.user.id);
-        this.resetForm();
         this.showDeleteConfirm = false;
-        this.userStateService.notifyUserListUpdate();
-      })
-      .catch((error: any) => {
-        this.errorHandler.handle(error);
-        this.showDeleteConfirm = false;
-      });
-  }
+        return;
+    }
+
+    this.userService.remove(this.user.id)
+        .then(() => {
+            this.messageService.add({
+                severity: 'success',
+                detail: 'Usuário excluído com sucesso!'
+            });
+            this.onDelete.emit(this.user.id);
+            this.resetForm();
+            this.showDeleteConfirm = false;
+            this.userStateService.notifyUserListUpdate();
+        })
+        .catch((error: any) => {
+            this.errorHandler.handle(error);
+            this.showDeleteConfirm = false;
+        });
+}
 
   cancelDelete() {
     this.showDeleteConfirm = false;
+  }
+
+  private canModifyUser(targetUser: User): boolean {
+    const currentUserPosition = this.getCurrentUserPosition();
+    const targetUserPosition = targetUser.position;
+
+    if (!currentUserPosition) return false;
+
+    const positionHierarchy = ['ADMIN', 'CEO', 'FINANCIAL', 'MANAGER', 'OPERATOR', 'VIEWER'];
+    const currentUserIndex = positionHierarchy.indexOf(currentUserPosition);
+    const targetUserIndex = positionHierarchy.indexOf(targetUserPosition);
+
+    return currentUserIndex <= targetUserIndex;
+  }
+
+  private getCurrentUserPosition(): string {
+    const accessToken = sessionStorage.getItem('access_token');
+    if (accessToken) {
+      try {
+        const payload = JSON.parse(atob(accessToken.split('.')[1]));
+        return payload.position || '';
+      } catch (error) {
+        return '';
+      }
+    }
+    return '';
   }
 }

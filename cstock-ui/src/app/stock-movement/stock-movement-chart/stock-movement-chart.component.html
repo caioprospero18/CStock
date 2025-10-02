@@ -1,6 +1,9 @@
 <div class="container">
   <div class="header">
-    <h2>Top 5 Produtos - Movimentações de Estoque</h2>
+    <h2>Top 5 Produtos - Movimentações de Estoque
+
+      <span class="loading-badge" *ngIf="loading">CARREGANDO...</span>
+    </h2>
 
     <div class="controls">
       <div class="period-selector">
@@ -13,6 +16,16 @@
           [style]="{'width': '200px'}">
         </p-dropdown>
       </div>
+
+      <div class="refresh-controls">
+        <button pButton
+                class= "custom-refresh-btn"
+                (click)="forceRefresh()"
+                [disabled]="loading">
+
+          Atualizar Agora
+        </button>
+      </div>
     </div>
   </div>
 
@@ -23,16 +36,24 @@
 
   <div *ngIf="!loading && !hasData()" class="no-data">
     <p>Nenhum dado de movimentação encontrado para o período selecionado.</p>
+    <button pButton
+            icon="pi pi-refresh"
+            class="p-button-outlined"
+            (click)="forceRefresh()">
+      Tentar Novamente
+    </button>
   </div>
 
-  <!-- Container dos gráficos - sempre visível, mas o canvas só é manipulado no browser -->
   <div *ngIf="!loading && hasData()" class="charts-container">
-    <!-- Gráfico de Entradas -->
     <div class="chart-card">
-      <h3>Top 5 Entradas - {{ getPeriodLabel() }}</h3>
+      <div class="chart-header">
+        <h3>Top 5 Entradas - {{ getPeriodLabel() }}</h3>
+        <span class="chart-update-info" *ngIf="topEntries.length > 0">
+          Atualizado às {{ getCurrentTime() }}
+        </span>
+      </div>
 
       <div *ngIf="topEntries.length > 0" class="chart-wrapper">
-        <!-- Canvas sempre presente no DOM, mas só usado no browser -->
         <canvas #entryChart width="400" height="300"></canvas>
       </div>
 
@@ -46,21 +67,27 @@
             <tr>
               <th>Produto</th>
               <th>Quantidade Total</th>
+              <th>Última Atualização</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-item>
             <tr>
               <td>{{ item.productName }}</td>
               <td class="quantity entry">{{ item.totalQuantity }}</td>
+              <td class="update-time">{{ getCurrentTime() }}</td>
             </tr>
           </ng-template>
         </p-table>
       </div>
     </div>
 
-    <!-- Gráfico de Saídas -->
     <div class="chart-card">
-      <h3>Top 5 Saídas - {{ getPeriodLabel() }}</h3>
+      <div class="chart-header">
+        <h3>Top 5 Saídas - {{ getPeriodLabel() }}</h3>
+        <span class="chart-update-info" *ngIf="topExits.length > 0">
+          Atualizado às {{ getCurrentTime() }}
+        </span>
+      </div>
 
       <div *ngIf="topExits.length > 0" class="chart-wrapper">
         <canvas #exitChart width="400" height="300"></canvas>
@@ -76,16 +103,26 @@
             <tr>
               <th>Produto</th>
               <th>Quantidade Total</th>
+              <th>Última Atualização</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-item>
             <tr>
               <td>{{ item.productName }}</td>
               <td class="quantity exit">{{ item.totalQuantity }}</td>
+              <td class="update-time">{{ getCurrentTime() }}</td>
             </tr>
           </ng-template>
         </p-table>
       </div>
     </div>
+  </div>
+
+  <div class="footer-info" *ngIf="!loading">
+    <p>
+      <i class="pi pi-info-circle"></i>
+      Os gráficos são atualizados automaticamente a cada 30 segundos.
+      <span *ngIf="hasData()">Última verificação: {{ getCurrentTime() }}</span>
+    </p>
   </div>
 </div>

@@ -19,6 +19,7 @@ import { OrderRequestModule } from '../order-request/order-request.module';
 import { UsersModule } from '../users/users.module';
 import { SharedModule } from '../shared/shared.module';
 import { EnterprisesModule } from '../enterprises/enterprises.module';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 
 
@@ -33,6 +34,7 @@ import { EnterprisesModule } from '../enterprises/enterprises.module';
     ConfirmDialogModule,
     FormsModule,
     InputTextModule,
+    InputNumberModule,
     ButtonModule,
     TableModule,
     TooltipModule,

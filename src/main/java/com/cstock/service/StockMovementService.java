@@ -1,7 +1,12 @@
 package com.cstock.service;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -93,4 +98,68 @@ public class StockMovementService {
 		movement.setUser(findUserById(userId));
 		return save(movement);
 	}
+	
+	public Double getTotalRevenue(String period) {
+        List<StockMovement> allMovements = stockMovementRepository.findAll();
+        List<StockMovement> exitMovements = filterExitMovementsByPeriod(allMovements, period);
+        
+        return exitMovements.stream()
+                .mapToDouble(StockMovement::getMovementValue)
+                .sum();
+    }
+    
+    public Double getProductRevenue(Long productId, String period) {
+        List<StockMovement> allMovements = stockMovementRepository.findAll();
+        List<StockMovement> exitMovements = filterExitMovementsByPeriod(allMovements, period);
+        
+        return exitMovements.stream()
+                .filter(m -> m.getProduct().getId().equals(productId))
+                .mapToDouble(StockMovement::getMovementValue)
+                .sum();
+    }
+    
+    public Map<String, Double> getTopProductsByRevenue(String period, int limit) {
+        List<StockMovement> allMovements = stockMovementRepository.findAll();
+        List<StockMovement> exitMovements = filterExitMovementsByPeriod(allMovements, period);
+        
+        Map<String, Double> revenueByProduct = new HashMap<>();
+        
+        for (StockMovement movement : exitMovements) {
+            String productName = movement.getProduct().getProductName();
+            Double revenue = movement.getMovementValue();
+            
+            revenueByProduct.merge(productName, revenue, Double::sum);
+        }
+        
+        return revenueByProduct.entrySet().stream()
+                .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                .limit(limit)
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (e1, e2) -> e1,
+                    LinkedHashMap::new
+                ));
+    }
+    
+    private List<StockMovement> filterExitMovementsByPeriod(List<StockMovement> movements, String period) {
+        LocalDateTime startDate = calculateStartDate(period);
+        
+        return movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.EXIT)
+                .filter(m -> m.getMovementDate().isAfter(startDate))
+                .collect(Collectors.toList());
+    }
+    
+    private LocalDateTime calculateStartDate(String period) {
+        LocalDateTime now = LocalDateTime.now();
+        
+        switch (period.toUpperCase()) {
+            case "24H": return now.minusHours(24);
+            case "7D": return now.minusDays(7);
+            case "30D": return now.minusDays(30);
+            case "90D": return now.minusDays(90);
+            default: return now.minusDays(30);
+        }
+    }
 }

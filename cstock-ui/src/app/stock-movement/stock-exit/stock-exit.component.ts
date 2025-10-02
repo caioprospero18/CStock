@@ -39,7 +39,6 @@ export class StockExitComponent {
       const userId = this.auth.jwtPayload?.['user_id'];
 
       this.initializeStockMovement(productId, userId);
-      this.stockMovement.movementType = 'ENTRY'
 
       if (productId && productId !== "new") {
         this.loadProduct(productId);
@@ -132,11 +131,11 @@ export class StockExitComponent {
 
       this.stockMovementService.add(this.stockMovement)
         .then(addedStockMovement => {
-          this.messageService.add({ severity: 'success', detail: 'Entrada de estoque registrada com sucesso!' });
+          this.messageService.add({ severity: 'success', detail: 'Saída de estoque registrada com sucesso!' });
           this.onSave.emit(addedStockMovement);
 
           if (this.product) {
-            this.product.quantity += this.stockMovement.quantity;
+            this.product.quantity -= this.stockMovement.quantity;
           }
 
           this.new(stockMovementForm);
