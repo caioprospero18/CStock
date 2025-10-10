@@ -23,7 +23,6 @@ export class StockMovementChartService {
       const allMovements = await this.stockMovementService.findAll();
       console.log('📦 Total de movimentos no banco:', allMovements.length);
 
-      // DEBUG: Verifique as datas já convertidas
       console.log('🔍 VERIFICAÇÃO DAS DATAS CONVERTIDAS:');
       allMovements.forEach((movement, index) => {
         console.log(`  ${index + 1}. ID: ${movement.id}, Data: ${movement.movementDate}, Tipo: ${typeof movement.movementDate}, É Date: ${movement.movementDate instanceof Date}`);
@@ -49,14 +48,12 @@ export class StockMovementChartService {
       console.log('⏰ Data de início do período:', startDate);
       console.log('⏰ Data atual:', now);
 
-      // Filtra movimentos pelo período e tipo
       const filteredMovements = allMovements.filter((movement: StockMovement) => {
         if (!movement.movementDate) {
           console.warn('⚠️ Movimento sem data:', movement);
           return false;
         }
 
-        // AGORA movementDate já é Date, pode usar diretamente
         const movementDate = movement.movementDate;
 
         const isInPeriod = movementDate >= startDate;
@@ -79,7 +76,6 @@ export class StockMovementChartService {
         return [];
       }
 
-      // Agrupa por produto e soma as quantidades
       const productMap = new Map<number, ProductSummary>();
 
       filteredMovements.forEach((movement: StockMovement) => {
@@ -101,7 +97,6 @@ export class StockMovementChartService {
         }
       });
 
-      // Converte para array, ordena e pega os top 5
       const result = Array.from(productMap.values())
         .sort((a, b) => b.totalQuantity - a.totalQuantity)
         .slice(0, 5);

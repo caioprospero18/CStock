@@ -6,13 +6,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
-import { TooltipModule } from 'primeng/tooltip';
-import { RouterModule } from '@angular/router';
+
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { StockMovementChartComponent } from './stock-movement-chart/stock-movement-chart.component';
 
 
 
@@ -34,7 +31,7 @@ import { StockMovementChartComponent } from './stock-movement-chart/stock-moveme
   exports:[
     StockEntryComponent,
     StockExitComponent,
-    
+
   ]
 })
 export class StockMovementModule { }

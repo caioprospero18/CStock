@@ -1,0 +1,262 @@
+.exit-container {
+  padding: 20px;
+}
+
+.exit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  h2 {
+    color: #333;
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.exit-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.exit-period-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  label {
+    font-weight: 500;
+    color: #555;
+    white-space: nowrap;
+  }
+}
+
+.exit-charts-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.exit-chart-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  border-left: 4px solid #F44336;
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+}
+
+.exit-chart-wrapper {
+  height: 300px;
+  margin-bottom: 20px;
+}
+
+.exit-data-table {
+  margin-top: 20px;
+
+  ::ng-deep .p-datatable {
+    font-size: 0.9rem;
+
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #555;
+    }
+  }
+}
+
+.exit-quantity {
+  font-weight: 600;
+  text-align: center;
+  color: #F44336;
+}
+
+.exit-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 15px;
+
+  ::ng-deep .p-progress-spinner {
+    width: 40px !important;
+    height: 40px !important;
+  }
+}
+
+.exit-no-data, .exit-no-chart-data {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.exit-loading-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  margin-left: 10px;
+  font-weight: 500;
+  background-color: #FF9800;
+  color: white;
+}
+
+.exit-refresh-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  .exit-refresh-status {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    background: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  ::ng-deep .exit-custom-refresh-btn {
+    background-color: rgb(0, 128, 94) !important;
+    border-color: rgb(120, 158, 148) !important;
+    color: white !important;
+
+    &:hover {
+      background-color: rgb(0, 100, 74) !important;
+      border-color: rgb(100, 138, 128) !important;
+    }
+
+    &:disabled {
+      background-color: rgb(120, 158, 148) !important;
+      border-color: rgb(150, 178, 168) !important;
+      opacity: 0.6;
+    }
+  }
+
+  .exit-last-update {
+    font-size: 11px;
+    color: #888;
+    font-style: italic;
+  }
+}
+
+.exit-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+
+  .exit-chart-update-info {
+    font-size: 12px;
+    color: #666;
+    background: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+}
+
+.exit-update-time {
+  font-size: 11px;
+  color: #666;
+  font-family: monospace;
+}
+
+.exit-footer-info {
+  margin-top: 30px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+
+  p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+
+    i {
+      margin-right: 8px;
+      color: #F44336;
+    }
+  }
+}
+
+@media (max-width: 968px) {
+  .exit-charts-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .exit-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .exit-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .exit-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .exit-refresh-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .exit-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .exit-container {
+    padding: 10px;
+  }
+
+  .exit-chart-card {
+    padding: 15px;
+  }
+
+  .exit-chart-wrapper {
+    height: 250px;
+  }
+}
+
+.exit-charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.exit-value {
+  font-weight: 600;
+  text-align: center;
+  color: #4CAF50;
+}
+
+@media (max-width: 968px) {
+  .exit-charts-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}

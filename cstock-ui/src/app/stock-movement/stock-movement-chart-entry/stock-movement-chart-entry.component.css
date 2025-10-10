@@ -1,8 +1,8 @@
-.container {
+.entry-container {
   padding: 20px;
 }
 
-.header {
+.entry-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -17,13 +17,13 @@
   }
 }
 
-.controls {
+.entry-controls {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.period-selector {
+.entry-period-selector {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -35,18 +35,19 @@
   }
 }
 
-.charts-container {
+.entry-charts-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 30px;
   margin-top: 20px;
 }
 
-.chart-card {
+.entry-chart-card {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
+  border-left: 4px solid #4CAF50;
 
   h3 {
     margin-top: 0;
@@ -57,12 +58,12 @@
   }
 }
 
-.chart-wrapper {
+.entry-chart-wrapper {
   height: 300px;
   margin-bottom: 20px;
 }
 
-.data-table {
+.entry-data-table {
   margin-top: 20px;
 
   ::ng-deep .p-datatable {
@@ -76,20 +77,13 @@
   }
 }
 
-.quantity {
+.entry-quantity {
   font-weight: 600;
   text-align: center;
-
-  &.entry {
-    color: #4CAF50;
-  }
-
-  &.exit {
-    color: #F44336;
-  }
+  color: #4CAF50;
 }
 
-.loading {
+.entry-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -103,72 +97,29 @@
   }
 }
 
-.no-data, .no-chart-data {
+.entry-no-data, .entry-no-chart-data {
   text-align: center;
   padding: 40px 20px;
   color: #666;
   font-style: italic;
 }
 
-@media (max-width: 968px) {
-  .charts-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .controls {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-.ssr-message {
-  text-align: center;
-  padding: 40px 20px;
-  color: #666;
-  font-style: italic;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-.real-time-badge, .loading-badge {
+.entry-loading-badge {
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 12px;
   margin-left: 10px;
   font-weight: 500;
-}
-
-.real-time-badge {
-  background-color: #2196F3;
-  color: white;
-}
-
-.loading-badge {
   background-color: #FF9800;
   color: white;
 }
 
-.controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.refresh-controls {
+.entry-refresh-controls {
   display: flex;
   align-items: center;
   gap: 15px;
 
-  .refresh-status {
+  .entry-refresh-status {
     font-size: 12px;
     color: #666;
     font-weight: 500;
@@ -177,37 +128,37 @@
     border-radius: 4px;
   }
 
-  ::ng-deep .custom-refresh-btn {
-  background-color: rgb(0, 128, 94) !important;
-  border-color: rgb(120, 158, 148) !important;
-  color: white !important;
+  ::ng-deep .entry-custom-refresh-btn {
+    background-color: rgb(0, 128, 94) !important;
+    border-color: rgb(120, 158, 148) !important;
+    color: white !important;
 
-  &:hover {
-    background-color: rgb(0, 100, 74) !important;
-    border-color: rgb(100, 138, 128) !important;
+    &:hover {
+      background-color: rgb(0, 100, 74) !important;
+      border-color: rgb(100, 138, 128) !important;
+    }
+
+    &:disabled {
+      background-color: rgb(120, 158, 148) !important;
+      border-color: rgb(150, 178, 168) !important;
+      opacity: 0.6;
+    }
   }
 
-  &:disabled {
-    background-color: rgb(120, 158, 148) !important;
-    border-color: rgb(150, 178, 168) !important;
-    opacity: 0.6;
-  }
-}
-
-  .last-update {
+  .entry-last-update {
     font-size: 11px;
     color: #888;
     font-style: italic;
   }
 }
 
-.chart-header {
+.entry-chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
 
-  .chart-update-info {
+  .entry-chart-update-info {
     font-size: 12px;
     color: #666;
     background: #f8f9fa;
@@ -216,13 +167,13 @@
   }
 }
 
-.update-time {
+.entry-update-time {
   font-size: 11px;
   color: #666;
   font-family: monospace;
 }
 
-.footer-info {
+.entry-footer-info {
   margin-top: 30px;
   padding: 15px;
   background: #f8f9fa;
@@ -236,93 +187,76 @@
 
     i {
       margin-right: 8px;
-      color: #2196F3;
+      color: #4CAF50;
     }
   }
 }
 
-@media (max-width: 768px) {
-  .controls {
+@media (max-width: 968px) {
+  .entry-charts-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .entry-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .refresh-controls {
+  .entry-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .entry-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .entry-refresh-controls {
     width: 100%;
     justify-content: space-between;
   }
 
-  .chart-header {
+  .entry-chart-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
 }
 
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  gap: 15px;
-}
-
-.no-data {
-  text-align: center;
-  padding: 40px 20px;
-  color: #666;
-
-  button {
-    margin-top: 15px;
-  }
-}
-
-.charts-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-}
-
-.chart-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-}
-
-.chart-wrapper {
-  height: 300px;
-  margin-bottom: 20px;
-}
-
-.data-table {
-  margin-top: 20px;
-}
-
-.quantity {
-  font-weight: 600;
-  text-align: center;
-
-  &.entry {
-    color: #4CAF50;
-  }
-
-  &.exit {
-    color: #F44336;
-  }
-}
-
 @media (max-width: 480px) {
-  .container {
+  .entry-container {
     padding: 10px;
   }
 
-  .chart-card {
+  .entry-chart-card {
     padding: 15px;
   }
 
-  .chart-wrapper {
+  .entry-chart-wrapper {
     height: 250px;
+  }
+}
+
+.entry-charts-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.entry-value {
+  font-weight: 600;
+  text-align: center;
+  color: #FF9800;
+}
+
+@media (max-width: 968px) {
+  .entry-charts-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 }

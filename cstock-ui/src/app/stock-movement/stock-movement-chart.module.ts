@@ -6,12 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { StockMovementChartComponent } from './stock-movement-chart/stock-movement-chart.component';
+import { StockMovementChartExitComponent } from './stock-movement-chart-exit/stock-movement-chart-exit.component';
+import { StockMovementChartEntryComponent } from './stock-movement-chart-entry/stock-movement-chart-entry.component';
 
 
 @NgModule({
   declarations: [
-    StockMovementChartComponent
+    StockMovementChartExitComponent,
+    StockMovementChartEntryComponent,
   ],
   imports: [
     CommonModule,
@@ -21,7 +23,8 @@ import { StockMovementChartComponent } from './stock-movement-chart/stock-moveme
     ProgressSpinnerModule
   ],
   exports: [
-    StockMovementChartComponent
+    StockMovementChartExitComponent,
+    StockMovementChartEntryComponent,
   ]
 })
 export class StockMovementChartsModule { }

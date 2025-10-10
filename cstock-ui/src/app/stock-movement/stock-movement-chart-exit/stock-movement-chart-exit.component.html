@@ -1,0 +1,117 @@
+<div class="exit-container">
+  <div class="exit-header">
+    <h2>Gráficos de Saída - Movimentações de Estoque
+      <span class="exit-loading-badge" *ngIf="loading">CARREGANDO...</span>
+    </h2>
+
+    <div class="exit-controls">
+      <div class="exit-period-selector">
+        <label for="periodSelect">Período:</label>
+        <p-dropdown
+          [options]="periodOptions"
+          [(ngModel)]="selectedPeriod"
+          (onChange)="onPeriodChange()"
+          placeholder="Selecione o período"
+          [style]="{'width': '200px'}">
+        </p-dropdown>
+      </div>
+
+      <div class="exit-refresh-controls">
+        <button pButton
+                class="exit-custom-refresh-btn"
+                (click)="forceRefresh()"
+                [disabled]="loading">
+          Atualizar Agora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="exit-loading">
+    <p-progressSpinner></p-progressSpinner>
+    <span>Carregando dados de saída...</span>
+  </div>
+
+  <div *ngIf="!loading && !hasData()" class="exit-no-data">
+    <p>Nenhuma saída registrada para o período selecionado.</p>
+    <button pButton
+            icon="pi pi-refresh"
+            class="p-button-outlined"
+            (click)="forceRefresh()">
+      Tentar Novamente
+    </button>
+  </div>
+
+  <div *ngIf="!loading && hasData()" class="exit-charts-container">
+    <div class="exit-chart-card">
+      <div class="exit-chart-header">
+        <h3>Top 5 Saídas - {{ getPeriodLabel() }}</h3>
+        <span class="exit-chart-update-info" *ngIf="topExits.length > 0">
+          Atualizado às {{ getCurrentTime() }}
+        </span>
+      </div>
+
+      <div *ngIf="topExits.length > 0" class="exit-chart-wrapper">
+        <canvas #exitChart width="400" height="300"></canvas>
+      </div>
+
+      <div class="exit-data-table" *ngIf="topExits.length > 0">
+        <p-table [value]="topExits" [paginator]="false" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Produto</th>
+              <th>Quantidade Total</th>
+              <th>Última Atualização</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.productName }}</td>
+              <td class="exit-quantity">{{ item.totalQuantity }}</td>
+              <td class="exit-update-time">{{ getCurrentTime() }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    <div class="exit-chart-card">
+      <div class="exit-chart-header">
+        <h3>Top 5 Lucro - {{ getPeriodLabel() }}</h3>
+        <span class="exit-chart-update-info" *ngIf="topRevenue.length > 0">
+          Atualizado às {{ getCurrentTime() }}
+        </span>
+      </div>
+
+      <div *ngIf="topRevenue.length > 0" class="exit-chart-wrapper">
+        <canvas #revenueChart width="400" height="300"></canvas>
+      </div>
+
+      <div class="exit-data-table" *ngIf="topRevenue.length > 0">
+        <p-table [value]="topRevenue" [paginator]="false" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Produto</th>
+              <th>Valor Total</th>
+              <th>Última Atualização</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.productName }}</td>
+              <td class="exit-value">R$ {{ item.totalValue | number:'1.2-2' }}</td>
+              <td class="exit-update-time">{{ getCurrentTime() }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+
+  <div class="exit-footer-info" *ngIf="!loading">
+    <p>
+      <i class="pi pi-info-circle"></i>
+      Os gráficos são atualizados automaticamente a cada 30 segundos.
+      <span *ngIf="hasData()">Última verificação: {{ getCurrentTime() }}</span>
+    </p>
+  </div>
+</div>
