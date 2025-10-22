@@ -24,7 +24,7 @@ export class ErrorHandlerService {
       }
 
       if (errorResponse.status === 404) {
-        msg = 'Nenhuma atividade cadastrada.';
+        msg = 'Nenhum produto cadastrada.';
       }
 
       try {

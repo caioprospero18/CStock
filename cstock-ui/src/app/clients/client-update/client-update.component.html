@@ -1,0 +1,109 @@
+<div class="container">
+  <h2>Selecionar Usuário para Alterar</h2>
+
+  <div class="search-filters">
+    <div class="p-grid">
+      <div class="p-col-12 p-md-6">
+        <label>Pesquisar por ID:</label>
+        <input pInputText type="text"
+               [(ngModel)]="searchId"
+               (input)="filterClients()"
+               (keyup.enter)="autoSelectFromSearch()"
+               placeholder="Digite o ID exato do cliente"
+               style="width: 100%">
+      </div>
+
+      <div class="p-col-12 p-md-6">
+        <label>Pesquisar por Nome:</label>
+        <input pInputText type="text"
+               [(ngModel)]="searchName"
+               (input)="filterClients()"
+               (keyup.enter)="autoSelectFromSearch()"
+               placeholder="Digite parte do nome do cliente"
+               style="width: 100%">
+      </div>
+
+      <div class="p-col-12">
+        <button pButton type="button" label="Limpar Filtros"
+                class="p-button-secondary"
+                (click)="clearFilters()"
+                [disabled]="!searchId && !searchName"></button>
+      </div>
+    </div>
+
+    <div *ngIf="searchId || searchName" class="quick-results">
+      <div *ngIf="filteredClients.length === 1" class="single-result">
+        <p><strong>Cliente encontrado:</strong> ID {{filteredClients[0].id}} - {{filteredClients[0].clientName}}</p>
+        <p><small>Cliente selecionado automaticamente</small></p>
+      </div>
+
+      <div *ngIf="filteredClients.length > 1" class="multiple-results">
+        <p><strong>🔍 {{filteredClients.length}} clientes encontrados</strong></p>
+        <small>Use o dropdown abaixo para selecionar um</small>
+      </div>
+
+      <div *ngIf="filteredClients.length === 0 && (searchId || searchName)" class="no-results">
+        <p><strong> Nenhum cliente encontrado</strong></p>
+        <small>Tente ajustar os termos da pesquisa</small>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p-progressSpinner></p-progressSpinner>
+    <p>Carregando clientes...</p>
+  </div>
+
+  <div *ngIf="!loading && filteredClients.length === 0 && !searchId && !searchName" class="no-users">
+    <p>Nenhum cliente encontrado para esta empresa.</p>
+  </div>
+
+  <div *ngIf="!loading && filteredClients.length > 0" class="selection-section">
+    <label>Selecione o cliente:</label>
+    <p-dropdown [options]="filteredClients"
+                [(ngModel)]="selectedClient"
+                optionLabel="clientName"
+                [filter]="true"
+                filterBy="clientName,id,email"
+                [showClear]="true"
+                placeholder="Selecione um cliente"
+                [style]="{'width':'100%'}"
+                appendTo="body">
+      <ng-template let-client pTemplate="item">
+        <div class="user-option">
+          <div><strong>ID {{client.id}}:</strong> {{client.clientName}}</div>
+          <div class="user-details">
+            <small>{{client.email}}</small>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template let-client pTemplate="selectedItem">
+        <div *ngIf="client">
+          <strong>{{client.clientName}}</strong> (ID: {{client.id}})
+        </div>
+      </ng-template>
+    </p-dropdown>
+  </div>
+
+  <div *ngIf="selectedClient" class="user-info">
+    <h3>Cliente Selecionado:</h3>
+    <div class="user-details-grid">
+      <div><strong>ID:</strong> {{selectedClient.id}}</div>
+      <div><strong>Nome:</strong> {{selectedClient.clientName}}</div>
+      <div><strong>Email:</strong> {{selectedClient.email}}</div>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button pButton type="button" label="Selecionar Cliente"
+            class="p-button-primary"
+            (click)="selectClient()"
+            [disabled]="!selectedClient"
+            icon="pi pi-check"></button>
+    <button pButton type="button" label="Cancelar"
+            class="p-button-secondary"
+            (click)="cancel()"
+            icon="pi pi-times"></button>
+  </div>
+</div>

@@ -66,6 +66,8 @@ export class ProductUpdateComponent {
       return;
     }
 
+    this.product.calculateTotals();
+
     this.productService.update(this.product)
       .then((updatedProduct: any) => {
         this.onSave.emit(updatedProduct);

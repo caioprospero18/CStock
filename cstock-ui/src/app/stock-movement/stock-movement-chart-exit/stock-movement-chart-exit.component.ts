@@ -1,5 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
-import { StockMovementChartService, ProductSummary } from '../stock-movement-chart.service';
+import { StockMovementChartService, ProductSummary, ClientSummary } from '../stock-movement-chart.service';
 import { StockMovementService } from '../stock-movement.service';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -11,10 +11,13 @@ import { isPlatformBrowser } from '@angular/common';
 export class StockMovementChartExitComponent implements OnInit, OnDestroy {
   @ViewChild('exitChart') exitChartCanvas!: ElementRef<HTMLCanvasElement>;
   @ViewChild('revenueChart') revenueChartCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('clientsChart') clientsChartCanvas!: ElementRef<HTMLCanvasElement>;
 
   selectedPeriod: '24h' | '1week' | '1month' = '24h';
   topExits: ProductSummary[] = [];
-  topRevenue: any[] = []; 
+  topRevenue: any[] = [];
+  topClients: ClientSummary[] = [];
+  clientStats: { totalClients: number; activeClients: number } = { totalClients: 0, activeClients: 0 };
   loading = false;
   chartsInitialized = false;
 
@@ -34,7 +37,6 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log('🚀 Componente de gráficos de SAÍDA inicializado');
     this.loadCharts();
     this.startAutoRefresh();
   }
@@ -64,24 +66,24 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
   async loadCharts() {
     if (this.loading) return;
 
-    console.log('📈 Carregando gráficos de SAÍDA...');
     this.loading = true;
 
     try {
-      const [exits, topProducts] = await Promise.all([
+      const [exits, topProducts, clients, clientStats] = await Promise.all([
         this.stockMovementChartService.getTopProductsByPeriod(this.selectedPeriod, 'EXIT'),
-        this.stockMovementService.getTopProducts(this.selectedPeriod, 100).toPromise()
+        this.stockMovementService.getTopProducts(this.selectedPeriod, 100).toPromise(),
+        this.stockMovementChartService.getTopClientsByPeriod(this.selectedPeriod),
+        this.stockMovementChartService.getClientStatistics()
       ]);
 
-      console.log('📊 Dados recebidos - Saídas:', exits.length);
       this.topExits = exits;
-
+      this.topClients = clients;
+      this.clientStats = clientStats;
       this.calculateTopRevenue(topProducts || {});
 
       this.updateCharts();
 
     } catch (error) {
-      console.error('❌ Erro ao carregar gráficos de SAÍDA:', error);
     } finally {
       this.loading = false;
     }
@@ -104,6 +106,7 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         this.drawExitChart();
         this.drawRevenueChart();
+        this.drawClientsChart();
       }, 0);
     }
   }
@@ -114,17 +117,14 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
     const data = this.topExits;
     const canvas = this.exitChartCanvas?.nativeElement;
 
-    if (!canvas) {
-      console.warn('⚠️ Canvas não encontrado para SAÍDA');
-      return;
-    }
+    if (!canvas) return;
 
     if (data.length === 0) {
       this.clearCanvas(canvas, 'Sem dados de saída');
       return;
     }
 
-    this.drawBarChart(canvas, data, '#F44336', `Top ${data.length} Saídas - ${this.getPeriodLabel()}`);
+    this.drawBarChart(canvas, data, '#F44336', `Top ${data.length} Saídas - ${this.getPeriodLabel()}`, false, 'totalQuantity');
   }
 
   drawRevenueChart() {
@@ -133,20 +133,40 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
     const data = this.topRevenue;
     const canvas = this.revenueChartCanvas?.nativeElement;
 
-    if (!canvas) {
-      console.warn('⚠️ Canvas não encontrado para LUCRO');
-      return;
-    }
+    if (!canvas) return;
 
     if (data.length === 0) {
       this.clearCanvas(canvas, 'Sem dados de lucro');
       return;
     }
 
-    this.drawBarChart(canvas, data, '#4CAF50', `Top ${data.length} Lucro - ${this.getPeriodLabel()}`, true);
+    this.drawBarChart(canvas, data, '#4CAF50', `Top ${data.length} Lucro - ${this.getPeriodLabel()}`, true, 'totalValue');
   }
 
-  private drawBarChart(canvas: HTMLCanvasElement, data: any[], color: string, title: string, isValueChart: boolean = false) {
+  drawClientsChart() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const data = this.topClients;
+    const canvas = this.clientsChartCanvas?.nativeElement;
+
+    if (!canvas) return;
+
+    if (data.length === 0) {
+      this.clearCanvas(canvas, 'Sem dados de clientes');
+      return;
+    }
+
+    this.drawBarChart(canvas, data, '#2196F3', `Top ${data.length} Clientes - ${this.getPeriodLabel()}`, true, 'totalValue');
+  }
+
+  private drawBarChart(
+    canvas: HTMLCanvasElement,
+    data: any[],
+    color: string,
+    title: string,
+    isValueChart: boolean = false,
+    valueField: string = 'totalQuantity'
+  ) {
     try {
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
@@ -157,7 +177,7 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
       const chartWidth = canvas.width - (padding * 2);
       const chartHeight = canvas.height - (padding * 2);
 
-      const maxValue = Math.max(...data.map(item => isValueChart ? item.totalValue : item.totalQuantity));
+      const maxValue = Math.max(...data.map(item => item[valueField]));
       const barWidth = chartWidth / data.length * 0.7;
 
       ctx.strokeStyle = '#ccc';
@@ -169,7 +189,7 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
       ctx.stroke();
 
       data.forEach((item, index) => {
-        const value = isValueChart ? item.totalValue : item.totalQuantity;
+        const value = item[valueField];
         const x = padding + (index * (chartWidth / data.length)) + (chartWidth / data.length - barWidth) / 2;
         const barHeight = (value / maxValue) * chartHeight;
         const y = canvas.height - padding - barHeight;
@@ -186,8 +206,9 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
         ctx.fillStyle = '#666';
         ctx.font = '10px Arial';
         ctx.textAlign = 'center';
-        const productName = this.truncateProductName(item.productName, 10);
-        ctx.fillText(productName, x + barWidth / 2, canvas.height - padding + 15);
+        const nameField = valueField === 'totalValue' ? 'clientName' : 'productName';
+        const displayName = this.truncateText(item[nameField], 10);
+        ctx.fillText(displayName, x + barWidth / 2, canvas.height - padding + 15);
       });
 
       ctx.fillStyle = '#333';
@@ -210,7 +231,6 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
       ctx.fillText(`Atualizado: ${new Date().toLocaleTimeString()}`, canvas.width - 10, canvas.height - 10);
 
     } catch (error) {
-      console.error('❌ Erro ao desenhar gráfico:', error);
     }
   }
 
@@ -225,8 +245,8 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
     }
   }
 
-  truncateProductName(name: string, maxLength: number = 10): string {
-    return name.length > maxLength ? name.substring(0, maxLength) + '...' : name;
+  truncateText(text: string, maxLength: number = 10): string {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   }
 
   getPeriodLabel(): string {
@@ -239,7 +259,7 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
   }
 
   hasData(): boolean {
-    return this.topExits.length > 0 || this.topRevenue.length > 0;
+    return this.topExits.length > 0 || this.topRevenue.length > 0 || this.topClients.length > 0;
   }
 
   forceRefresh() {

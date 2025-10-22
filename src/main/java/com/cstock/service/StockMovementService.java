@@ -46,6 +46,7 @@ public class StockMovementService {
 	    Product product = productSaved.get();
 	    int currentQuantity = product.getQuantity();
 	    int movementQuantity = stockMovement.getQuantity();
+	    
 	    if(stockMovement.getMovementType() == MovementType.ENTRY) {
 	    	product.setQuantity(currentQuantity + movementQuantity);
 	    } else if (stockMovement.getMovementType() == MovementType.EXIT) {
@@ -54,11 +55,24 @@ public class StockMovementService {
 	    	}
 	    	product.setQuantity(currentQuantity - movementQuantity); 
 	    } 
-	    product.setTotalValue(product.getUnitValue() * product.getQuantity());
+	    
+	    product.calculateTotals(); 
 	    productRepository.save(product);
+	    
+	    calculateMovementValue(stockMovement, product);
+	    
 	    return stockMovementRepository.save(stockMovement);
 	}
 	
+	private void calculateMovementValue(StockMovement movement, Product product) {
+	    if (movement.getMovementType() == MovementType.EXIT) {
+	        movement.setUnitPriceUsed(product.getSalePrice());
+	        movement.setMovementValue(product.getSalePrice() * movement.getQuantity());
+	    } else {
+	        movement.setUnitPriceUsed(product.getPurchasePrice());
+	        movement.setMovementValue(product.getPurchasePrice() * movement.getQuantity());
+	    }
+	}
 	
 	public StockMovement findStockMovementById(Long id) {
 		StockMovement stockMovement = stockMovementRepository.findById(id).orElseThrow(() -> new EmptyResultDataAccessException(1));

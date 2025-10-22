@@ -53,7 +53,7 @@ export class User {
     if (user.password && user.password.trim() !== '') {
       json.password = user.password;
     }
-    
+
     return json;
   }
 
@@ -68,8 +68,10 @@ export class Product {
   productName!: string;
   brand!: string;
   quantity!: number;
-  unitValue!: number;
-  totalValue!: number;
+  purchasePrice!: number;
+  salePrice!: number;
+  totalInvestment!: number;
+  potentialRevenue!: number;
   enterprise!: Enterprise;
 
   constructor(enterpriseId?: number) {
@@ -85,10 +87,17 @@ export class Product {
       productName: product.productName,
       brand: product.brand,
       quantity: product.quantity,
-      unitValue: product.unitValue,
-      totalValue: product.quantity * product.unitValue,
+      purchasePrice: product.purchasePrice,
+      salePrice: product.salePrice,
+      totalInvestment: product.totalInvestment,
+      potentialRevenue: product.potentialRevenue,
       enterprise: product.enterprise ? { id: product.enterprise.id } : null
     }
+  }
+
+  calculateTotals(): void {
+    this.totalInvestment = this.purchasePrice * this.quantity;
+    this.potentialRevenue = this.salePrice * this.quantity;
   }
 }
 
@@ -100,6 +109,9 @@ export class StockMovement {
   observation!: string;
   user!: User;
   product!: Product;
+  client?: Client;
+  unitPriceUsed?: number;      
+  movementValue?: number;
 
   constructor(productId?: number, userId?: number, enterpriseId?: number) {
     this.user = new User();
@@ -130,14 +142,20 @@ export class StockMovement {
       throw new Error('User ID é obrigatório');
     }
 
-    return {
+    const json: any = {
       movementType: stockMovement.movementType,
       movementDate: stockMovement.movementDate.toISOString(),
       quantity: stockMovement.quantity,
       observation: stockMovement.observation,
       user: { id: stockMovement.user.id },
       product: { id: stockMovement.product.id }
+    };
+
+    if (stockMovement.client?.id && stockMovement.movementType === 'EXIT') {
+      json.client = { id: stockMovement.client.id };
     }
+
+    return json;
   }
 }
 
@@ -151,4 +169,32 @@ export interface OrderRequest {
   status: 'PENDENTE' | 'ENVIADO' | 'RECEBIDO';
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export class Client {
+  id?: number;
+  clientName: string = '';
+  email?: string;
+  phone?: string;
+  identificationNumber?: string;
+  enterprise?: Enterprise;
+
+  static toJson(client: Client): any {
+    const json: any = {
+      clientName: client.clientName,
+      email: client.email,
+      phone: client.phone,
+      identificationNumber: client.identificationNumber
+    };
+
+    if (client.id) {
+      json.id = client.id;
+    }
+
+    if (client.enterprise?.id) {
+      json.enterprise = { id: client.enterprise.id };
+    }
+
+    return json;
+  }
 }

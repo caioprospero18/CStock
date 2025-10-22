@@ -1,6 +1,6 @@
 <div class="exit-container">
   <div class="exit-header">
-    <h2>Gráficos de Saída - Movimentações de Estoque
+    <h2>Gráficos de Saída e Clientes
       <span class="exit-loading-badge" *ngIf="loading">CARREGANDO...</span>
     </h2>
 
@@ -27,13 +27,34 @@
     </div>
   </div>
 
+  <div class="client-stats-container" *ngIf="!loading && clientStats.totalClients > 0">
+    <div class="client-stat-card">
+      <div class="stat-icon">
+        <i class="pi pi-users"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ clientStats.totalClients }}</h3>
+        <p>Total de Clientes</p>
+      </div>
+    </div>
+    <div class="client-stat-card">
+      <div class="stat-icon active">
+        <i class="pi pi-user"></i>
+      </div>
+      <div class="stat-content">
+        <h3>{{ clientStats.activeClients }}</h3>
+        <p>Clientes Ativos (30 dias)</p>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="loading" class="exit-loading">
     <p-progressSpinner></p-progressSpinner>
-    <span>Carregando dados de saída...</span>
+    <span>Carregando dados...</span>
   </div>
 
   <div *ngIf="!loading && !hasData()" class="exit-no-data">
-    <p>Nenhuma saída registrada para o período selecionado.</p>
+    <p>Nenhum dado registrado para o período selecionado.</p>
     <button pButton
             icon="pi pi-refresh"
             class="p-button-outlined"
@@ -74,6 +95,7 @@
         </p-table>
       </div>
     </div>
+
     <div class="exit-chart-card">
       <div class="exit-chart-header">
         <h3>Top 5 Lucro - {{ getPeriodLabel() }}</h3>
@@ -98,6 +120,40 @@
           <ng-template pTemplate="body" let-item>
             <tr>
               <td>{{ item.productName }}</td>
+              <td class="exit-value">R$ {{ item.totalValue | number:'1.2-2' }}</td>
+              <td class="exit-update-time">{{ getCurrentTime() }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+
+    <div class="exit-chart-card">
+      <div class="exit-chart-header">
+        <h3>Top 5 Clientes - {{ getPeriodLabel() }}</h3>
+        <span class="exit-chart-update-info" *ngIf="topClients.length > 0">
+          Atualizado às {{ getCurrentTime() }}
+        </span>
+      </div>
+
+      <div *ngIf="topClients.length > 0" class="exit-chart-wrapper">
+        <canvas #clientsChart width="400" height="300"></canvas>
+      </div>
+
+      <div class="exit-data-table" *ngIf="topClients.length > 0">
+        <p-table [value]="topClients" [paginator]="false" [rows]="10">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Cliente</th>
+              <th>Quantidade</th>
+              <th>Valor Gasto</th>
+              <th>Última Atualização</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-item>
+            <tr>
+              <td>{{ item.clientName }}</td>
+              <td class="exit-quantity">{{ item.totalPurchases }}</td>
               <td class="exit-value">R$ {{ item.totalValue | number:'1.2-2' }}</td>
               <td class="exit-update-time">{{ getCurrentTime() }}</td>
             </tr>

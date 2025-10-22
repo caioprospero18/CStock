@@ -9,3 +9,4 @@ CREATE TABLE order_request (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES product(id)
 );
+

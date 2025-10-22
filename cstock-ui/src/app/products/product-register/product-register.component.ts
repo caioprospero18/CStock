@@ -46,6 +46,8 @@ export class ProductRegisterComponent {
     }
 
     save(productForm: NgForm){
+      this.product.calculateTotals();
+
       if(this.editing){
         this.updateProduct(productForm);
       }else{

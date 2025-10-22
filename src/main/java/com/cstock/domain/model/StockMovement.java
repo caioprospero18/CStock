@@ -38,12 +38,20 @@ public class StockMovement {
 	@Min(1)
 	private int quantity;
 	private String observation;
+	@Column(name = "movement_value")
+    private double movementValue= 0.0; 
+    
+    @Column(name = "unit_price_used")
+    private double unitPriceUsed= 0.0;
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	private User user;
 	@ManyToOne
 	@JoinColumn(name = "product_id")
 	private Product product;
+	@ManyToOne
+    @JoinColumn(name = "client_id")
+    private Client client;
 	public Long getId() {
 		return id;
 	}
@@ -85,13 +93,31 @@ public class StockMovement {
 	}
 	public void setObservation(String observation) {
 		this.observation = observation;
-	}
+	}		
 	public Double getMovementValue() {
-        if (this.movementType == MovementType.EXIT && this.product != null) {
-            return this.product.getUnitValue() * this.quantity;
-        }
-        return 0.0; 
+	    return movementValue;
+	}
+	    
+	public void setMovementValue(Double movementValue) {
+	    this.movementValue = movementValue;
+	}
+	    
+	public Double getUnitPriceUsed() {
+		return unitPriceUsed;
+	}
+	    
+	public void setUnitPriceUsed(Double unitPriceUsed) {
+		this.unitPriceUsed = unitPriceUsed;
+	}
+	public void calculateMovementValue() {
+        this.movementValue = this.unitPriceUsed * this.quantity;
     }
+	public Client getClient() {
+		return client;
+	}
+	public void setClient(Client client) {
+		this.client = client;
+	}
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);

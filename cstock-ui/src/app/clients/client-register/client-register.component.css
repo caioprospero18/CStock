@@ -1,0 +1,112 @@
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.button-container .p-button:first-child{
+  background-color: rgb(0, 128, 94) !important;
+  border-color: rgb(120, 158, 148) !important;
+}
+
+.button-container .p-button:first-child:hover{
+  background-color: rgb(100, 138, 128) !important;
+  border-color: rgb(100, 138, 128) !important;
+}
+
+.update-btn{
+  background-color: rgb(1, 151, 111) !important;
+  border-color: rgb(120, 158, 148) !important;
+}
+
+.update-btn:hover{
+  background-color: rgb(100, 138, 128) !important;
+  border-color: rgb(100, 138, 128) !important;
+}
+
+::ng-deep .p-button-danger {
+  background-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+}
+
+::ng-deep .p-button-danger:hover {
+  background-color: #c82333 !important;
+  border-color: #bd2130 !important;
+}
+
+::ng-deep .p-button-danger:focus {
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.5) !important;
+}
+
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.delete-confirm-modal {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.confirm-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 10px;
+}
+
+.confirm-icon {
+  color: #dc3545;
+  font-size: 1.5em;
+  margin-right: 10px;
+}
+
+.confirm-header h3 {
+  margin: 0;
+  color: #dc3545;
+}
+
+.confirm-body {
+  margin-bottom: 20px;
+}
+
+.confirm-body p {
+  margin: 5px 0;
+  color: #495057;
+}
+
+.confirm-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+  .delete-confirm-modal {
+    margin: 20px;
+    width: calc(100% - 40px);
+  }
+
+  .confirm-footer {
+    flex-direction: column;
+  }
+
+  .confirm-footer button {
+    width: 100%;
+  }
+}
+
+

@@ -53,7 +53,7 @@
     </div>
 
     <p-table [value]="products" responsiveLayout="stack" [breakpoint]="'768px'">
-      <ng-template  pTemplate="caption">
+      <ng-template pTemplate="caption">
         <div class="table-caption">
           <strong>Faturamento Total ({{revenuePeriod}}):</strong>
           <span class="total-revenue">R$ {{ totalSystemRevenue | number:'1.2-2' }}</span>
@@ -65,8 +65,10 @@
           <th>Nome</th>
           <th>Marca</th>
           <th>Quantidade</th>
-          <th>Valor unitário</th>
-          <th>Valor total</th>
+          <th>Preço Compra</th>
+          <th>Preço Venda</th>
+          <th>Investimento Total</th>
+          <th>Receita Potencial</th>
           <th>Faturamento ({{revenuePeriod}})</th>
           <th></th>
         </tr>
@@ -77,8 +79,10 @@
           <td>{{ product.productName }}</td>
           <td>{{ product.brand }}</td>
           <td>{{ product.quantity }}</td>
-          <td>R$ {{ product.unitValue | number:'1.2-2' }}</td>
-          <td>R$ {{ product.totalValue | number:'1.2-2' }}</td>
+          <td>R$ {{ product.purchasePrice | number:'1.2-2' }}</td>
+          <td>R$ {{ product.salePrice | number:'1.2-2' }}</td>
+          <td>R$ {{ product.totalInvestment | number:'1.2-2' }}</td>
+          <td>R$ {{ product.potentialRevenue | number:'1.2-2' }}</td>
           <td>R$ {{ getProductRevenue(product.id) | number:'1.2-2' }}</td>
           <td>
             <a href="javascript:void(0)" (click)="showProductUpdateForm(product)">Alterar</a>
@@ -87,7 +91,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="custom-table-empty">
+          <td colspan="10" class="custom-table-empty">
             <p>Nenhum produto cadastrado.</p>
           </td>
         </tr>
@@ -102,6 +106,7 @@
     <button *ngIf="'ROLE_REGISTER_STOCK_MOVEMENT' | hasRole" pButton label="Registrar pedido" (click)="showOrderRequestForm()"></button>
     <button *ngIf="'ROLE_REGISTER_USER' | hasRole" pButton label="Registrar/Alterar usuário" (click)="showRegisterUserForm()"></button>
     <button *ngIf="'ROLE_REGISTER_ENTERPRISE' | hasRole" pButton label="Registrar/Alterar empresa" (click)="showRegisterEnterpriseForm()"></button>
+    <button pButton label="Registrar/Alterar cliente" (click)="showRegisterClientForm()"></button>
   </div>
 </div>
 
@@ -255,6 +260,42 @@
         (onUpdate)="onEnterpriseSelectedForUpdate($event)"
         (onCancel)="onUpdateEnterpriseCancel()">
     </app-enterprise-update>
+    </div>
+  </div>
+</div>
+
+<div class="form-register-client">
+  <p-confirmDialog
+    styleClass="custom-confirm-dialog"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showClientForm">
+    <div class="form-container">
+      <app-client-register
+        [clientInput]="selectedClientForUpdate"
+        (onSave)="onRegisterClientSaved($event)"
+        (onUpdateRequest)="showUpdateClientForm()"
+        (onDelete)="onClientDeleted($event)"
+        (onCancel)="onClientFormCancel()">
+      </app-client-register>
+    </div>
+  </div>
+</div>
+
+<div class="form-client-update">
+  <p-confirmDialog
+    styleClass="custom-confirm-dialog"
+    [baseZIndex]="10000">
+  </p-confirmDialog>
+
+  <div class="form-overlay" [class.visible]="showClientUForm">
+    <div class="form-container">
+      <app-client-update
+        [isOpen]="showClientUForm"
+        (onUpdate)="onClientSelectedForUpdate($event)"
+        (onCancel)="onUpdateClientCancel()">
+    </app-client-update>
     </div>
   </div>
 </div>

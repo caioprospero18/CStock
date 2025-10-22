@@ -17,6 +17,9 @@ import { RedirectOauthComponent } from './security/redirect-oauth/redirect-oauth
 import { StockEntryComponent } from './stock-movement/stock-entry/stock-entry.component';
 import { StockMovementChartEntryComponent } from './stock-movement/stock-movement-chart-entry/stock-movement-chart-entry.component';
 import { StockMovementChartExitComponent } from './stock-movement/stock-movement-chart-exit/stock-movement-chart-exit.component';
+import { ClientListComponent } from './clients/client-list/client-list.component';
+import { ClientRegisterComponent } from './clients/client-register/client-register.component';
+import { StockMovementListComponent } from './stock-movement/stock-movement-list/stock-movement-list.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -31,7 +34,10 @@ const routes: Routes = [
   { path: 'users/new', component: UserRegisterComponent },
   { path: 'charts/entry', component: StockMovementChartEntryComponent },
   { path: 'charts/exit', component: StockMovementChartExitComponent },
-
+  { path: 'clients', component: ClientListComponent },
+  { path: 'clients/new', component: ClientRegisterComponent },
+  { path: 'clients/edit/:id', component: ClientRegisterComponent },
+  { path: 'stockmovements', component: StockMovementListComponent },
 
   {
     path: 'products/:id',

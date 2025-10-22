@@ -48,7 +48,11 @@ public class StockMovementResource {
 		}
 		return ResponseEntity.notFound().build();
 	}
-	
+	@GetMapping("/enterprise/{enterpriseId}")
+	@PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
+	public List<StockMovement> findByEnterpriseId(@PathVariable Long enterpriseId) {
+	    return stockMovementRepository.findByProductEnterpriseId(enterpriseId);
+	}
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	@PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")

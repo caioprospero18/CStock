@@ -1,0 +1,150 @@
+<div class="list">
+  <div class="movements-container">
+    <div class="search-bar">
+      <div class="search-grid">
+        <div class="search-field">
+          <label for="productName"><strong>Nome do Produto</strong></label>
+          <div class="input-with-icon">
+            <i class="fas fa-box"></i>
+            <input
+              id="productName"
+              type="text"
+              class="search-input"
+              placeholder="Digite o nome do produto"
+              [(ngModel)]="productName"
+              (keyup.enter)="search()"
+              [disabled]="loading">
+          </div>
+        </div>
+
+        <div class="search-field">
+          <label for="movementType"><strong>Tipo de Movimentação</strong></label>
+          <div class="input-with-icon">
+            <i class="fas fa-exchange-alt"></i>
+            <select
+              id="movementType"
+              class="search-input"
+              [(ngModel)]="movementType"
+              (change)="search()"
+              [disabled]="loading">
+              <option *ngFor="let type of movementTypes" [value]="type.value">
+                {{ type.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="search-field">
+          <label for="clientName"><strong>Cliente</strong></label>
+          <div class="input-with-icon">
+            <i class="fas fa-user"></i>
+            <input
+              id="clientName"
+              type="text"
+              class="search-input"
+              placeholder="Digite o nome do cliente"
+              [(ngModel)]="clientName"
+              (keyup.enter)="search()"
+              [disabled]="loading">
+          </div>
+        </div>
+
+        <div class="search-buttons">
+          <button
+            class="btn btn-primary"
+            (click)="search()"
+            [disabled]="loading">
+            <i class="fas fa-search"></i>
+            Pesquisar
+          </button>
+          <button
+            class="btn btn-secondary"
+            (click)="clearFilters()"
+            [disabled]="loading">
+            <i class="fas fa-eraser"></i>
+            Limpar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <p-table
+      [value]="filteredMovements"
+      responsiveLayout="stack"
+      [breakpoint]="'768px'"
+      [loading]="loading">
+
+      <ng-template pTemplate="caption">
+        <div class="period-selector">
+          <label for="periodSelect">Período:</label>
+          <p-dropdown
+            [options]="periodOptions"
+            [(ngModel)]="selectedPeriod"
+            (onChange)="onPeriodChange()"
+            placeholder="Selecione o período"
+            [style]="{'width': '200px'}"
+            [disabled]="loading">
+          </p-dropdown>
+        </div>
+        <div class="table-caption">
+          <strong>Total de Movimentações:</strong>
+          <span class="total-count">{{ filteredMovements.length }}</span>
+          <span *ngIf="selectedPeriod" class="period-info">
+            • Período: {{ getPeriodLabel() }}
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID Produto</th>
+          <th>Nome do Produto</th>
+          <th>Marca</th>
+          <th>Quantidade</th>
+          <th>Valor da Movimentação</th>
+          <th>Tipo</th>
+          <th>Data e Hora</th>
+          <th>Cliente</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-movement>
+        <tr>
+          <td>{{ movement.product?.id || '-' }}</td>
+          <td>{{ movement.product?.productName || '-' }}</td>
+          <td>{{ movement.product?.brand || '-' }}</td>
+          <td>
+            <span [class]="getQuantityClass(movement)">
+              {{ getQuantityDisplay(movement) }}
+            </span>
+          </td>
+          <td>{{ getMovementValue(movement) }}</td>
+          <td>
+            <span [class]="getMovementTypeClass(movement.movementType)" class="movement-badge">
+              {{ getMovementTypeLabel(movement.movementType) }}
+            </span>
+          </td>
+          <td>{{ formatDate(movement.movementDate) }}</td>
+          <td>{{ getClientName(movement) }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="custom-table-empty">
+            <p *ngIf="!loading">Nenhuma movimentação encontrada.</p>
+            <p *ngIf="loading">Carregando movimentações...</p>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        <tr>
+          <td colspan="8" class="custom-table-empty">
+            <p>Carregando movimentações...</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

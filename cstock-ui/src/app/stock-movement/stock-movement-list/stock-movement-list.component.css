@@ -1,0 +1,313 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.movements-container {
+  width: 100%;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+  margin-bottom: 20px;
+}
+
+.fixed-footer-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 15px;
+  z-index: 1000;
+}
+
+.fixed-footer-buttons .p-button {
+  background-color: rgb(0, 128, 94) !important;
+  border-color: rgb(120, 158, 148) !important;
+  min-width: 160px;
+  text-align: center;
+  justify-content: center;
+}
+
+.fixed-footer-buttons .p-button:hover {
+  background-color: rgb(100, 138, 128) !important;
+  border-color: rgb(100, 138, 128) !important;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: rgb(201, 200, 200);
+  border: 1px solid #000000;
+  padding: 12px;
+  text-align: left;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  border: 1px solid #000000;
+  padding: 12px;
+  background-color: rgb(201, 200, 200);
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover > td {
+  background-color: #e9ecef;
+}
+
+.custom-table-empty {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.movement-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+
+.table-caption {
+  display: flex;
+  background-color: rgb(201, 200, 200);
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding: 12px;
+  border: 1px solid #000000;
+}
+
+.total-count {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.search-bar {
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.search-grid {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+}
+
+.search-field {
+  flex: 1;
+}
+
+.search-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+  font-family: inherit;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.search-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.btn-primary {
+  background: #3798ff;
+  color: white;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon i {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+}
+
+.movements-container ::ng-deep .p-datatable {
+  border: 1px solid #000 !important;
+  background-color: rgb(201, 200, 200) !important;
+  border-collapse: collapse !important;
+}
+
+.movements-container ::ng-deep .p-datatable-caption {
+  background-color: rgb(201, 200, 200) !important;
+  border-bottom: 1px solid #000 !important;
+  padding: 6px 12px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  box-sizing: border-box !important;
+}
+
+.movements-container ::ng-deep .p-datatable-header {
+  background-color: rgb(201, 200, 200) !important;
+  border-bottom: 1px solid #000 !important;
+}
+
+.movements-container ::ng-deep .p-datatable-wrapper,
+.movements-container ::ng-deep .p-datatable-table,
+.movements-container ::ng-deep .p-component {
+  background-color: rgb(201, 200, 200) !important;
+}
+
+.movements-container .table-caption {
+  background: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+.movements-container .total-count {
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.period-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  label {
+    font-weight: 500;
+    color: #555;
+    white-space: nowrap;
+    margin-bottom: 0;
+  }
+}
+
+::ng-deep .period-selector .p-dropdown {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+::ng-deep .period-selector .p-dropdown:not(.p-disabled):hover {
+  border-color: #2196F3;
+}
+
+::ng-deep .period-selector .p-dropdown:not(.p-disabled).p-focus {
+  border-color: #2196F3;
+  box-shadow: 0 0 0 0.2rem rgba(33, 150, 243, 0.25);
+}
+
+::ng-deep .period-selector .p-dropdown-panel {
+  border: 1px solid #ced4da;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+  .period-selector {
+    width: 100%;
+
+    ::ng-deep .p-dropdown {
+      width: 100% !important;
+    }
+  }
+}
+
+.period-info {
+  color: #666;
+  font-size: 0.9em;
+  margin-left: 10px;
+}
+
+.table-caption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.total-count {
+  font-weight: bold;
+}
+@media (max-width: 1200px) {
+  .fixed-footer-buttons {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 10px;
+  }
+
+  .fixed-footer-buttons .p-button {
+    min-width: 140px;
+    flex: 1;
+    margin: 5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .fixed-footer-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .fixed-footer-buttons .p-button {
+    min-width: 100%;
+    margin: 2px 0;
+  }
+
+  .movements-container {
+    max-height: calc(100vh - 200px);
+  }
+
+  .search-grid {
+    flex-direction: column;
+  }
+}
+
+/* Abordagem nuclear - força branco em todos os níveis */
+.movements-container ::ng-deep .period-selector .p-dropdown,
+.movements-container ::ng-deep .period-selector .p-dropdown *,
+.movements-container ::ng-deep .period-selector .p-dropdown-panel,
+.movements-container ::ng-deep .period-selector .p-dropdown-panel * {
+  background-color: #ffffff !important;
+  background: #ffffff !important;
+}
+
+.movements-container ::ng-deep .period-selector .p-dropdown .p-dropdown-label {
+  color: #495057 !important;
+}
+
+.movements-container ::ng-deep .period-selector .p-dropdown-panel .p-dropdown-item {
+  color: #495057 !important;
+}
+
+.movements-container ::ng-deep .period-selector .p-dropdown-panel .p-dropdown-item:not(.p-disabled):hover {
+  background-color: #e9ecef !important;
+}

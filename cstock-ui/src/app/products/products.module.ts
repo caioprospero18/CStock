@@ -20,6 +20,7 @@ import { UsersModule } from '../users/users.module';
 import { SharedModule } from '../shared/shared.module';
 import { EnterprisesModule } from '../enterprises/enterprises.module';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { ClientsModule } from '../clients/clients.module';
 
 
 
@@ -45,7 +46,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     StockMovementModule,
     OrderRequestModule,
     UsersModule,
-    EnterprisesModule
+    EnterprisesModule,
+    ClientsModule
   ],
   exports: [
     ProductsListComponent,

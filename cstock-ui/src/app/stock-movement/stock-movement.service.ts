@@ -34,7 +34,6 @@ export class StockMovementService {
         throw new Error('Resposta vazia do servidor');
       }
 
-      console.log('Movimentação salva com sucesso:', response);
       return response;
 
     } catch (error) {
@@ -54,7 +53,7 @@ export class StockMovementService {
 
     const formattedDate = this.formatDateForBackend(stockMovement.movementDate);
 
-    return {
+    const data: any = {
       movementType,
       movementDate: formattedDate,
       quantity: stockMovement.quantity,
@@ -62,6 +61,12 @@ export class StockMovementService {
       user: { id: userId },
       product: { id: stockMovement.product.id }
     };
+
+    if (stockMovement.client?.id && movementType === 'EXIT') {
+      data.client = { id: stockMovement.client.id };
+    }
+
+    return data;
   }
 
   private formatDateForBackend(date: Date): string {
@@ -82,7 +87,6 @@ export class StockMovementService {
         if (!response) {
           throw new Error(`Nenhuma movimentação encontrada para o produto ID ${productId}`);
         }
-        // Converte as datas string para Date
         return response.map(movement => ({
           ...movement,
           movementDate: this.convertToDate(movement.movementDate)
@@ -97,7 +101,6 @@ export class StockMovementService {
         if (!response) {
           throw new Error(`Usuário com ID ${userId} não encontrado`);
         }
-        // Converte as datas string para Date
         return response.map(movement => ({
           ...movement,
           movementDate: this.convertToDate(movement.movementDate)
@@ -125,26 +128,34 @@ export class StockMovementService {
       .append('Content-Type', 'application/json');
 
     try {
-      const response = await this.http.get<any[]>(this.stockMovementsUrl, { headers })
+      const isAdmin = this.auth.isAdmin();
+      let url = this.stockMovementsUrl;
+
+      if (!isAdmin) {
+        const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
+        if (enterpriseId) {
+          url = `${this.stockMovementsUrl}/enterprise/${enterpriseId}`;
+        }
+      } else {
+        console.log('👑 Usuário Admin - carregando todas as movimentações');
+      }
+
+      const response = await this.http.get<any[]>(url, { headers })
         .toPromise();
 
       if (!response || response.length === 0) {
-        console.log('ℹ️ Nenhuma movimentação encontrada');
         return [];
       }
 
-      console.log('🔧 Convertendo dados do backend...');
 
       const movementsWithDates = response.map(movement => ({
         ...movement,
         movementDate: this.convertToDate(movement.movementDate)
       } as StockMovement));
 
-      console.log('✅ Dados convertidos com sucesso');
       return movementsWithDates;
 
     } catch (error: any) {
-      console.error('❌ Erro ao buscar movimentações:', error);
 
       if (error.status === 401 || error.status === 403) {
         console.warn('🔐 Erro de autenticação - limpando token e retornando vazio');
@@ -155,6 +166,7 @@ export class StockMovementService {
       return [];
     }
   }
+
 
   findById(id: number): Promise<StockMovement> {
     const token = this.auth.getAccessToken();
@@ -248,11 +260,11 @@ export class StockMovementService {
         return fallbackDate;
       }
 
-      console.warn('❌ Não foi possível converter a data:', dateString);
+      console.warn('Não foi possível converter a data:', dateString);
       return new Date();
 
     } catch (error) {
-      console.error('❌ Erro na conversão da data:', dateString, error);
+      console.error('Erro na conversão da data:', dateString, error);
       return new Date();
     }
   }

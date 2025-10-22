@@ -22,25 +22,41 @@ public class Product {
 	@GeneratedValue (strategy = GenerationType.IDENTITY)
 	@Id
 	private Long id;
+	
 	@NotNull
 	@Column(name = "product_name")
 	private String productName;
+	
 	@NotNull
 	private String brand;
+	
 	@NotNull
 	private int quantity;
+	
 	@NotNull
-	@Column(name = "unit_value")
-	private double unitValue;
+	@Column(name = "purchase_price") 
+	private double purchasePrice;
+	
 	@NotNull
-	@Column(name = "total_value")
-	private double totalValue;
+	@Column(name = "sale_price") 
+	private double salePrice;
+	
+	@NotNull
+	@Column(name = "total_investment") 
+	private double totalInvestment;
+	
+	@NotNull
+	@Column(name = "potential_revenue") 
+	private double potentialRevenue;
+	
 	@ManyToOne
 	@JoinColumn(name = "enterprise_id")
 	private Enterprise enterprise;
+	
 	@OneToMany(mappedBy = "product")
 	@JsonIgnore
 	private List<StockMovement> stockMovement;
+
 	public Long getId() {
 		return id;
 	}
@@ -65,17 +81,29 @@ public class Product {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
-	public double getUnitValue() {
-		return unitValue;
+	public double getPurchasePrice() {
+		return purchasePrice;
 	}
-	public void setUnitValue(double unitValue) {
-		this.unitValue = unitValue;
+	public void setPurchasePrice(double purchasePrice) {
+		this.purchasePrice = purchasePrice;
 	}
-	public double getTotalValue() {
-		return totalValue;
+	public double getSalePrice() {
+		return salePrice;
 	}
-	public void setTotalValue(double totalValue) {
-		this.totalValue = totalValue;
+	public void setSalePrice(double salePrice) {
+		this.salePrice = salePrice;
+	}
+	public double getTotalInvestment() {
+		return totalInvestment;
+	}
+	public void setTotalInvestment(double totalInvestment) {
+		this.totalInvestment = totalInvestment;
+	}
+	public double getPotentialRevenue() {
+		return potentialRevenue;
+	}
+	public void setPotentialRevenue(double potentialRevenue) {
+		this.potentialRevenue = potentialRevenue;
 	}
 	public Enterprise getEnterprise() {
 		return enterprise;
@@ -89,6 +117,12 @@ public class Product {
 	public void setStockMovement(List<StockMovement> stockMovement) {
 		this.stockMovement = stockMovement;
 	}
+	
+	public void calculateTotals() {
+		this.totalInvestment = this.purchasePrice * this.quantity;
+		this.potentialRevenue = this.salePrice * this.quantity;
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
@@ -104,6 +138,4 @@ public class Product {
 		Product other = (Product) obj;
 		return Objects.equals(id, other.id);
 	}
-	
-	
 }

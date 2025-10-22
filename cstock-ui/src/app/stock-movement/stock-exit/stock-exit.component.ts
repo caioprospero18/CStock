@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { Product, StockMovement } from '../../core/models';
+import { Client, Product, StockMovement } from '../../core/models';
 import { StockMovementService } from '../stock-movement.service';
 import { ProductService } from '../../products/product.service';
 import { AuthService } from '../../security/auth.service';
@@ -7,6 +7,7 @@ import { ErrorHandlerService } from '../../core/error-handler.service';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
+import { ClientService } from '../../clients/client.service';
 
 @Component({
   selector: 'app-stock-exit',
@@ -23,10 +24,14 @@ export class StockExitComponent {
     selectedProduct: Product | null = null;
     filteredProducts: Product[] = [];
     allProducts: Product[] = [];
+    selectedClient: Client | null = null;
+    filteredClients: Client[] = [];
+    allClients: Client[] = []
 
     constructor(
       private stockMovementService: StockMovementService,
       private productService: ProductService,
+      private clientService: ClientService,
       private auth: AuthService,
       private errorHandler: ErrorHandlerService,
       private messageService: MessageService,
@@ -44,7 +49,29 @@ export class StockExitComponent {
         this.loadProduct(productId);
       }
       this.loadAllProducts();
+      this.loadAllClients();
 
+    }
+
+    loadAllClients() {
+      this.clientService.findAll()
+        .then(clients => {
+          this.allClients = clients;
+        })
+        .catch(error => this.errorHandler.handle(error));
+    }
+    searchClientByName(event: any) {
+      const query = event.query.toLowerCase();
+      this.filteredClients = this.allClients.filter(client =>
+        client.clientName?.toLowerCase().includes(query) ||
+        client.email?.toLowerCase().includes(query) ||
+        client.identificationNumber?.includes(query)
+      );
+    }
+
+    onClientSelect(event: any) {
+      this.selectedClient = event.value as Client;
+      this.stockMovement.client = this.selectedClient;
     }
 
     initializeStockMovement(productId?: number, userId?: number) {
@@ -126,6 +153,11 @@ export class StockExitComponent {
 
       if (!this.stockMovement.product?.id) {
         this.messageService.add({ severity: 'error', detail: 'Produto não selecionado!' });
+        return;
+      }
+
+      if (!this.stockMovement.client?.id) {
+        this.messageService.add({ severity: 'error', detail: 'Cliente não selecionado!' });
         return;
       }
 

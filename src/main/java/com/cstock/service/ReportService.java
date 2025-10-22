@@ -69,34 +69,40 @@ public class ReportService {
     }
     
     private ReportDTO buildReportDTO(List<StockMovement> movements, LocalDate startDate, 
-                                   LocalDate endDate, String reportType, Enterprise enterprise) {
-        ReportDTO report = new ReportDTO();
-        report.setReportDate(LocalDate.now());
-        report.setReportType(reportType);
-        
-        List<ReportDTO.StockMovementReport> movementReports = movements.stream()
-            .map(this::convertToMovementReport)
-            .collect(Collectors.toList());
-        
-        report.setMovements(movementReports);
-        
-        BigDecimal totalRevenue = movements.stream()
-            .filter(m -> m.getMovementType() == MovementType.EXIT)
-            .map(m -> BigDecimal.valueOf(m.getProduct().getUnitValue() * m.getQuantity()))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-            
-        BigDecimal totalExpenses = movements.stream()
-            .filter(m -> m.getMovementType() == MovementType.ENTRY)
-            .map(m -> BigDecimal.valueOf(m.getProduct().getUnitValue() * m.getQuantity()))
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
-        
-        report.setTotalRevenue(totalRevenue);
-        report.setTotalExpenses(totalExpenses);
-        report.setNetProfit(totalRevenue.subtract(totalExpenses));
-        report.setTotalEntries((int) movements.stream().filter(m -> m.getMovementType() == MovementType.ENTRY).count());
-        report.setTotalExits((int) movements.stream().filter(m -> m.getMovementType() == MovementType.EXIT).count());
-        
-        return report;
+    		LocalDate endDate, String reportType, Enterprise enterprise) {
+    	ReportDTO report = new ReportDTO();
+    	report.setReportDate(LocalDate.now());
+    	report.setReportType(reportType);
+
+    	List<ReportDTO.StockMovementReport> movementReports = movements.stream()
+    			.map(this::convertToMovementReport)
+    			.collect(Collectors.toList());
+
+    	report.setMovements(movementReports);
+
+    	BigDecimal totalRevenue = movements.stream()
+    			.filter(m -> m.getMovementType() == MovementType.EXIT)
+    			.map(m -> {
+    				Double value = m.getMovementValue();
+    				return value != null ? BigDecimal.valueOf(value) : BigDecimal.ZERO;
+    			})
+    			.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    	BigDecimal totalExpenses = movements.stream()
+    			.filter(m -> m.getMovementType() == MovementType.ENTRY)
+    			.map(m -> {
+    				Double value = m.getMovementValue();
+    				return value != null ? BigDecimal.valueOf(value) : BigDecimal.ZERO;
+    			})
+    			.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    	report.setTotalRevenue(totalRevenue);
+    	report.setTotalExpenses(totalExpenses);
+    	report.setNetProfit(totalRevenue.subtract(totalExpenses));
+    	report.setTotalEntries((int) movements.stream().filter(m -> m.getMovementType() == MovementType.ENTRY).count());
+    	report.setTotalExits((int) movements.stream().filter(m -> m.getMovementType() == MovementType.EXIT).count());
+
+    	return report;
     }
     
     private void sendReportToEnterpriseManagers(ReportDTO report, Enterprise enterprise) {
@@ -119,8 +125,17 @@ public class ReportService {
         report.setMovementType(movementTypeString);
         
         report.setQuantity(movement.getQuantity());
-        report.setUnitPrice(BigDecimal.valueOf(movement.getProduct().getUnitValue()));
-        report.setTotalValue(BigDecimal.valueOf(movement.getProduct().getUnitValue() * movement.getQuantity()));
+        
+        Double unitPriceUsed = movement.getUnitPriceUsed();
+        BigDecimal unitPrice = unitPriceUsed != null ? 
+            BigDecimal.valueOf(unitPriceUsed) : BigDecimal.ZERO;
+        report.setUnitPrice(unitPrice);
+        
+        Double movementValue = movement.getMovementValue();
+        BigDecimal totalValue = movementValue != null ? 
+            BigDecimal.valueOf(movementValue) : BigDecimal.ZERO;
+        report.setTotalValue(totalValue);
+        
         report.setMovementDate(movement.getMovementDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
         report.setUserName(movement.getUser().getUserName());
         return report;

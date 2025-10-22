@@ -31,7 +31,6 @@ public class ProductRepositoryImpl implements ProductRepositoryQuery{
 		Predicate[] predicates = createConstraints(productFilter, builder, root);
 		criteria.where(predicates);
 		
-		//ordenar pela data mais atual
 		if (sort != null) {
             List<Order> orderList = sort.stream()
                 .map(order -> order.isAscending() ? builder.asc(root.get(order.getProperty()))

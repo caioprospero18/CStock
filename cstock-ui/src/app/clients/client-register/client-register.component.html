@@ -1,0 +1,81 @@
+<div class="container">
+  <form #f="ngForm" autocomplete="off" (ngSubmit)="save(f)">
+
+    <div class="p-grid">
+      <div class="p-col-12">
+        <h1>{{ isEditing ? 'Editar cliente' : 'Cadastrar cliente' }}</h1>
+      </div>
+
+      <div class="p-col-12 p-md-8 p-fluid" id="clientName">
+        <label>Nome do cliente*</label>
+        <input pInputText name="clientName" type="text"
+          [(ngModel)]="client.clientName" #clientName="ngModel" required minlength="3" maxlength="100">
+        <app-message [control]="clientName" error="required" text="Informe o nome do cliente"></app-message>
+        <app-message [control]="clientName" error="minlength"
+            text="Mínimo de {{ clientName.errors?.minlength?.requiredLength }} caracteres. Você digitou apenas {{ clientName.errors?.minlength?.actualLength }}"></app-message>
+      </div>
+
+      <div class="p-col-12 p-md-4 p-fluid" id="identificationNumber">
+        <label>CPF/CNPJ</label>
+        <input pInputText name="identificationNumber" type="text"
+          [(ngModel)]="client.identificationNumber" #identificationNumber="ngModel"
+          placeholder="000.000.000-00 ou 00.000.000/0000-00">
+      </div>
+
+      <div class="p-col-12 p-md-6 p-fluid" id="email">
+        <label>E-mail</label>
+        <input pInputText name="email" type="email"
+          [(ngModel)]="client.email" #email="ngModel"
+          placeholder="digite@email.com">
+        <app-message [control]="email" error="email" text="Informe um e-mail válido"></app-message>
+      </div>
+
+      <div class="p-col-12 p-md-6 p-fluid" id="phone">
+        <label>Telefone</label>
+        <input pInputText name="phone" type="text"
+          [(ngModel)]="client.phone" #phone="ngModel"
+          placeholder="(00) 00000-0000">
+      </div>
+
+    </div>
+
+    <div class="button-container">
+      <button pButton type="submit"
+        [label]="isEditing ? 'Atualizar' : 'Cadastrar'"
+        id="submit"
+        [disabled]="loading"></button>
+
+      <button *ngIf="!isEditing" pButton type="button" label="Alterar"
+        class="update-btn" (click)="showUpdateClientForm()"></button>
+
+      <button *ngIf="isEditing" pButton type="button" label="Excluir Cliente"
+        class="p-button-danger" (click)="confirmDelete()"></button>
+
+      <button pButton type="button" label="Cancelar"
+        class="p-button-secondary" (click)="cancel()"></button>
+    </div>
+  </form>
+
+  <div *ngIf="showDeleteConfirm" class="delete-confirm-overlay">
+    <div class="delete-confirm-modal">
+      <div class="confirm-header">
+        <i class="pi pi-exclamation-triangle confirm-icon"></i>
+        <h3>Confirmar Exclusão</h3>
+      </div>
+
+      <div class="confirm-body">
+        <p>Tem certeza que deseja excluir o cliente <strong>{{ client.clientName }}</strong>?</p>
+        <p>Esta ação não pode ser desfeita.</p>
+      </div>
+
+      <div class="confirm-footer">
+        <button pButton type="button" label="Cancelar"
+          class="p-button-secondary"
+          (click)="cancelDelete()"></button>
+        <button pButton type="button" label="Sim, Excluir"
+          class="p-button-danger"
+          (click)="deleteClient()"></button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,58 +1,74 @@
 <div class="container">
   <form #f="ngForm" autocomplete="off" (ngSubmit)="updateProduct()">
-    <div class="p-grid" >
+    <div class="p-grid">
       <div class="p-col-12">
         <h1>Atualizar produto</h1>
       </div>
-        <div class="p-col-12 p-md-6 p-fluid" id="name">
-          <label>Nome</label>
-          <input pInputText name="name" type="text"
-          [(ngModel)]="product.productName" #name="ngModel">
+      <div class="p-col-12 p-md-6 p-fluid" id="name">
+        <label>Nome</label>
+        <input pInputText name="name" type="text"
+        [(ngModel)]="product.productName" #name="ngModel">
+      </div>
+      <div class="inputs">
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Marca</label>
+          <input pInputText name="brand" type="text"
+          [(ngModel)]="product.brand" #brand="ngModel">
         </div>
-        <div class="inputs">
-          <div class="p-col-12 p-md-6 p-fluid">
-            <label>Marca</label>
-            <input pInputText name="brand" type="text"
-            [(ngModel)]="product.brand" #brand="ngModel">
-          </div>
-          <div class="p-col-12 p-md-6 p-fluid">
-            <label>Valor da unidade*</label>
-            <p-inputNumber  name="unitValue" locale="pt-BR" mode="currency" currency="BRL"
-            [(ngModel)]="product.unitValue" #unitValue="ngModel" required>
-            </p-inputNumber>
-          </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Quantidade</label>
+          <input pInputText name="quantity" type="number"
+          [(ngModel)]="product.quantity" #quantity="ngModel" min="0">
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Preço de Compra*</label>
+          <p-inputNumber name="purchasePrice" locale="pt-BR" mode="currency" currency="BRL"
+          [(ngModel)]="product.purchasePrice" #purchasePrice="ngModel" required>
+          </p-inputNumber>
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Preço de Venda*</label>
+          <p-inputNumber name="salePrice" locale="pt-BR" mode="currency" currency="BRL"
+          [(ngModel)]="product.salePrice" #salePrice="ngModel" required>
+          </p-inputNumber>
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Investimento Total</label>
+          <input pInputText type="text" [value]="(product.purchasePrice * product.quantity) | currency:'BRL'" disabled>
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Receita Potencial</label>
+          <input pInputText type="text" [value]="(product.salePrice * product.quantity) | currency:'BRL'" disabled>
         </div>
       </div>
-      <div class="button-container">
-        <button pButton type="submit" label="Atualizar"></button>
-        <button pButton type="button" label="Excluir"
-                  class="p-button-danger" (click)="confirmDelete()"></button>
-        <button pButton type="button" label="Cancelar"
-                class="p-button-secondary" (click)="cancel()"></button>
-      </div>
+    </div>
+    <div class="button-container">
+      <button pButton type="submit" label="Atualizar"></button>
+      <button pButton type="button" label="Excluir"
+                class="p-button-danger" (click)="confirmDelete()"></button>
+      <button pButton type="button" label="Cancelar"
+              class="p-button-secondary" (click)="cancel()"></button>
+    </div>
   </form>
 </div>
 
 <div *ngIf="showDeleteConfirm" class="delete-confirm-overlay">
-    <div class="delete-confirm-modal">
-      <div class="confirm-header">
-        <i class="pi pi-exclamation-triangle confirm-icon"></i>
-        <h3>Confirmar Exclusão</h3>
-      </div>
-
-      <div class="confirm-body">
-        <p>Tem certeza que deseja excluir o produto <strong>{{product.productName}}</strong>?</p>
-        <p>Esta ação não pode ser desfeita.</p>
-      </div>
-
-      <div class="confirm-footer">
-        <button pButton type="button" label="Cancelar"
-                class="p-button-secondary"
-                (click)="cancelDelete()"></button>
-        <button pButton type="button" label="Sim, Excluir"
-                class="p-button-danger"
-                (click)="deleteProduct()"></button>
-      </div>
+  <div class="delete-confirm-modal">
+    <div class="confirm-header">
+      <i class="pi pi-exclamation-triangle confirm-icon"></i>
+      <h3>Confirmar Exclusão</h3>
+    </div>
+    <div class="confirm-body">
+      <p>Tem certeza que deseja excluir o produto <strong>{{product.productName}}</strong>?</p>
+      <p>Esta ação não pode ser desfeita.</p>
+    </div>
+    <div class="confirm-footer">
+      <button pButton type="button" label="Cancelar"
+              class="p-button-secondary"
+              (click)="cancelDelete()"></button>
+      <button pButton type="button" label="Sim, Excluir"
+              class="p-button-danger"
+              (click)="deleteProduct()"></button>
     </div>
   </div>
-
+</div>

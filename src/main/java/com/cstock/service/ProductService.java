@@ -32,25 +32,28 @@ public class ProductService {
 	public Product save(Product product) {
 		 System.out.println("=== DEBUG: Salvando Product ===");
 		 System.out.println("Enterprise recebida: " + product.getEnterprise());
+		 
 		if (product.getEnterprise() == null || product.getEnterprise().getId() == null) {
 	        throw new IllegalArgumentException("Empresa é obrigatória");
 	    }
 
-	    
 		Enterprise enterprise = enterpriseRepository.findById(product.getEnterprise().getId())
 				.orElseThrow(() -> {
 		            return new IllegalArgumentException("Enterprise não encontrada");
 		        });
 	        
-	        product.setEnterprise(enterprise);
-		product.setTotalValue(product.getUnitValue() * product.getQuantity());
+	    product.setEnterprise(enterprise);
+	    product.calculateTotals();
 		return productRepository.save(product);
 	}
 	
 	public Product update(Long id, Product product) {
 		Product productSaved = findProductById(id);
-		BeanUtils.copyProperties(product, productSaved, "id");
-		productSaved.setTotalValue(productSaved.getUnitValue() * productSaved.getQuantity());
+		
+		BeanUtils.copyProperties(product, productSaved, "id", "enterprise");
+		
+		productSaved.calculateTotals();
+		
 		return productRepository.save(productSaved);	
 	}
 	
@@ -78,5 +81,4 @@ public class ProductService {
 	public List<Product> findByEnterpriseId(Long enterpriseId) {
         return productRepository.findByEnterpriseId(enterpriseId);
     }
-	
 }

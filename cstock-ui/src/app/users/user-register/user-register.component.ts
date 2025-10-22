@@ -208,7 +208,7 @@ export class UserRegisterComponent {
             this.errorHandler.handle(error);
             this.showDeleteConfirm = false;
         });
-}
+  }
 
   cancelDelete() {
     this.showDeleteConfirm = false;

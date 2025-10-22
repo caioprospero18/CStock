@@ -10,6 +10,9 @@ import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { CardModule } from 'primeng/card';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { StockMovementListComponent } from './stock-movement-list/stock-movement-list.component';
+import { TableModule } from 'primeng/table';
+import { DropdownModule } from 'primeng/dropdown';
 
 
 
@@ -18,6 +21,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
   declarations: [
     StockEntryComponent,
     StockExitComponent,
+    StockMovementListComponent,
   ],
   imports: [
     CommonModule,
@@ -26,7 +30,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
     AutoCompleteModule,
     CardModule,
     ButtonModule,
-    InputTextModule
+    InputTextModule,
+    TableModule,
+    DropdownModule
   ],
   exports:[
     StockEntryComponent,

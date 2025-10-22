@@ -23,6 +23,9 @@ export class ProductsListComponent {
   showProductUForm = false;
   showEnterpriseForm = false;
   showUpdateEForm = false;
+  showClientForm = false;
+  showClientUForm = false;
+  selectedClientForUpdate: any | null;
   selectedProduct: Product | null = null;
   selectedUserForUpdate: any = null;
   selectedEnterprise: Enterprise | null = null;
@@ -381,6 +384,51 @@ export class ProductsListComponent {
     this.messageService.add({
       severity: 'success',
       detail: 'Empresa excluída com sucesso!'
+    });
+  }
+
+  showRegisterClientForm(){
+    this.showClientForm = true;
+    this.showClientUForm = false;
+    this.selectedClientForUpdate = null;
+  }
+
+  onRegisterClientSaved(savedRegisterClient: any) {
+    this.showClientForm = false;
+    this.loadProducts();
+  }
+
+  showUpdateClientForm() {
+    this.showClientUForm = true;
+    this.showClientForm = false;
+  }
+
+  onRegisterClientUpdated(updatedClient: any) {
+    this.showClientUForm = false;
+    this.loadProducts();
+  }
+
+  onClientFormCancel() {
+    this.showClientForm = false;
+    this.selectedClientForUpdate = null;
+  }
+
+  onClientSelectedForUpdate(selectedClient: any) {
+    this.selectedClientForUpdate = selectedClient;
+    this.showClientUForm = false;
+    this.showClientForm = true;
+  }
+
+  onUpdateClientCancel() {
+    this.showClientUForm = false;
+  }
+
+  onClientDeleted(deletedClientId: number) {
+    this.showClientForm = false;
+    this.loadProducts();
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Cliente excluída com sucesso!'
     });
   }
 }

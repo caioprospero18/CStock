@@ -1,37 +1,43 @@
 <div class="container">
   <form #f="ngForm" autocomplete="off" (ngSubmit)="save(f)">
-    <div class="p-grid" >
+    <div class="p-grid">
       <div class="p-col-12">
         <h1>Cadastrar produto</h1>
       </div>
-        <div class="p-col-12 p-md-6 p-fluid" id="name">
-          <label>Nome*</label>
-          <input pInputText name="name" type="text"
-          [(ngModel)]="product.productName" #name="ngModel" required>
+      <div class="p-col-12 p-md-6 p-fluid" id="name">
+        <label>Nome*</label>
+        <input pInputText name="name" type="text"
+        [(ngModel)]="product.productName" #name="ngModel" required>
+      </div>
+      <div class="inputs">
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Marca*</label>
+          <input pInputText name="brand" type="text"
+          [(ngModel)]="product.brand" #brand="ngModel" required>
         </div>
-        <div class="inputs">
-          <div class="p-col-12 p-md-6 p-fluid">
-            <label>Marca*</label>
-            <input pInputText name="brand" type="text"
-            [(ngModel)]="product.brand" #brand="ngModel" required>
-          </div>
-          <div class="p-col-12 p-md-6 p-fluid">
-            <label>Quantidade*</label>
-            <input pInputText name="quantity" type="text"
-            [(ngModel)]="product.quantity" #quantity="ngModel" required>
-          </div>
-          <div class="p-col-12 p-md-6 p-fluid">
-            <label>Valor da unidade*</label>
-            <p-inputNumber  name="unitValue" locale="pt-BR" mode="currency" currency="BRL"
-            [(ngModel)]="product.unitValue" #unitValue="ngModel" required>
-            </p-inputNumber>
-          </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Quantidade*</label>
+          <input pInputText name="quantity" type="number"
+          [(ngModel)]="product.quantity" #quantity="ngModel" required min="0">
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Preço de Compra*</label>
+          <p-inputNumber name="purchasePrice" locale="pt-BR" mode="currency" currency="BRL"
+          [(ngModel)]="product.purchasePrice" #purchasePrice="ngModel" required>
+          </p-inputNumber>
+        </div>
+        <div class="p-col-12 p-md-6 p-fluid">
+          <label>Preço de Venda*</label>
+          <p-inputNumber name="salePrice" locale="pt-BR" mode="currency" currency="BRL"
+          [(ngModel)]="product.salePrice" #salePrice="ngModel" required>
+          </p-inputNumber>
         </div>
       </div>
-      <div class="button-container">
-        <button pButton type="submit" label="Cadastrar" id="submit"></button>
-        <button pButton type="button" label="Cancelar"
-                class="p-button-secondary" (click)="cancel()"></button>
-      </div>
+    </div>
+    <div class="button-container">
+      <button pButton type="submit" label="Cadastrar" id="submit"></button>
+      <button pButton type="button" label="Cancelar"
+              class="p-button-secondary" (click)="cancel()"></button>
+    </div>
   </form>
 </div>

@@ -37,12 +37,14 @@
       <p><strong>Nome:</strong> {{ product.productName }}</p>
       <p><strong>Marca:</strong> {{ product.brand }}</p>
       <p><strong>Estoque Atual:</strong> {{ product.quantity }}</p>
+      <p><strong>Preço de Compra:</strong> R$ {{ product.purchasePrice | number:'1.2-2' }}</p>
+      <p><strong>Preço de Venda:</strong> R$ {{ product.salePrice | number:'1.2-2' }}</p>
     </p-card>
   </div>
 
   <div class="button-container">
-          <button pButton type="submit" label="Cadastrar" id="submit"></button>
-          <button pButton type="button" label="Cancelar"
-                  class="p-button-secondary" (click)="cancel()"></button>
+    <button pButton type="submit" label="Cadastrar" id="submit"></button>
+    <button pButton type="button" label="Cancelar"
+            class="p-button-secondary" (click)="cancel()"></button>
   </div>
 </form>
