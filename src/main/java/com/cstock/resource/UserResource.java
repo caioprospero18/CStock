@@ -59,6 +59,12 @@ public class UserResource {
         return ResponseEntity.notFound().build();
     }
     
+    @GetMapping("/enterprise/{enterpriseId}")
+    public ResponseEntity<List<User>> findByEnterpriseId(@PathVariable Long enterpriseId) {
+        List<User> users = userService.findByEnterpriseId(enterpriseId);
+        return ResponseEntity.ok(users);
+    }
+    
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('ROLE_REGISTER_USER') and hasAuthority('SCOPE_write')")

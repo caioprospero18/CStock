@@ -27,52 +27,59 @@ import jakarta.validation.Valid;
 @RequestMapping("/products")
 public class ProductResource {
 
-	@Autowired
-	private ProductRepository productRepository;
-	
-	@Autowired
-	private ProductService productService;	
-	
-	@GetMapping
-	@PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
-	public List<Product> list(){
-		return productRepository.findAll();
-	}
-	
-	@GetMapping("/{id}")
-	@PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
-	public ResponseEntity<Product> findById(@PathVariable Long id) {
-		Optional<Product> product = productRepository.findById(id);
-		if(product.isPresent()) {
-			return ResponseEntity.ok(product.get());
-		}
-		return ResponseEntity.notFound().build();
-	}
-	
-	@GetMapping("/enterprise/{enterpriseId}")
-    public List<Product> listByEnterprise(@PathVariable Long enterpriseId) {
-        return productService.findByEnterpriseId(enterpriseId);
+    @Autowired
+    private ProductRepository productRepository;
+    
+    @Autowired
+    private ProductService productService;    
+    
+    @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
+    public List<Product> list(){
+        return productRepository.findByActiveTrue();
     }
-	
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	@PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
-	public Product create(@Valid @RequestBody Product product) {
-		return productService.save(product);
-	}
-	
-	@DeleteMapping("/{id}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	@PreAuthorize("hasAuthority('ROLE_REMOVE_PRODUCT') and hasAuthority('SCOPE_write')")
-	public void delete(@PathVariable Long id) {
-		productRepository.deleteById(id);
-	}
-	
-	@PutMapping("/{id}")
-	@PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
-	public ResponseEntity<Product> update(@PathVariable Long id, @Valid @RequestBody Product product) {
-		Product productSaved = productService.update(id, product);
-		return ResponseEntity.ok(productSaved);
-	}
-	
+    
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
+    public ResponseEntity<Product> findById(@PathVariable Long id) {
+        Optional<Product> product = productRepository.findByIdAndActiveTrue(id);
+        if(product.isPresent()) {
+            return ResponseEntity.ok(product.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+    
+    @GetMapping("/enterprise/{enterpriseId}")
+    public List<Product> listByEnterprise(@PathVariable Long enterpriseId) {
+        return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId);
+    }
+    
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
+    public Product create(@Valid @RequestBody Product product) {
+        return productService.save(product);
+    }
+    
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('ROLE_REMOVE_PRODUCT') and hasAuthority('SCOPE_write')")
+    public void delete(@PathVariable Long id) {
+        productService.deactivateProduct(id);
+    }
+    
+    @PutMapping("/{id}/activate")
+    @PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Product> activate(@PathVariable Long id) {
+        Product activatedProduct = productService.activateProduct(id);
+        return ResponseEntity.ok(activatedProduct);
+    }
+    
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
+    public ResponseEntity<Product> update(@PathVariable Long id, @Valid @RequestBody Product product) {
+        Product productSaved = productService.update(id, product);
+        return ResponseEntity.ok(productSaved);
+    }
+    
 }

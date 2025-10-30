@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/
 import { Enterprise, User } from '../../core/models';
 import { UserService } from '../user.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../../security/auth.service';
@@ -54,11 +54,11 @@ export class UserRegisterComponent {
     this.checkEnterprisePermission();
   }
 
-   ngOnChanges(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes['userInput'] && this.userInput) {
       if (this.userInput.id) {
         this.user = { ...this.userInput };
-        this.user.password = '';
+        this.user.password = ''; 
         this.isEditing = true;
       } else {
         this.user = new User();
@@ -118,21 +118,7 @@ export class UserRegisterComponent {
   }
 
   addUser() {
-    const userToSave = { ...this.user };
-
-    if (userToSave.birthDate) {
-      const date = new Date(userToSave.birthDate);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      userToSave.birthDate = `${day}/${month}/${year}`;
-    }
-
-    if (userToSave.enterprise && userToSave.enterprise.id) {
-      userToSave.enterprise = { id: userToSave.enterprise.id } as any;
-    }
-
-    this.userService.add(userToSave)
+    this.userService.add(this.user)
       .then((savedUser: any) => {
         this.messageService.add({
           severity: 'success',
@@ -184,7 +170,7 @@ export class UserRegisterComponent {
   deleteUser() {
     if (!this.user.id) return;
 
-    if (!this.canModifyUser(this.user)) {
+    if (!this.userService.canModifyUser(this.user)) {
         this.messageService.add({
             severity: 'error',
             detail: 'Você não tem permissão para excluir usuários com cargo superior ao seu.'
@@ -212,31 +198,5 @@ export class UserRegisterComponent {
 
   cancelDelete() {
     this.showDeleteConfirm = false;
-  }
-
-  private canModifyUser(targetUser: User): boolean {
-    const currentUserPosition = this.getCurrentUserPosition();
-    const targetUserPosition = targetUser.position;
-
-    if (!currentUserPosition) return false;
-
-    const positionHierarchy = ['ADMIN', 'CEO', 'FINANCIAL', 'MANAGER', 'OPERATOR', 'VIEWER'];
-    const currentUserIndex = positionHierarchy.indexOf(currentUserPosition);
-    const targetUserIndex = positionHierarchy.indexOf(targetUserPosition);
-
-    return currentUserIndex <= targetUserIndex;
-  }
-
-  private getCurrentUserPosition(): string {
-    const accessToken = sessionStorage.getItem('access_token');
-    if (accessToken) {
-      try {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        return payload.position || '';
-      } catch (error) {
-        return '';
-      }
-    }
-    return '';
   }
 }

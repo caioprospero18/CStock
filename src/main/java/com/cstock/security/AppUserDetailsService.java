@@ -39,6 +39,7 @@ public class AppUserDetailsService implements UserDetailsService {
             Hibernate.initialize(user.getEnterprise()); 
         }
         
+        
         return new SystemUser(user, getPermissions(user));
     }
 
@@ -60,6 +61,7 @@ public class AppUserDetailsService implements UserDetailsService {
         
         claims.put("user_id", user.getId());
         claims.put("full_name", user.getUserName());
+        claims.put("position", user.getPosition().name());
         
         if (user.getEnterprise() != null) {
             claims.put("enterprise_id", user.getEnterprise().getId());

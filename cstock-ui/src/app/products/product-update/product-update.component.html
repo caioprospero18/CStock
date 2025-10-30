@@ -16,11 +16,6 @@
           [(ngModel)]="product.brand" #brand="ngModel">
         </div>
         <div class="p-col-12 p-md-6 p-fluid">
-          <label>Quantidade</label>
-          <input pInputText name="quantity" type="number"
-          [(ngModel)]="product.quantity" #quantity="ngModel" min="0">
-        </div>
-        <div class="p-col-12 p-md-6 p-fluid">
           <label>Preço de Compra*</label>
           <p-inputNumber name="purchasePrice" locale="pt-BR" mode="currency" currency="BRL"
           [(ngModel)]="product.purchasePrice" #purchasePrice="ngModel" required>
@@ -31,14 +26,6 @@
           <p-inputNumber name="salePrice" locale="pt-BR" mode="currency" currency="BRL"
           [(ngModel)]="product.salePrice" #salePrice="ngModel" required>
           </p-inputNumber>
-        </div>
-        <div class="p-col-12 p-md-6 p-fluid">
-          <label>Investimento Total</label>
-          <input pInputText type="text" [value]="(product.purchasePrice * product.quantity) | currency:'BRL'" disabled>
-        </div>
-        <div class="p-col-12 p-md-6 p-fluid">
-          <label>Receita Potencial</label>
-          <input pInputText type="text" [value]="(product.salePrice * product.quantity) | currency:'BRL'" disabled>
         </div>
       </div>
     </div>

@@ -14,16 +14,17 @@ import { ClientStateService } from '../../core/services/client-state.service';
   styleUrls: ['./client-register.component.css']
 })
 export class ClientRegisterComponent {
-  client: Client = new Client();
   @Output() onSave = new EventEmitter<Client>();
   @Output() onCancel = new EventEmitter<void>();
-  @Output() onUpdateRequest  = new EventEmitter<void>();
+  @Output() onUpdateRequest = new EventEmitter<void>();
   @Output() onDelete = new EventEmitter<number>();
-  @Input() clientInput: any;
 
-  isEditing = false;
+  @Input() clientInput: Client | null = null;
+
+  client = new Client();
   showDeleteConfirm = false;
-  loading = false;
+  loading = false; 
+  isEditing = false;
 
   constructor(
     private clientService: ClientService,
@@ -43,129 +44,123 @@ export class ClientRegisterComponent {
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['clientInput'] && this.clientInput) {
-      if (this.clientInput.id) {
-        this.client = { ...this.clientInput };
-        this.isEditing = true;
-      } else {
-        this.client = new Client();
-        this.isEditing = false;
-        this.setDefaultEnterprise();
-      }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['clientInput']?.currentValue) {
+      this.client = { ...changes['clientInput'].currentValue };
+      this.isEditing = Boolean(this.client.id);
     }
   }
 
-  private setDefaultEnterprise() {
+  get editing(): boolean {
+    return this.isEditing;
+  }
+
+  private setDefaultEnterprise(): void {
     const enterpriseId = this.authService.jwtPayload?.['enterprise_id'];
     if (enterpriseId && !this.client.enterprise?.id) {
-      this.client.enterprise = new Enterprise();
-      this.client.enterprise.id = enterpriseId;
+      this.client.enterprise = { id: enterpriseId } as Enterprise;
     }
   }
 
-  loadClient(id: number) {
-    this.clientService.findById(id)
-      .then((client: Client) => {
-        this.client = client;
-        this.isEditing = true;
-      })
-      .catch((error: any) => this.errorHandler.handle(error));
+  async loadClient(id: number): Promise<void> {
+    this.loading = true;
+    try {
+      this.client = await this.clientService.findById(id);
+      this.isEditing = true;
+    } catch (error: any) {
+      this.errorHandler.handle(error);
+    } finally {
+      this.loading = false;
+    }
   }
 
-  save(clientForm: NgForm) {
+  async save(clientForm: NgForm): Promise<void> {
     if (clientForm.invalid) {
-      Object.keys(clientForm.controls).forEach(key => {
-        clientForm.controls[key].markAsTouched();
-      });
+      this.markFormAsTouched(clientForm);
       return;
     }
 
-    if (this.isEditing) {
-      this.updateClient();
-    } else {
-      this.addClient();
+    this.loading = true;
+    try {
+      if (this.editing) {
+        await this.updateClient();
+      } else {
+        await this.addClient();
+      }
+    } catch (error: any) {
+      this.errorHandler.handle(error);
+    } finally {
+      this.loading = false;
     }
   }
 
-  addClient() {
-    const clientToSave = Client.toJson(this.client);
-
-    this.clientService.add(clientToSave)
-      .then((savedClient: any) => {
-        this.messageService.add({
-          severity: 'success',
-          detail: 'Cliente cadastrado com sucesso!'
-        });
-        this.onSave.emit(savedClient);
-        this.resetForm();
-      })
-      .catch((error: any) => {
-        this.errorHandler.handle(error);
-      });
+  private async addClient(): Promise<void> {
+    const savedClient = await this.clientService.add(this.client);
+    this.showSuccessMessage('Cliente cadastrado com sucesso!');
+    this.handleSaveSuccess(savedClient);
   }
 
-  updateClient() {
-    const clientToUpdate = Client.toJson(this.client);
-
-    this.clientService.update(clientToUpdate)
-      .then((updatedClient: any) => {
-        this.messageService.add({
-          severity: 'success',
-          detail: 'Cliente atualizado com sucesso!'
-        });
-        this.onSave.emit(updatedClient);
-        this.resetForm();
-      })
-      .catch((error: any) => {
-        this.errorHandler.handle(error);
-      });
+  private async updateClient(): Promise<void> {
+    const updatedClient = await this.clientService.update(this.client);
+    this.showSuccessMessage('Cliente atualizado com sucesso!');
+    this.handleSaveSuccess(updatedClient);
   }
 
-  private resetForm() {
+  private handleSaveSuccess(client: Client): void {
+    this.onSave.emit(client);
+    this.resetForm();
+    this.clientStateService.notifyClientListUpdate();
+  }
+
+  private markFormAsTouched(form: NgForm): void {
+    Object.keys(form.controls).forEach(key => {
+      form.controls[key].markAsTouched();
+    });
+  }
+
+  private showSuccessMessage(detail: string): void {
+    this.messageService.add({ severity: 'success', detail });
+  }
+
+  private resetForm(): void {
     this.client = new Client();
     this.isEditing = false;
     this.setDefaultEnterprise();
   }
 
-  cancel() {
+  cancel(): void {
     this.resetForm();
     this.onCancel.emit();
   }
 
-  showUpdateClientForm(){
+  showUpdateClientForm(): void {
     this.onUpdateRequest.emit();
   }
 
-  confirmDelete() {
+  confirmDelete(): void {
     this.showDeleteConfirm = true;
   }
 
-  deleteClient() {
-    if (!this.client.id) return;
-
-    this.clientService.remove(this.client.id)
-        .then(() => {
-            this.messageService.add({
-                severity: 'success',
-                detail: 'Cliente excluído com sucesso!'
-            });
-            this.onDelete.emit(this.client.id);
-            this.resetForm();
-            this.showDeleteConfirm = false;
-            this.clientStateService.notifyClientListUpdate();
-        })
-        .catch((error: any) => {
-            this.errorHandler.handle(error);
-            this.showDeleteConfirm = false;
-        });
-  }
-
-  cancelDelete() {
+  cancelDelete(): void {
     this.showDeleteConfirm = false;
   }
 
-  get editing(): boolean {
-    return this.isEditing;
+  async deleteClient(): Promise<void> {
+    if (!this.client.id) return;
+
+    this.loading = true;
+    try {
+      await this.clientService.remove(this.client.id);
+      this.showSuccessMessage('Cliente excluído com sucesso!');
+      this.onDelete.emit(this.client.id);
+      this.resetForm();
+      this.showDeleteConfirm = false;
+      this.clientStateService.notifyClientListUpdate();
+    } catch (error: any) {
+      this.errorHandler.handle(error);
+      this.showDeleteConfirm = false;
+    } finally {
+      this.loading = false;
+    }
   }
 }

@@ -15,12 +15,18 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 public class ClientResource {
     
-	@Autowired
+    @Autowired
     private ClientService clientService;
     
     @GetMapping
-    public ResponseEntity<List<Client>> findByCurrentUserEnterprise() {
-        List<Client> clients = clientService.findByCurrentUserEnterprise();
+    public ResponseEntity<List<Client>> findAll() {
+        List<Client> clients = clientService.findAll();
+        return ResponseEntity.ok(clients);
+    }
+    
+    @GetMapping("/enterprise/{enterpriseId}")
+    public ResponseEntity<List<Client>> findByEnterpriseId(@PathVariable Long enterpriseId) {
+        List<Client> clients = clientService.findByEnterpriseId(enterpriseId);
         return ResponseEntity.ok(clients);
     }
     

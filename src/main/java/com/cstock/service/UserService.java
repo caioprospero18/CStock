@@ -161,6 +161,19 @@ public class UserService {
 	    User user = findUserById(id);
 	    userRepository.delete(user);
 	}
+	
+	public List<User> findAll() {
+	    return userRepository.findAll();
+	}
+
+	public List<User> findByEnterpriseId(Long enterpriseId) {
+	    return userRepository.findByEnterpriseId(enterpriseId);
+	}
+
+	public User findByIdAndEnterpriseId(Long id, Long enterpriseId) {
+	    return userRepository.findByIdAndEnterpriseId(id, enterpriseId)
+	        .orElseThrow(() -> new EmptyResultDataAccessException("Usuário não encontrado", 1));
+	}
 
 }
 

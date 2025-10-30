@@ -35,9 +35,30 @@ public class ClientService {
     }
     
     public Client findById(Long id) {
-        Long enterpriseId = getCurrentUserEnterpriseId();
-        return clientRepository.findByIdAndEnterpriseId(id, enterpriseId)
-            .orElseThrow(() -> new EmptyResultDataAccessException("Cliente não encontrado", 1));
+        boolean isAdmin = isCurrentUserAdmin();
+        
+        if (isAdmin) {
+            return clientRepository.findById(id)
+                .orElseThrow(() -> new EmptyResultDataAccessException("Cliente não encontrado", 1));
+        } else {
+            Long enterpriseId = getCurrentUserEnterpriseId();
+            return clientRepository.findByIdAndEnterpriseId(id, enterpriseId)
+                .orElseThrow(() -> new EmptyResultDataAccessException("Cliente não encontrado", 1));
+        }
+    }
+    
+    private boolean isCurrentUserAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return authentication.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> 
+                    grantedAuthority.getAuthority().equals("ROLE_REGISTER_ENTERPRISE"));
+        }
+        return false;
+    }
+    
+    public List<Client> findByEnterpriseId(Long enterpriseId) {
+        return clientRepository.findByEnterpriseId(enterpriseId);
     }
     
     @Transactional

@@ -7,14 +7,15 @@ CREATE TABLE product (
     `sale_price` DOUBLE NOT NULL,      
     `total_investment` DOUBLE NOT NULL, 
     `potential_revenue` DOUBLE NOT NULL, 
+    `active` BOOLEAN NOT NULL,
     `enterprise_id` BIGINT(20) NOT NULL,
     FOREIGN KEY (enterprise_id) REFERENCES enterprise(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO product (id, product_name, brand, quantity, purchase_price, sale_price, total_investment, potential_revenue, enterprise_id) 
-    values (1, 'Furadeira', 'Makita', 10, 3.89, 5.55, 38.9, 55.5, 2); 
-INSERT INTO product (id, product_name, brand, quantity, purchase_price, sale_price, total_investment, potential_revenue, enterprise_id) 
-    values (2, 'Martelo', 'Sparta', 20, 14.14, 20.2, 282.8, 404.0, 2);
+INSERT INTO product (id, product_name, brand, quantity, purchase_price, sale_price, total_investment, potential_revenue, active, enterprise_id) 
+    values (1, 'Furadeira', 'Makita', 10, 3.89, 5.55, 38.9, 55.5, true, 2); 
+INSERT INTO product (id, product_name, brand, quantity, purchase_price, sale_price, total_investment, potential_revenue, active, enterprise_id) 
+    values (2, 'Martelo', 'Sparta', 20, 14.14, 20.2, 282.8, 404.0, true, 2);
 
 CREATE TABLE `client` (
     `id` BIGINT(20) PRIMARY KEY AUTO_INCREMENT,

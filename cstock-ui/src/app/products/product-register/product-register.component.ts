@@ -14,7 +14,7 @@ import { NgForm } from '@angular/forms';
   standalone: false
 })
 export class ProductRegisterComponent {
-  @Output() onSave = new EventEmitter<any>();
+  @Output() onSave = new EventEmitter<Product>(); 
   @Output() onCancel = new EventEmitter<void>();
   product = new Product(this.auth.jwtPayload?.['enterprise_id'] || 0);
 
@@ -24,63 +24,67 @@ export class ProductRegisterComponent {
     private errorHandler: ErrorHandlerService,
     private messageService: MessageService,
     private route: ActivatedRoute,
-    private router: Router){}
+    private router: Router
+  ) {}
 
-    ngOnInit(): void {
-      const id = this.route.snapshot.params[`id`];
-      if(id !== undefined && id !== "new"){
-        this.loadProduct(id);
+  ngOnInit(): void {
+    const id = this.route.snapshot.params['id'];
+    if (id !== undefined && id !== "new") {
+      this.loadProduct(Number(id));
+    }
+  }
+
+  get editing(): boolean {
+    return Boolean(this.product.id);
+  }
+
+  async loadProduct(id: number): Promise<void> {
+    try {
+      this.product = await this.productService.findById(id);
+    } catch (error) {
+      this.errorHandler.handle(error);
+    }
+  }
+
+  async save(productForm: NgForm): Promise<void> {
+    this.product.calculateTotals();
+
+    try {
+      if (this.editing) {
+        await this.updateProduct();
+      } else {
+        await this.addProduct();
       }
+    } catch (error) {
+      this.errorHandler.handle(error);
     }
+  }
 
-    get editing(): boolean {
-      return Boolean(this.product.id);
-    }
+  private async updateProduct(): Promise<void> {
+    const updatedProduct = await this.productService.update(this.product);
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Produto editado com sucesso!'
+    });
+    this.onSave.emit(updatedProduct);
+  }
 
-    loadProduct(id: number) {
-      this.productService.findById(id)
-        .then(product => {
-          this.product = product;
-        })
-        .catch(error => this.errorHandler.handle(error));
-    }
+  private async addProduct(): Promise<void> {
+    const addedProduct = await this.productService.add(this.product);
+    this.messageService.add({
+      severity: 'success',
+      detail: 'Produto adicionado com sucesso!'
+    });
+    this.onSave.emit(addedProduct);
+  }
 
-    save(productForm: NgForm){
-      this.product.calculateTotals();
+  new(productForm: NgForm): void {
+    this.product = new Product(this.auth.jwtPayload?.['enterprise_id'] || 0);
+    productForm.reset();
+    this.router.navigate(['/products/new']);
+  }
 
-      if(this.editing){
-        this.updateProduct(productForm);
-      }else{
-        this.addProduct(productForm);
-      }
-    }
-
-    updateProduct(productForm: NgForm) {
-      this.productService.update(this.product)
-        .then( product => {
-          this.messageService.add({ severity: 'success', detail: 'Produto editado com sucesso!' });
-          this.product = product;
-          this.onSave.emit(product);
-        })
-        .catch(error => this.errorHandler.handle(error));
-    }
-
-    addProduct(productForm: NgForm) {
-      this.productService.add(this.product)
-        .then(addedProduct => {
-          this.messageService.add({ severity: 'success', detail: 'Produto adicionado com sucesso!' });
-          this.onSave.emit(addedProduct);
-        })
-        .catch(error => this.errorHandler.handle(error));
-    }
-
-    new(productForm: NgForm){
-      this.product = new Product(this.auth.jwtPayload?.user_id || 0);
-      productForm.reset();
-      this.router.navigate(['/products/new']);
-    }
-
-    cancel() {
+  cancel(): void {
     this.onCancel.emit();
   }
 }

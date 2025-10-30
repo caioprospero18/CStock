@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnDestroy } from '@angular/core';
 import { Enterprise } from '../../core/models';
 import { EnterpriseService } from '../enterprise.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
@@ -8,22 +8,23 @@ import { EnterpriseStateService } from '../../core/services/enterprise-state.ser
 @Component({
   selector: 'app-enterprise-update',
   templateUrl: './enterprise-update.component.html',
-  styleUrl: './enterprise-update.component.css'
+  styleUrls: ['./enterprise-update.component.css']
 })
-export class EnterpriseUpdateComponent {
+export class EnterpriseUpdateComponent implements OnDestroy {
   @Output() onUpdate = new EventEmitter<Enterprise>();
   @Output() onCancel = new EventEmitter<void>();
-  @Input() isOpen: boolean = false;
+  @Input() isOpen = false;
 
   enterprises: Enterprise[] = [];
   filteredEnterprises: Enterprise[] = [];
   selectedEnterprise: Enterprise | null = null;
   loading = false;
 
-  searchCnpj: string = '';
-  searchName: string = '';
+  searchCnpj = '';
+  searchName = '';
 
   private subscription = new Subscription();
+
   constructor(
     private enterpriseService: EnterpriseService,
     private errorHandler: ErrorHandlerService,
@@ -32,6 +33,10 @@ export class EnterpriseUpdateComponent {
 
   ngOnInit(): void {
     this.loadEnterprises();
+    this.subscribeToEnterpriseUpdates();
+  }
+
+  private subscribeToEnterpriseUpdates(): void {
     this.subscription.add(
       this.enterpriseStateService.enterpriseListUpdated$.subscribe(() => {
         this.loadEnterprises();
@@ -39,37 +44,38 @@ export class EnterpriseUpdateComponent {
     );
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['isOpen'] && changes['isOpen'].currentValue === true) {
-      this.resetComponent();
+  async loadEnterprises(): Promise<void> {
+    this.loading = true;
+    try {
+      this.enterprises = await this.enterpriseService.findAll();
+      this.filteredEnterprises = [...this.enterprises];
+    } catch (error: any) {
+      this.errorHandler.handle(error);
+    } finally {
+      this.loading = false;
     }
   }
 
-  ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
+  filterEnterprises(): void {
+    this.filteredEnterprises = this.enterprises.filter((enterprise: Enterprise) => {
+      const matchesId = !this.searchCnpj ||
+        enterprise.id?.toString().includes(this.searchCnpj);
 
-  async loadEnterprises() {
-  this.loading = true;
+      const matchesName = !this.searchName ||
+        enterprise.enterpriseName?.toLowerCase().includes(this.searchName.toLowerCase());
 
-  try {
-    const enterprises = await this.enterpriseService.findAll();
+      return matchesId && matchesName;
+    });
 
-    this.enterprises = enterprises;
-    this.filteredEnterprises = [...enterprises];
-
-    this.loading = false;
-  } catch (error: any) {
-    this.errorHandler.handle(error);
-    this.loading = false;
-  }
-}
-
-
-  autoSelectFromSearch() {
-    if (this.filteredEnterprises.length === 0) {
-      return;
+    if ((this.searchCnpj || this.searchName) && this.filteredEnterprises.length > 0) {
+      this.autoSelectFromSearch();
+    } else {
+      this.selectedEnterprise = null;
     }
+  }
+
+  autoSelectFromSearch(): void {
+    if (this.filteredEnterprises.length === 0) return;
 
     if (this.filteredEnterprises.length === 1) {
       this.selectedEnterprise = this.filteredEnterprises[0];
@@ -91,46 +97,33 @@ export class EnterpriseUpdateComponent {
     }
   }
 
-  filterEnterprises() {
-    this.filteredEnterprises = this.enterprises.filter((enterprise: Enterprise) => {
-      const matchesId = this.searchCnpj ?
-        enterprise.id?.toString().includes(this.searchCnpj) : true;
-
-      const matchesName = this.searchName ?
-        enterprise.enterpriseName?.toLowerCase().includes(this.searchName.toLowerCase()) : true;
-
-      return matchesId && matchesName;
-    });
-
-    if ((this.searchCnpj || this.searchName) && this.filteredEnterprises.length > 0) {
-      setTimeout(() => this.autoSelectFromSearch(), 100);
-    }
-  }
-
-  clearFilters() {
+  clearFilters(): void {
     this.searchCnpj = '';
     this.searchName = '';
     this.filteredEnterprises = [...this.enterprises];
-    this.selectedEnterprise= null;
+    this.selectedEnterprise = null;
   }
 
-
-  selectEnterprise() {
+  selectEnterprise(): void {
     if (this.selectedEnterprise) {
       this.onUpdate.emit(this.selectedEnterprise);
+      this.resetComponent();
     }
   }
 
-  cancel() {
+  cancel(): void {
+    this.resetComponent();
     this.onCancel.emit();
   }
 
-  resetComponent() {
+  private resetComponent(): void {
     this.selectedEnterprise = null;
     this.searchCnpj = '';
     this.searchName = '';
-    if (this.enterprises.length > 0) {
-      this.filteredEnterprises = [...this.enterprises];
-    }
+    this.filteredEnterprises = [...this.enterprises];
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

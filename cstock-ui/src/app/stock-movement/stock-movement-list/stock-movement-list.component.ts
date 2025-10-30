@@ -41,9 +41,7 @@ export class StockMovementListComponent implements OnInit {
     try {
       this.movements = await this.stockMovementService.findAll();
       this.applyFilters();
-      console.log('Movimentações carregadas:', this.movements);
     } catch (error) {
-      console.error('Erro ao carregar movimentações:', error);
       this.movements = [];
       this.filteredMovements = [];
     } finally {
@@ -64,46 +62,15 @@ export class StockMovementListComponent implements OnInit {
   }
 
   applyFilters() {
-    this.filteredMovements = this.movements.filter((movement: StockMovement) => {
-      const matchesProduct = this.productName ?
-        movement.product?.productName?.toLowerCase().includes(this.productName.toLowerCase()) : true;
-
-      const matchesType = this.movementType ?
-        movement.movementType === this.movementType : true;
-
-      const matchesClient = this.clientName ?
-        movement.client?.clientName?.toLowerCase().includes(this.clientName.toLowerCase()) : true;
-
-      const matchesPeriod = this.filterByPeriod(movement);
-
-      return matchesProduct && matchesType && matchesClient && matchesPeriod;
-    });
-  }
-
-  private filterByPeriod(movement: StockMovement): boolean {
-    if (!this.selectedPeriod || !movement.movementDate) {
-      return true;
-    }
-
-    const movementDate = new Date(movement.movementDate);
-    const now = new Date();
-
-    switch (this.selectedPeriod) {
-      case '24h':
-        const twentyFourHoursAgo = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-        return movementDate >= twentyFourHoursAgo;
-
-      case '7d':
-        const sevenDaysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-        return movementDate >= sevenDaysAgo;
-
-      case '30d':
-        const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-        return movementDate >= thirtyDaysAgo;
-
-      default:
-        return true;
-    }
+    this.filteredMovements = this.stockMovementService.filterMovements(
+      this.movements,
+      {
+        productName: this.productName,
+        movementType: this.movementType,
+        clientName: this.clientName,
+        period: this.selectedPeriod
+      }
+    );
   }
 
   onPeriodChange() {
@@ -116,42 +83,30 @@ export class StockMovementListComponent implements OnInit {
   }
 
   getMovementValue(movement: StockMovement): string {
-    if (movement.movementValue !== undefined && movement.movementValue !== null) {
-      return `R$ ${movement.movementValue.toFixed(2)}`;
-    }
-
-    if (movement.product?.salePrice && movement.movementType === 'EXIT') {
-      return `R$ ${(movement.quantity * movement.product.salePrice).toFixed(2)}`;
-    } else if (movement.product?.purchasePrice && movement.movementType === 'ENTRY') {
-      return `R$ ${(movement.quantity * movement.product.purchasePrice).toFixed(2)}`;
-    }
-
-    return '-';
+    return this.stockMovementService.getMovementValue(movement);
   }
 
   formatDate(date: Date): string {
-    if (!date) return '-';
-    return new Date(date).toLocaleString('pt-BR');
+    return this.stockMovementService.formatMovementDate(date);
   }
 
   getClientName(movement: StockMovement): string {
-    return movement.client?.clientName || '-';
+    return this.stockMovementService.getClientName(movement);
   }
 
   getMovementTypeLabel(type: string): string {
-    return type === 'ENTRY' ? 'Entrada' : 'Saída';
+    return this.stockMovementService.getMovementTypeLabel(type);
   }
 
   getMovementTypeClass(type: string): string {
-    return type === 'ENTRY' ? 'movement-entry' : 'movement-exit';
+    return this.stockMovementService.getMovementTypeClass(type);
   }
 
   getQuantityDisplay(movement: StockMovement): string {
-    const quantity = movement.quantity || 0;
-    return movement.movementType === 'ENTRY' ? `+${quantity}` : `-${quantity}`;
+    return this.stockMovementService.getQuantityDisplay(movement);
   }
 
   getQuantityClass(movement: StockMovement): string {
-    return movement.movementType === 'ENTRY' ? 'quantity-positive' : 'quantity-negative';
+    return this.stockMovementService.getQuantityClass(movement);
   }
 }

@@ -13,6 +13,7 @@ import { ClientListComponent } from './client-list/client-list.component';
 import { ClientRegisterComponent } from './client-register/client-register.component';
 import { ClientUpdateComponent } from './client-update/client-update.component';
 import { SharedModule } from '../shared/shared.module';
+import { DropdownModule } from 'primeng/dropdown';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { SharedModule } from '../shared/shared.module';
     TableModule,
     CardModule,
     AutoCompleteModule,
+    DropdownModule,
     SharedModule
   ],
   exports: [

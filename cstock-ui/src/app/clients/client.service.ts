@@ -7,44 +7,47 @@ import { AuthService } from '../security/auth.service';
   providedIn: 'root'
 })
 export class ClientService {
-
-  private clientsUrl = 'http://localhost:8080/clients';
+  private readonly clientsUrl = 'http://localhost:8080/clients';
 
   constructor(
     private http: HttpClient,
     private auth: AuthService
   ) { }
 
-  async findAll(): Promise<Client[]> {
+  private getHeaders(): HttpHeaders {
     const token = this.auth.getAccessToken();
 
     if (!token) {
       throw new Error('Usuário não autenticado');
     }
 
-    const headers = new HttpHeaders()
+    return new HttpHeaders()
       .append('Authorization', `Bearer ${token}`)
       .append('Content-Type', 'application/json');
+  }
+
+  async findAll(): Promise<Client[]> {
+    const headers = this.getHeaders();
+    const isAdmin = this.auth.isAdmin();
+    let url = this.clientsUrl;
+
+    if (!isAdmin) {
+      const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
+      if (enterpriseId) {
+        url = `${this.clientsUrl}/enterprise/${enterpriseId}`;
+      }
+    }
 
     try {
-      const response = await this.http.get<Client[]>(this.clientsUrl, { headers }).toPromise();
+      const response = await this.http.get<Client[]>(url, { headers }).toPromise();
       return response || [];
     } catch (error) {
-      console.error('Erro ao buscar clientes:', error);
       throw error;
     }
   }
 
   async findByEnterprise(enterpriseId: number): Promise<Client[]> {
-    const token = this.auth.getAccessToken();
-
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const headers = new HttpHeaders()
-      .append('Authorization', `Bearer ${token}`)
-      .append('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     try {
       const response = await this.http.get<Client[]>(
@@ -53,21 +56,12 @@ export class ClientService {
       ).toPromise();
       return response || [];
     } catch (error) {
-      console.error('Erro ao buscar clientes da empresa:', error);
       throw error;
     }
   }
 
   async findById(id: number): Promise<Client> {
-    const token = this.auth.getAccessToken();
-
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const headers = new HttpHeaders()
-      .append('Authorization', `Bearer ${token}`)
-      .append('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     try {
       const response = await this.http.get<Client>(`${this.clientsUrl}/${id}`, { headers }).toPromise();
@@ -76,33 +70,22 @@ export class ClientService {
       }
       return response;
     } catch (error) {
-      console.error('Erro ao buscar cliente:', error);
       throw error;
     }
   }
 
   async add(client: Client): Promise<Client> {
-    const token = this.auth.getAccessToken();
-
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const headers = new HttpHeaders()
-      .append('Authorization', `Bearer ${token}`)
-      .append('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     try {
       const clientToSend = Client.toJson(client);
-      console.log('📤 Enviando cliente:', clientToSend);
-
       const response = await this.http.post<Client>(this.clientsUrl, clientToSend, { headers }).toPromise();
+
       if (!response) {
         throw new Error('Resposta vazia do servidor');
       }
       return response;
     } catch (error) {
-      console.error('Erro ao adicionar cliente:', error);
       throw error;
     }
   }
@@ -112,15 +95,7 @@ export class ClientService {
       throw new Error('ID do cliente é obrigatório para atualização');
     }
 
-    const token = this.auth.getAccessToken();
-
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const headers = new HttpHeaders()
-      .append('Authorization', `Bearer ${token}`)
-      .append('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     try {
       const clientToSend = Client.toJson(client);
@@ -135,26 +110,16 @@ export class ClientService {
       }
       return response;
     } catch (error) {
-      console.error('Erro ao atualizar cliente:', error);
       throw error;
     }
   }
 
   async remove(id: number): Promise<void> {
-    const token = this.auth.getAccessToken();
-
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
-    const headers = new HttpHeaders()
-      .append('Authorization', `Bearer ${token}`)
-      .append('Content-Type', 'application/json');
+    const headers = this.getHeaders();
 
     try {
       await this.http.delete(`${this.clientsUrl}/${id}`, { headers }).toPromise();
     } catch (error) {
-      console.error('Erro ao remover cliente:', error);
       throw error;
     }
   }

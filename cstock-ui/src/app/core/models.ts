@@ -42,13 +42,20 @@ export class User {
   }
 
   static toUpdateJson(user: User): any {
-
     const json: any = {
       userName: user.userName,
       email: user.email,
-      position: user.position,
-      birthDate: moment(user.birthDate).format('DD/MM/YYYY')
+      position: user.position
     };
+
+    if (user.birthDate && user.birthDate !== 'Invalid date') {
+      const formattedDate = moment(user.birthDate).format('DD/MM/YYYY');
+      if (formattedDate !== 'Invalid date') {
+        json.birthDate = formattedDate;
+      } else {
+        json.birthDate = user.birthDate;
+      }
+    }
 
     if (user.password && user.password.trim() !== '') {
       json.password = user.password;
@@ -58,7 +65,6 @@ export class User {
   }
 
   static toJson(user: User): any {
-    console.warn('⚠️  Usando toJson() genérico - prefira toCreateJson() ou toUpdateJson()');
     return this.toCreateJson(user);
   }
 }
@@ -110,7 +116,7 @@ export class StockMovement {
   user!: User;
   product!: Product;
   client?: Client;
-  unitPriceUsed?: number;      
+  unitPriceUsed?: number;
   movementValue?: number;
 
   constructor(productId?: number, userId?: number, enterpriseId?: number) {

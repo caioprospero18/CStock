@@ -49,6 +49,9 @@ public class Product {
 	@Column(name = "potential_revenue") 
 	private double potentialRevenue;
 	
+	@Column(nullable = false)
+    private Boolean active = true;
+	
 	@ManyToOne
 	@JoinColumn(name = "enterprise_id")
 	private Enterprise enterprise;
@@ -56,6 +59,10 @@ public class Product {
 	@OneToMany(mappedBy = "product")
 	@JsonIgnore
 	private List<StockMovement> stockMovement;
+	
+	public Product() {
+        this.active = true; 
+    }
 
 	public Long getId() {
 		return id;
@@ -101,6 +108,12 @@ public class Product {
 	}
 	public double getPotentialRevenue() {
 		return potentialRevenue;
+	}
+	public Boolean getActive() {
+		return active;
+	}
+	public void setActive(Boolean active) {
+		this.active = active;
 	}
 	public void setPotentialRevenue(double potentialRevenue) {
 		this.potentialRevenue = potentialRevenue;

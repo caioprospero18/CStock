@@ -291,7 +291,6 @@
   }
 }
 
-/* Abordagem nuclear - força branco em todos os níveis */
 .movements-container ::ng-deep .period-selector .p-dropdown,
 .movements-container ::ng-deep .period-selector .p-dropdown *,
 .movements-container ::ng-deep .period-selector .p-dropdown-panel,

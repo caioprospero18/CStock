@@ -23,7 +23,6 @@ export class StockMovementService {
     const movementToSend = await this.prepareMovementData(stockMovement);
 
     try {
-      console.log('📤 JSON FINAL para backend:', movementToSend);
       const response = await this.http.post<StockMovement>(
         this.stockMovementsUrl,
         movementToSend,
@@ -37,7 +36,6 @@ export class StockMovementService {
       return response;
 
     } catch (error) {
-      console.error('Erro ao salvar movimentação:', error);
       throw error;
     }
   }
@@ -49,8 +47,7 @@ export class StockMovementService {
 
     const userId = await this.getUserIdByEmail(userEmail);
 
-    const movementType = stockMovement.movementType?.toUpperCase();
-
+    const movementType = stockMovement.movementType;
     const formattedDate = this.formatDateForBackend(stockMovement.movementDate);
 
     const data: any = {
@@ -80,6 +77,79 @@ export class StockMovementService {
     return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
   }
 
+  createStockMovement(movementType: 'ENTRY' | 'EXIT', productId?: number): StockMovement {
+    const userId = this.auth.jwtPayload?.['user_id'];
+    const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
+
+    const movement = new StockMovement(productId, userId, enterpriseId);
+    movement.movementType = movementType;
+    return movement;
+  }
+
+  validateStockMovement(movement: StockMovement, requireClient: boolean = false): string | null {
+    if (!movement.quantity || movement.quantity <= 0) {
+      return 'Quantidade deve ser maior que zero!';
+    }
+
+    if (!movement.product?.id) {
+      return 'Produto não selecionado!';
+    }
+
+    if (requireClient && !movement.client?.id) {
+      return 'Cliente não selecionado!';
+    }
+
+    return null;
+  }
+
+  async findAll(): Promise<StockMovement[]> {
+    if (!this.auth.isAuthenticated()) {
+      return [];
+    }
+
+    const token = this.auth.getAccessToken();
+
+    if (!token) {
+      return [];
+    }
+
+    const headers = new HttpHeaders()
+      .append('Authorization', `Bearer ${token}`)
+      .append('Content-Type', 'application/json');
+
+    try {
+      const isAdmin = this.auth.isAdmin();
+      let url = this.stockMovementsUrl;
+
+      if (!isAdmin) {
+        const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
+        if (enterpriseId) {
+          url = `${this.stockMovementsUrl}/enterprise/${enterpriseId}`;
+        }
+      }
+
+      const response = await this.http.get<any[]>(url, { headers }).toPromise();
+
+      if (!response || response.length === 0) {
+        return [];
+      }
+
+      const movementsWithDates = response.map(movement => ({
+        ...movement,
+        movementDate: this.convertToDate(movement.movementDate)
+      } as StockMovement));
+
+      return movementsWithDates;
+
+    } catch (error: any) {
+      if (error.status === 401 || error.status === 403) {
+        this.auth.logout();
+        return [];
+      }
+      return [];
+    }
+  }
+
   findByProductId(productId: number): Promise<StockMovement[]> {
     return this.http.get<any[]>(`${this.stockMovementsUrl}/product/${productId}`)
       .toPromise()
@@ -107,66 +177,6 @@ export class StockMovementService {
         } as StockMovement));
       });
   }
-
-  async findAll(): Promise<StockMovement[]> {
-    if (!this.auth.isAuthenticated()) {
-      console.warn('🔐 Usuário não autenticado - token inválido ou expirado');
-      return [];
-    }
-
-    const token = this.auth.getAccessToken();
-
-    if (!token) {
-      console.warn('🔐 Token não disponível após verificação de autenticação');
-      return [];
-    }
-
-    console.log('🔐 Token disponível, fazendo requisição...');
-
-    const headers = new HttpHeaders()
-      .append('Authorization', `Bearer ${token}`)
-      .append('Content-Type', 'application/json');
-
-    try {
-      const isAdmin = this.auth.isAdmin();
-      let url = this.stockMovementsUrl;
-
-      if (!isAdmin) {
-        const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
-        if (enterpriseId) {
-          url = `${this.stockMovementsUrl}/enterprise/${enterpriseId}`;
-        }
-      } else {
-        console.log('👑 Usuário Admin - carregando todas as movimentações');
-      }
-
-      const response = await this.http.get<any[]>(url, { headers })
-        .toPromise();
-
-      if (!response || response.length === 0) {
-        return [];
-      }
-
-
-      const movementsWithDates = response.map(movement => ({
-        ...movement,
-        movementDate: this.convertToDate(movement.movementDate)
-      } as StockMovement));
-
-      return movementsWithDates;
-
-    } catch (error: any) {
-
-      if (error.status === 401 || error.status === 403) {
-        console.warn('🔐 Erro de autenticação - limpando token e retornando vazio');
-        this.auth.logout();
-        return [];
-      }
-
-      return [];
-    }
-  }
-
 
   findById(id: number): Promise<StockMovement> {
     const token = this.auth.getAccessToken();
@@ -227,8 +237,6 @@ export class StockMovementService {
 
   private convertToDate(dateString: any): Date {
     try {
-      console.log('🔄 Convertendo para Date:', dateString);
-
       if (dateString instanceof Date) {
         return dateString;
       }
@@ -244,12 +252,6 @@ export class StockMovementService {
 
         const parsedDate = new Date(year, month - 1, day, hours, minutes, seconds);
 
-        console.log('✅ Data convertida:', {
-          original: dateString,
-          convertida: parsedDate,
-          legivel: parsedDate.toLocaleString('pt-BR')
-        });
-
         if (!isNaN(parsedDate.getTime())) {
           return parsedDate;
         }
@@ -260,14 +262,13 @@ export class StockMovementService {
         return fallbackDate;
       }
 
-      console.warn('Não foi possível converter a data:', dateString);
       return new Date();
 
     } catch (error) {
-      console.error('Erro na conversão da data:', dateString, error);
       return new Date();
     }
   }
+
   getTotalRevenue(period: string = '30D'): Observable<number> {
     return this.http.get<number>(`${this.stockMovementsUrl}/revenue/total?period=${period}`);
   }
@@ -282,5 +283,110 @@ export class StockMovementService {
     return this.http.get<{ [productName: string]: number }>(
       `${this.stockMovementsUrl}/revenue/top-products?period=${period}&limit=${limit}`
     );
+  }
+
+  filterByPeriod(movements: StockMovement[], period: string): StockMovement[] {
+    if (!period) {
+      return movements;
+    }
+
+    const now = new Date();
+    let startDate: Date;
+
+    switch (period) {
+      case '24h':
+        startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+        break;
+      case '7d':
+        startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+        break;
+      default:
+        return movements;
+    }
+
+    return movements.filter(movement => {
+      if (!movement.movementDate) return false;
+      const movementDate = new Date(movement.movementDate);
+      return movementDate >= startDate;
+    });
+  }
+
+  filterMovements(
+    movements: StockMovement[],
+    filters: {
+      productName?: string;
+      movementType?: string;
+      clientName?: string;
+      period?: string;
+    }
+  ): StockMovement[] {
+    let filtered = movements;
+
+    if (filters.productName) {
+      filtered = filtered.filter(movement =>
+        movement.product?.productName?.toLowerCase().includes(filters.productName!.toLowerCase())
+      );
+    }
+
+    if (filters.movementType) {
+      filtered = filtered.filter(movement => movement.movementType === filters.movementType);
+    }
+
+    if (filters.clientName) {
+      filtered = filtered.filter(movement =>
+        movement.client?.clientName?.toLowerCase().includes(filters.clientName!.toLowerCase())
+      );
+    }
+
+    if (filters.period) {
+      filtered = this.filterByPeriod(filtered, filters.period);
+    }
+
+    return filtered;
+  }
+
+  getMovementValue(movement: StockMovement): string {
+    if (movement.movementValue !== undefined && movement.movementValue !== null) {
+      return `R$ ${movement.movementValue.toFixed(2)}`;
+    }
+
+    if (movement.product?.salePrice && movement.movementType === 'EXIT') {
+      const value = movement.quantity * movement.product.salePrice;
+      return `R$ ${value.toFixed(2)}`;
+    } else if (movement.product?.purchasePrice && movement.movementType === 'ENTRY') {
+      const value = movement.quantity * movement.product.purchasePrice;
+      return `R$ ${value.toFixed(2)}`;
+    }
+
+    return '-';
+  }
+
+  formatMovementDate(date: Date): string {
+    if (!date) return '-';
+    return new Date(date).toLocaleString('pt-BR');
+  }
+
+  getClientName(movement: StockMovement): string {
+    return movement.client?.clientName || '-';
+  }
+
+  getMovementTypeLabel(type: string): string {
+    return type === 'ENTRY' ? 'Entrada' : 'Saída';
+  }
+
+  getMovementTypeClass(type: string): string {
+    return type === 'ENTRY' ? 'movement-entry' : 'movement-exit';
+  }
+
+  getQuantityDisplay(movement: StockMovement): string {
+    const quantity = movement.quantity || 0;
+    return movement.movementType === 'ENTRY' ? `+${quantity}` : `-${quantity}`;
+  }
+
+  getQuantityClass(movement: StockMovement): string {
+    return movement.movementType === 'ENTRY' ? 'quantity-positive' : 'quantity-negative';
   }
 }

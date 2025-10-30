@@ -24,7 +24,6 @@ export class UserUpdateComponent {
   searchName: string = '';
 
   private subscription = new Subscription();
-  private positionHierarchy = ['ADMIN', 'CEO', 'FINANCIAL', 'MANAGER', 'OPERATOR', 'VIEWER'];
 
   positions = [
     {label: 'Administrador', value: 'ADMIN'},
@@ -47,7 +46,7 @@ export class UserUpdateComponent {
       this.userStateService.userListUpdated$.subscribe(() => {
         this.loadUsers();
       })
-      );
+    );
   }
 
   ngOnDestroy(): void {
@@ -61,60 +60,15 @@ export class UserUpdateComponent {
   }
 
   async loadUsers() {
-  this.loading = true;
-
-  try {
-    const users = await this.userService.findAll();
-
-    const isAdmin = this.isCurrentUserAdmin();
-
-    if (isAdmin) {
-      this.users = users;
-    } else {
-      const currentEnterpriseId = this.getCurrentUserEnterpriseId();
-      this.users = users.filter((user: User) => user.enterprise?.id === currentEnterpriseId);
-    }
-
-    this.filteredUsers = [...this.users];
-    this.loading = false;
-  } catch (error: any) {
-    this.errorHandler.handle(error);
-    this.loading = false;
-  }
-}
-
-private isCurrentUserAdmin(): boolean {
-  const accessToken = sessionStorage.getItem('access_token');
-  if (accessToken) {
+    this.loading = true;
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
-      const roles = payload.roles || [];
-      return roles.includes('ROLE_REGISTER_ENTERPRISE');
-    } catch (error) {
-      return false;
+      this.users = await this.userService.findAll();
+      this.filteredUsers = [...this.users];
+      this.loading = false;
+    } catch (error: any) {
+      this.errorHandler.handle(error);
+      this.loading = false;
     }
-  }
-  return false;
-}
-
-
-  private getCurrentUserEnterpriseId(): number {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    if (currentUser.enterpriseId) {
-      return currentUser.enterpriseId;
-    }
-
-    const accessToken = sessionStorage.getItem('access_token');
-    if (accessToken) {
-      try {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        return payload.enterprise_id || payload.enterpriseId || 0;
-      } catch (error) {
-        return 0;
-      }
-    }
-
-    return 0;
   }
 
   autoSelectFromSearch() {
@@ -172,7 +126,7 @@ private isCurrentUserAdmin(): boolean {
 
   selectUser() {
     if (this.selectedUser) {
-      if (!this.canModifyUser(this.selectedUser)) {
+      if (!this.userService.canModifyUser(this.selectedUser)) {
         alert('Você não tem permissão para modificar usuários com cargo superior ao seu.');
         return;
       }
@@ -191,30 +145,5 @@ private isCurrentUserAdmin(): boolean {
     if (this.users.length > 0) {
       this.filteredUsers = [...this.users];
     }
-  }
-
-  canModifyUser(targetUser: User): boolean {
-    const currentUserPosition = this.getCurrentUserPosition();
-    const targetUserPosition = targetUser.position;
-
-    if (!currentUserPosition) return false;
-
-    const currentUserIndex = this.positionHierarchy.indexOf(currentUserPosition);
-    const targetUserIndex = this.positionHierarchy.indexOf(targetUserPosition);
-
-    return currentUserIndex <= targetUserIndex;
-  }
-
-  private getCurrentUserPosition(): string {
-    const accessToken = sessionStorage.getItem('access_token');
-    if (accessToken) {
-      try {
-        const payload = JSON.parse(atob(accessToken.split('.')[1]));
-        return payload.position || '';
-      } catch (error) {
-        return '';
-      }
-    }
-    return '';
   }
 }

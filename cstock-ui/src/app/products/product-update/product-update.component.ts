@@ -25,7 +25,7 @@ export class ProductUpdateComponent {
     return this._productInput;
   }
   @Output() onCancel = new EventEmitter<void>();
-  @Output() onSave = new EventEmitter<void>();
+  @Output() onSave = new EventEmitter<Product>();
   @Output() onDelete = new EventEmitter<number>();
   product: Product;
   showDeleteConfirm = false;
@@ -57,7 +57,7 @@ export class ProductUpdateComponent {
     }
   }
 
-  updateProduct() {
+  async updateProduct(): Promise<void> {
     if (!this.product?.id) {
       this.messageService.add({
         severity: 'error',
@@ -68,41 +68,47 @@ export class ProductUpdateComponent {
 
     this.product.calculateTotals();
 
-    this.productService.update(this.product)
-      .then((updatedProduct: any) => {
-        this.onSave.emit(updatedProduct);
-      })
-      .catch((error: any) => {
-        this.errorHandler.handle(error);
-      });
+    try {
+      const updatedProduct = await this.productService.update(this.product);
+      this.onSave.emit(updatedProduct);
+    } catch (error) {
+      this.errorHandler.handle(error);
+    }
   }
 
-  cancel() {
+  cancel(): void {
     this.onCancel.emit();
   }
 
-  deleteProduct() {
+  async deleteProduct(): Promise<void> {
     if (!this.product.id) return;
 
-    this.productService.remove(this.product.id)
-      .then(() => {
-        this.messageService.add({
-          severity: 'success',
-          detail: 'Produto excluído com sucesso!'
-        });
-        this.onDelete.emit(this.product.id);
-        this.showDeleteConfirm = false;
-      })
-      .catch((error: any) => {
-        this.errorHandler.handle(error);
-        this.showDeleteConfirm = false;
+    try {
+      await this.productService.remove(this.product.id);
+      this.messageService.add({
+        severity: 'success',
+        detail: 'Produto excluído com sucesso!'
       });
+      this.onDelete.emit(this.product.id);
+      this.showDeleteConfirm = false;
+    } catch (error: any) {
+      if (error.status === 404) {
+        this.messageService.add({
+          severity: 'error',
+          detail: 'Produto não encontrado'
+        });
+      } else {
+        this.errorHandler.handle(error);
+      }
+      this.showDeleteConfirm = false;
+    }
   }
 
-  cancelDelete() {
+  cancelDelete(): void {
     this.showDeleteConfirm = false;
   }
-  confirmDelete() {
+
+  confirmDelete(): void {
     this.showDeleteConfirm = true;
   }
 }

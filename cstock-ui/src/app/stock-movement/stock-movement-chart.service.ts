@@ -10,6 +10,11 @@ export interface ProductSummary {
   type: 'ENTRY' | 'EXIT';
 }
 
+export interface ExpenseSummary {
+  productName: string;
+  totalValue: number;
+}
+
 export interface ClientSummary {
   clientId: number;
   clientName: string;
@@ -27,38 +32,35 @@ export class StockMovementChartService {
     private clientService: ClientService
   ) { }
 
+  private getStartDateForPeriod(period: '24h' | '1week' | '1month'): Date {
+    const now = new Date();
+
+    switch (period) {
+      case '24h':
+        return new Date(now.getTime() - (24 * 60 * 60 * 1000));
+      case '1week':
+        return new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+      case '1month':
+        return new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+      default:
+        return new Date(now.getTime() - (24 * 60 * 60 * 1000));
+    }
+  }
+
+  private filterMovementsByPeriod(movements: StockMovement[], period: '24h' | '1week' | '1month'): StockMovement[] {
+    const startDate = this.getStartDateForPeriod(period);
+
+    return movements.filter((movement: StockMovement) => {
+      if (!movement.movementDate) return false;
+      return movement.movementDate >= startDate;
+    });
+  }
+
   async getTopProductsByPeriod(period: '24h' | '1week' | '1month', movementType: 'ENTRY' | 'EXIT'): Promise<ProductSummary[]> {
     try {
       const allMovements = await this.stockMovementService.findAll();
-
-      const now = new Date();
-      let startDate: Date;
-
-      switch (period) {
-        case '24h':
-          startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-          break;
-        case '1week':
-          startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-          break;
-        case '1month':
-          startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-          break;
-        default:
-          startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-      }
-
-      const filteredMovements = allMovements.filter((movement: StockMovement) => {
-        if (!movement.movementDate) {
-          return false;
-        }
-
-        const movementDate = movement.movementDate;
-        const isInPeriod = movementDate >= startDate;
-        const isCorrectType = movement.movementType === movementType;
-
-        return isInPeriod && isCorrectType;
-      });
+      const filteredMovements = this.filterMovementsByPeriod(allMovements, period)
+        .filter(movement => movement.movementType === movementType);
 
       if (filteredMovements.length === 0) {
         return [];
@@ -94,36 +96,48 @@ export class StockMovementChartService {
     }
   }
 
+  async getTopExpensesByPeriod(period: '24h' | '1week' | '1month'): Promise<ExpenseSummary[]> {
+    try {
+      const allMovements = await this.stockMovementService.findAll();
+      const entryMovements = this.filterMovementsByPeriod(allMovements, period)
+        .filter(movement => movement.movementType === 'ENTRY');
+
+      if (entryMovements.length === 0) {
+        return [];
+      }
+
+      const expenseMap = new Map<string, number>();
+
+      entryMovements.forEach((movement: StockMovement) => {
+        if (!movement.product?.productName) return;
+
+        const productName = movement.product.productName;
+        const movementValue = movement.movementValue || 0;
+
+        const currentValue = expenseMap.get(productName) || 0;
+        expenseMap.set(productName, currentValue + movementValue);
+      });
+
+      return Array.from(expenseMap.entries())
+        .map(([productName, totalValue]) => ({
+          productName,
+          totalValue
+        }))
+        .sort((a, b) => b.totalValue - a.totalValue)
+        .slice(0, 5);
+
+    } catch (error) {
+      return [];
+    }
+  }
+
   async getTopClientsByPeriod(period: '24h' | '1week' | '1month'): Promise<ClientSummary[]> {
     try {
       const allMovements = await this.stockMovementService.findAll();
       const allClients = await this.clientService.findAll();
 
-      const now = new Date();
-      let startDate: Date;
-
-      switch (period) {
-        case '24h':
-          startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-          break;
-        case '1week':
-          startDate = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
-          break;
-        case '1month':
-          startDate = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-          break;
-        default:
-          startDate = new Date(now.getTime() - (24 * 60 * 60 * 1000));
-      }
-
-      const salesMovements = allMovements.filter((movement: StockMovement) => {
-        if (!movement.movementDate || movement.movementType !== 'EXIT') {
-          return false;
-        }
-
-        const movementDate = movement.movementDate;
-        return movementDate >= startDate;
-      });
+      const salesMovements = this.filterMovementsByPeriod(allMovements, period)
+        .filter(movement => movement.movementType === 'EXIT');
 
       if (salesMovements.length === 0) {
         return [];
@@ -131,7 +145,7 @@ export class StockMovementChartService {
 
       const clientMap = new Map<number, ClientSummary>();
 
-       salesMovements.forEach((movement: StockMovement) => {
+      salesMovements.forEach((movement: StockMovement) => {
         if (!movement.client?.id) return;
 
         const clientId = movement.client.id;
@@ -139,13 +153,11 @@ export class StockMovementChartService {
         const clientName = client?.clientName || `Cliente ${clientId}`;
 
         let movementValue = movement.movementValue || 0;
-
         if (movementValue === 0 && movement.product?.salePrice) {
           movementValue = movement.quantity * movement.product.salePrice;
         }
 
         const existing = clientMap.get(clientId);
-
         if (existing) {
           existing.totalPurchases += movement.quantity;
           existing.totalValue += movementValue;
@@ -176,7 +188,6 @@ export class StockMovementChartService {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-      // Clientes que fizeram compras nos últimos 30 dias
       const activeClientIds = new Set<number>();
 
       allMovements
@@ -199,5 +210,32 @@ export class StockMovementChartService {
     } catch (error) {
       return { totalClients: 0, activeClients: 0 };
     }
+  }
+
+  calculateTopRevenue(topProducts: { [productName: string]: number }): any[] {
+    return Object.keys(topProducts)
+      .map(productName => ({
+        productName,
+        totalValue: topProducts[productName]
+      }))
+      .sort((a, b) => b.totalValue - a.totalValue)
+      .slice(0, 5);
+  }
+
+  getPeriodLabel(period: '24h' | '1week' | '1month'): string {
+    switch (period) {
+      case '24h': return '24 Horas';
+      case '1week': return '1 Semana';
+      case '1month': return '1 Mês';
+      default: return '24 Horas';
+    }
+  }
+
+  getCurrentTime(): string {
+    return new Date().toLocaleTimeString('pt-BR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
   }
 }

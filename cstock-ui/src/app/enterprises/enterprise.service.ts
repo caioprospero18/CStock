@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Enterprise } from '../core/models';
 
@@ -7,54 +7,38 @@ import { Enterprise } from '../core/models';
   providedIn: 'root'
 })
 export class EnterpriseService {
-
-  enterprisesUrl = 'http://localhost:8080/enterprises';
+  private readonly enterprisesUrl = 'http://localhost:8080/enterprises';
 
   constructor(private http: HttpClient) { }
 
-    add(enterprise: Enterprise): Promise<Enterprise> {
-
-    return lastValueFrom(this.http.post<Enterprise>(this.enterprisesUrl, enterprise))
-      .then(response => {
-        return response;
-      })
-      .catch(error => {
-        throw error;
-      });
+  add(enterprise: Enterprise): Promise<Enterprise> {
+    return lastValueFrom(
+      this.http.post<Enterprise>(this.enterprisesUrl, Enterprise.toJson(enterprise))
+    );
   }
 
-    findAll(): Promise<Enterprise[]> {
-      return lastValueFrom(this.http.get<Enterprise[]>(this.enterprisesUrl))
-        .then(response => {
-          return response || [];
-        });
-    }
+  findAll(): Promise<Enterprise[]> {
+    return lastValueFrom(this.http.get<Enterprise[]>(this.enterprisesUrl))
+      .then(response => response || [])
+      .catch(() => []); // ✅ Erro silencioso
+  }
 
-    findById(id: number): Promise<any> {
-      return lastValueFrom(this.http.get<any>(`${this.enterprisesUrl}/${id}`))
-        .then(response => {
-          return response;
-        });
-    }
+  findById(id: number): Promise<Enterprise> {
+    return lastValueFrom(this.http.get<Enterprise>(`${this.enterprisesUrl}/${id}`))
+      .then(response => response)
+      .catch(error => { throw error; });
+  }
 
-    remove(id: number): Promise<any> {
-      return lastValueFrom(this.http.delete(`${this.enterprisesUrl}/${id}`))
-        .then(() => null);
-    }
+  remove(id: number): Promise<void> {
+    return lastValueFrom(this.http.delete<void>(`${this.enterprisesUrl}/${id}`));
+  }
 
-     update(enterprise: Enterprise): Promise<any> {
-
-      const headers = new HttpHeaders()
-        .append('Content-Type', 'application/json');
-
-      const userJson = Enterprise.toJson(enterprise);
-
-      return lastValueFrom(this.http.put<any>(`${this.enterprisesUrl}/${enterprise.id}`, userJson, { headers }))
-        .then(response => {
-          return response;
-        })
-        .catch(error => {
-          throw error;
-        });
-    }
+  update(enterprise: Enterprise): Promise<Enterprise> {
+    return lastValueFrom(
+      this.http.put<Enterprise>(
+        `${this.enterprisesUrl}/${enterprise.id}`,
+        Enterprise.toJson(enterprise)
+      )
+    );
+  }
 }

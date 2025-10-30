@@ -42,6 +42,8 @@ public class SystemUser extends org.springframework.security.core.userdetails.Us
             claims.put("name", usuario.getUserName()); 
             claims.put("email", usuario.getEmail());
             claims.put("preferred_username", usuario.getEmail());
+            claims.put("position", usuario.getPosition().name());
+            claims.put("user_id", usuario.getId());
             this.userInfo = new OidcUserInfo(claims);
         }
         return this.userInfo;
@@ -72,6 +74,8 @@ public class SystemUser extends org.springframework.security.core.userdetails.Us
         attributes.put("name", usuario.getUserName()); 
         attributes.put("email", usuario.getEmail());
         attributes.put("preferred_username", usuario.getEmail());
+        attributes.put("position", usuario.getPosition().name());
+        attributes.put("user_id", usuario.getId());
         
         attributes.put("roles", getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)

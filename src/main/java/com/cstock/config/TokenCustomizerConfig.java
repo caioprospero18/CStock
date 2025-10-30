@@ -26,6 +26,8 @@ public class TokenCustomizerConfig {
                 context.getClaims().claim("email", systemUser.getUser().getEmail());
                 context.getClaims().claim("preferred_username", systemUser.getUser().getEmail());
                 context.getClaims().claim("roles", roles);
+                context.getClaims().claim("position", systemUser.getUser().getPosition().name());
+                context.getClaims().claim("user_id", systemUser.getUser().getId());
                 
                 if (systemUser.getUser().getEnterprise() != null) {
                     context.getClaims().claim("enterprise_id", systemUser.getUser().getEnterprise().getId());

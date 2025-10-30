@@ -1,5 +1,5 @@
 <div class="container">
-  <h2>Selecionar Usuário para Alterar</h2>
+  <h2>Selecionar Cliente para Alterar</h2>
 
   <div class="search-filters">
     <div class="p-grid">
@@ -64,7 +64,7 @@
                 [(ngModel)]="selectedClient"
                 optionLabel="clientName"
                 [filter]="true"
-                filterBy="clientName,id,email"
+                filterBy="clientName,id,email,identificationNumber"
                 [showClear]="true"
                 placeholder="Selecione um cliente"
                 [style]="{'width':'100%'}"
@@ -73,7 +73,7 @@
         <div class="user-option">
           <div><strong>ID {{client.id}}:</strong> {{client.clientName}}</div>
           <div class="user-details">
-            <small>{{client.email}}</small>
+            <small>{{client.email}} - {{client.identificationNumber}}</small>
           </div>
         </div>
       </ng-template>
@@ -92,6 +92,8 @@
       <div><strong>ID:</strong> {{selectedClient.id}}</div>
       <div><strong>Nome:</strong> {{selectedClient.clientName}}</div>
       <div><strong>Email:</strong> {{selectedClient.email}}</div>
+      <div><strong>CPF/CNPJ:</strong> {{selectedClient.identificationNumber}}</div>
+      <div><strong>Telefone:</strong> {{selectedClient.phone}}</div>
     </div>
   </div>
 
