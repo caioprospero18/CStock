@@ -32,7 +32,8 @@ public class ResourceServerConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/login", "/assets/**", "/public/**", 
-                               "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                               "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**",
+                               "/api/reports/test-daily", "/api/reports/test-monthly", "/api/reports/debug").permitAll()
                 .requestMatchers("/api/**", "/products/**", "/admin/**").authenticated() 
                 .anyRequest().authenticated()
             )

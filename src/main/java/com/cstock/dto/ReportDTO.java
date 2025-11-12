@@ -6,6 +6,8 @@ import java.util.List;
 
 public class ReportDTO {
     private LocalDate reportDate;
+    private LocalDate periodStartDate;  
+    private LocalDate periodEndDate;
     private String reportType; 
     private List<StockMovementReport> movements;
     private BigDecimal totalRevenue;
@@ -20,6 +22,23 @@ public class ReportDTO {
 
 	public void setReportDate(LocalDate reportDate) {
 		this.reportDate = reportDate;
+	}
+	
+	
+	public LocalDate getPeriodStartDate() {
+		return periodStartDate;
+	}
+
+	public void setPeriodStartDate(LocalDate periodStartDate) {
+		this.periodStartDate = periodStartDate;
+	}
+
+	public LocalDate getPeriodEndDate() {
+		return periodEndDate;
+	}
+
+	public void setPeriodEndDate(LocalDate periodEndDate) {
+		this.periodEndDate = periodEndDate;
 	}
 
 	public String getReportType() {
@@ -80,6 +99,7 @@ public class ReportDTO {
 
 	public static class StockMovementReport {
         private String productName;
+        private String brand;
         private String movementType;
         private int quantity;
         private BigDecimal unitPrice;
@@ -91,6 +111,12 @@ public class ReportDTO {
 		}
 		public void setProductName(String productName) {
 			this.productName = productName;
+		}
+		public String getBrand() {
+			return brand;
+		}
+		public void setBrand(String brand) {
+			this.brand = brand;
 		}
 		public String getMovementType() {
 			return movementType;

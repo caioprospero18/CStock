@@ -1,21 +1,23 @@
 package com.cstock.service;
 
-import com.cstock.dto.ReportDTO;
-import com.cstock.domain.model.StockMovement;
-import com.cstock.domain.model.User;
-import com.cstock.domain.model.MovementType;
-import com.cstock.domain.model.Enterprise;
-import com.cstock.repository.StockMovementRepository;
-import com.cstock.repository.UserRepository;
-import com.cstock.repository.EnterpriseRepository;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.cstock.domain.model.Enterprise;
+import com.cstock.domain.model.MovementType;
+import com.cstock.domain.model.StockMovement;
+import com.cstock.domain.model.User;
+import com.cstock.dto.ReportDTO;
+import com.cstock.repository.EnterpriseRepository;
+import com.cstock.repository.StockMovementRepository;
+import com.cstock.repository.UserRepository;
 
 @Service
 public class ReportService {
@@ -36,8 +38,8 @@ public class ReportService {
     }
     
     public void generateDailyReport() {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
-        generateEnterpriseReports(yesterday, yesterday, "DIARIO");
+        LocalDate reportDate = getLastBusinessDay();
+        generateEnterpriseReports(reportDate, reportDate, "DIARIO");
     }
     
     public void generateMonthlyReport() {
@@ -53,8 +55,6 @@ public class ReportService {
         List<Enterprise> enterprises = enterpriseRepository.findAll();
         
         for (Enterprise enterprise : enterprises) {
-            System.out.println("🏢 Gerando relatório para empresa: " + enterprise.getEnterpriseName());
-            
             List<StockMovement> movements = stockMovementRepository
                 .findByMovementDateBetweenAndProduct_Enterprise(
                     startDateTime, endDateTime, enterprise);
@@ -62,47 +62,59 @@ public class ReportService {
             if (!movements.isEmpty()) {
                 ReportDTO report = buildReportDTO(movements, startDate, endDate, reportType, enterprise);
                 sendReportToEnterpriseManagers(report, enterprise);
-            } else {
-                System.out.println("ℹ️  Nenhuma movimentação encontrada para empresa: " + enterprise.getEnterpriseName());
             }
         }
     }
     
+    @SuppressWarnings("unused")
+    private LocalDate getLastBusinessDay() {
+        LocalDate date = LocalDate.now().minusDays(1); 
+        
+        while (date.getDayOfWeek() == DayOfWeek.SATURDAY || 
+               date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            date = date.minusDays(1);
+        }
+        
+        return date;
+    }
+    
     private ReportDTO buildReportDTO(List<StockMovement> movements, LocalDate startDate, 
-    		LocalDate endDate, String reportType, Enterprise enterprise) {
-    	ReportDTO report = new ReportDTO();
-    	report.setReportDate(LocalDate.now());
-    	report.setReportType(reportType);
+            LocalDate endDate, String reportType, Enterprise enterprise) {
+        ReportDTO report = new ReportDTO();
+        report.setReportDate(LocalDate.now());
+        report.setReportType(reportType);
+        report.setPeriodStartDate(startDate);  
+        report.setPeriodEndDate(endDate); 
 
-    	List<ReportDTO.StockMovementReport> movementReports = movements.stream()
-    			.map(this::convertToMovementReport)
-    			.collect(Collectors.toList());
+        List<ReportDTO.StockMovementReport> movementReports = movements.stream()
+                .map(this::convertToMovementReport)
+                .collect(Collectors.toList());
 
-    	report.setMovements(movementReports);
+        report.setMovements(movementReports);
 
-    	BigDecimal totalRevenue = movements.stream()
-    			.filter(m -> m.getMovementType() == MovementType.EXIT)
-    			.map(m -> {
-    				Double value = m.getMovementValue();
-    				return value != null ? BigDecimal.valueOf(value) : BigDecimal.ZERO;
-    			})
-    			.reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalRevenue = movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.EXIT)
+                .map(m -> {
+                    Double value = m.getMovementValue();
+                    return value != null ? BigDecimal.valueOf(value) : BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    	BigDecimal totalExpenses = movements.stream()
-    			.filter(m -> m.getMovementType() == MovementType.ENTRY)
-    			.map(m -> {
-    				Double value = m.getMovementValue();
-    				return value != null ? BigDecimal.valueOf(value) : BigDecimal.ZERO;
-    			})
-    			.reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalExpenses = movements.stream()
+                .filter(m -> m.getMovementType() == MovementType.ENTRY)
+                .map(m -> {
+                    Double value = m.getMovementValue();
+                    return value != null ? BigDecimal.valueOf(value) : BigDecimal.ZERO;
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    	report.setTotalRevenue(totalRevenue);
-    	report.setTotalExpenses(totalExpenses);
-    	report.setNetProfit(totalRevenue.subtract(totalExpenses));
-    	report.setTotalEntries((int) movements.stream().filter(m -> m.getMovementType() == MovementType.ENTRY).count());
-    	report.setTotalExits((int) movements.stream().filter(m -> m.getMovementType() == MovementType.EXIT).count());
+        report.setTotalRevenue(totalRevenue);
+        report.setTotalExpenses(totalExpenses);
+        report.setNetProfit(totalRevenue.subtract(totalExpenses));
+        report.setTotalEntries((int) movements.stream().filter(m -> m.getMovementType() == MovementType.ENTRY).count());
+        report.setTotalExits((int) movements.stream().filter(m -> m.getMovementType() == MovementType.EXIT).count());
 
-    	return report;
+        return report;
     }
     
     private void sendReportToEnterpriseManagers(ReportDTO report, Enterprise enterprise) {
@@ -111,7 +123,6 @@ public class ReportService {
                 
         for (User manager : managers) {
             if (manager.getEmail() != null && !manager.getEmail().isEmpty()) {
-                System.out.println("📧 Enviando para: " + manager.getEmail());
                 emailService.sendReportEmail(manager.getEmail(), report, enterprise);
             }
         }
@@ -120,6 +131,7 @@ public class ReportService {
     private ReportDTO.StockMovementReport convertToMovementReport(StockMovement movement) {
         ReportDTO.StockMovementReport report = new ReportDTO.StockMovementReport();
         report.setProductName(movement.getProduct().getProductName());
+        report.setBrand(movement.getProduct().getBrand());
         
         String movementTypeString = movement.getMovementType() == MovementType.ENTRY ? "ENTRADA" : "SAÍDA";
         report.setMovementType(movementTypeString);
