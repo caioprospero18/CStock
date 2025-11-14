@@ -32,15 +32,18 @@
             [disabled]="!selectedProduct">
     </button>
 
+    <!--
     <button pButton label="Enviar Email Direto"
             (click)="sendEmail()"
             [disabled]="!selectedProduct"
             class="p-button-success">
     </button>
-
+    -->
+    
     <button pButton type="button" label="Cancelar"
                 class="p-button-secondary" (click)="cancel()"></button>
   </div>
+  
 
   <div *ngIf="selectedProduct" class="email-preview">
     <h4>Preview do Email:</h4>

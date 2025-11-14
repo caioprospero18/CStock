@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { Product } from '../../core/models';
 import { ProductService } from '../../products/product.service';
 import { OrderRequest, OrderRequestService } from '../order-request.service';
+import { AuthService } from '../../security/auth.service';
 
 @Component({
   selector: 'app-order-request',
@@ -20,17 +21,26 @@ export class OrderRequestComponent {
 
   constructor(
     private productService: ProductService,
-    private orderRequestService: OrderRequestService
+    private orderRequestService: OrderRequestService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.loadProducts();
   }
 
-  loadProducts() {
-    this.productService.findAll()
-      .then(products => this.products = products)
-      .catch(error => console.error('Erro ao carregar produtos:', error));
+  async loadProducts() {
+    try {
+      const isAdmin = this.authService.isAdmin();
+
+      if (isAdmin) {
+        this.products = await this.productService.findAll();
+      } else {
+        this.products = await this.productService.listByEnterprise();
+      }
+    } catch (error) {
+      console.error('Erro ao carregar produtos:', error);
+    }
   }
 
   generateEmail(): { subject: string, body: string } | null {

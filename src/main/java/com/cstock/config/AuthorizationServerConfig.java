@@ -88,8 +88,27 @@ public class AuthorizationServerConfig {
                         .requireProofKey(false)
                         .build())
                 .build();
+        
+        RegisteredClient postmanTestClient = RegisteredClient.withId(UUID.randomUUID().toString())
+        	    .clientId("postman-test")
+        	    .clientSecret("{noop}postman-secret")
+        	    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+        	    .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+        	    .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+        	    .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+        	    .redirectUri("https://oidcdebugger.com/debug") 
+        	    .redirectUri("http://localhost:4200/callback") 
+        	    .scope("read")
+        	    .scope("write")
+        	    .scope(OidcScopes.OPENID)
+        	    .scope(OidcScopes.PROFILE)
+        	    .clientSettings(ClientSettings.builder()
+        	        .requireAuthorizationConsent(false)
+        	        .requireProofKey(false) 
+        	        .build())
+        	    .build();
 
-        return new InMemoryRegisteredClientRepository(cstockUi, swaggerClient);
+        return new InMemoryRegisteredClientRepository(cstockUi, swaggerClient, postmanTestClient);
     }
 
     @Bean
