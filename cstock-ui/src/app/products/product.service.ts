@@ -30,7 +30,7 @@ export class ProductService {
       params = params.set('brand', filter.brand);
     }
 
-    return this.http.get<Product[]>(this.productsUrl, { params })
+    return this.http.get<Product[]>(`${this.productsUrl}/search`, { params })
       .toPromise()
       .then(response => response || [])
       .catch(() => []);

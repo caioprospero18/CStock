@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ProductFilter, ProductService } from '../product.service';
 import { RevenueService } from '../revenue.service';
 import { AuthService } from '../../security/auth.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorHandlerService } from '../../core/error-handler.service';
 import { Enterprise, Product, Client } from '../../core/models';
+import { StockExitComponent } from '../../stock-movement/stock-exit/stock-exit.component';
+import { StockEntryComponent } from '../../stock-movement/stock-entry/stock-entry.component';
 
 @Component({
   selector: 'app-products-list',
@@ -12,6 +14,9 @@ import { Enterprise, Product, Client } from '../../core/models';
   styleUrls: ['./products-list.component.css']
 })
 export class ProductsListComponent {
+  @ViewChild('stockExitRef') stockExitComponent!: StockExitComponent;
+  @ViewChild('stockEntryRef') stockEntryComponent!: StockEntryComponent;
+
   showProductForm = false;
   showEntryForm = false;
   showExitForm = false;
@@ -177,7 +182,6 @@ export class ProductsListComponent {
     }
   }
 
-
   onProductSaved(savedProduct?: any): void {
     this.showProductForm = false;
     this.loadProducts();
@@ -193,6 +197,7 @@ export class ProductsListComponent {
   onProductDeleted(deletedProductId: number): void {
     this.products = this.products.filter(product => product.id !== deletedProductId);
     this.showProductUForm = false;
+    this.loadProducts();
   }
 
   onEntrySaved(savedStockMovement?: any): void {
@@ -291,10 +296,20 @@ export class ProductsListComponent {
 
   showStockEntryForm(): void {
     this.showEntryForm = true;
+    setTimeout(() => {
+      if (this.stockEntryComponent && this.stockEntryComponent.loadAllProducts) {
+        this.stockEntryComponent.loadAllProducts();
+      }
+    }, 100);
   }
 
   showStockExitForm(): void {
     this.showExitForm = true;
+    setTimeout(() => {
+      if (this.stockExitComponent && this.stockExitComponent.loadAllProducts) {
+        this.stockExitComponent.loadAllProducts();
+      }
+    }, 100);
   }
 
   showOrderRequestForm(): void {

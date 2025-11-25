@@ -1,12 +1,14 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, OnInit } from '@angular/core';
 import { Product, StockMovement } from '../../core/models';
 import { StockMovementService } from '../stock-movement.service';
+import { ProductService } from '../../products/product.service';
 import { AuthService } from '../../security/auth.service';
 import { ErrorHandlerService } from '../../core/error-handler.service';
 import { MessageService } from 'primeng/api';
 import { ActivatedRoute } from '@angular/router';
 import { NgForm } from '@angular/forms';
-import { ProductService } from '../../products/product.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-stock-entry',
@@ -14,7 +16,7 @@ import { ProductService } from '../../products/product.service';
   styleUrl: './stock-entry.component.css',
   standalone: false
 })
-export class StockEntryComponent {
+export class StockEntryComponent implements OnInit {
   stockMovement!: StockMovement;
   product: Product | null = null;
   @Output() onSave = new EventEmitter<StockMovement>();
@@ -23,6 +25,7 @@ export class StockEntryComponent {
   selectedProduct: Product | null = null;
   filteredProducts: Product[] = [];
   allProducts: Product[] = [];
+  private searchSubject = new Subject<number>();
 
   constructor(
     private stockMovementService: StockMovementService,
@@ -41,28 +44,53 @@ export class StockEntryComponent {
     if (productId && productId !== "new") {
       this.loadProduct(Number(productId));
     }
+
     this.loadAllProducts();
+
+    this.searchSubject.pipe(
+      debounceTime(1000),
+      distinctUntilChanged()
+    ).subscribe(productId => {
+      this.performProductSearch(productId);
+    });
   }
 
-  loadAllProducts() {
-    this.productService.findAll()
-      .then(products => {
-        this.allProducts = products;
-      })
-      .catch(error => this.errorHandler.handle(error));
+  async loadAllProducts(): Promise<void> {
+    try {
+      if (this.auth.isAdmin()) {
+        this.allProducts = await this.productService.findAll();
+      } else {
+        this.allProducts = await this.productService.listByEnterprise();
+      }
+    } catch (error) {
+      this.errorHandler.handle(error);
+    }
   }
 
   searchProduct() {
-    if (this.productId) {
-      this.productService.findById(this.productId)
-        .then(product => {
-          this.setSelectedProduct(product);
-        })
-        .catch(error => {
-          this.clearProductSelection();
-          this.messageService.add({ severity: 'warn', detail: 'Produto não encontrado' });
-        });
+    if (!this.productId || this.productId < 1) {
+      this.clearProductSelection();
+      return;
     }
+
+    if (this.selectedProduct && this.selectedProduct.id === this.productId) {
+      return;
+    }
+
+    this.searchSubject.next(this.productId);
+  }
+
+  private performProductSearch(productId: number) {
+    this.productService.findById(productId)
+      .then(product => {
+        this.setSelectedProduct(product);
+      })
+      .catch(error => {
+        this.clearProductSelection();
+        if (productId && productId > 0) {
+          this.messageService.add({ severity: 'warn', detail: 'Produto não encontrado' });
+        }
+      });
   }
 
   searchProductByName(event: any) {

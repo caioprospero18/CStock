@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cstock.domain.model.Product;
 import com.cstock.repository.ProductRepository;
+import com.cstock.repository.filter.ProductFilter;
 import com.cstock.service.ProductService;
 
 import jakarta.validation.Valid;
@@ -54,6 +55,12 @@ public class ProductResource {
         return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId);
     }
     
+    @GetMapping("/search")
+    @PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
+    public List<Product> search(ProductFilter productFilter) {
+        return productRepository.filter(productFilter, null);
+    }
+    
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('ROLE_REGISTER_PRODUCT') and hasAuthority('SCOPE_write')")
@@ -81,5 +88,7 @@ public class ProductResource {
         Product productSaved = productService.update(id, product);
         return ResponseEntity.ok(productSaved);
     }
+    
+    
     
 }

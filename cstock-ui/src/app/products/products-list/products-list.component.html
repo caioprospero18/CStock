@@ -136,7 +136,8 @@
     <div class="form-container">
       <app-stock-entry
         (onSave)="onEntrySaved($event)"
-        (onCancel)="showEntryForm = false">
+        (onCancel)="showEntryForm = false"
+        #stockEntryRef>
       </app-stock-entry>
     </div>
   </div>
@@ -152,7 +153,8 @@
     <div class="form-container">
       <app-stock-exit
         (onSave)="onExitSaved($event)"
-        (onCancel)="showExitForm = false">
+        (onCancel)="showExitForm = false"
+        #stockExitRef>
       </app-stock-exit>
     </div>
   </div>
