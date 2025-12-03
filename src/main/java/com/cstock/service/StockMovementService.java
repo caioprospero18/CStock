@@ -31,7 +31,7 @@ public class StockMovementService {
 	private ProductRepository productRepository;
 
 	public StockMovement save(StockMovement stockMovement) {
-		Optional<User> user = userRepository.findById(stockMovement.getUser().getId());
+		Optional<User> user = userRepository.findByIdAndActiveTrue(stockMovement.getUser().getId());
 		if (!user.isPresent()) {
 			throw new NonExistentUserException();
 		}

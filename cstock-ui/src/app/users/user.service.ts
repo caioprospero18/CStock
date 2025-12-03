@@ -135,6 +135,10 @@ export class UserService {
     }
   }
 
+  async findAllActive(): Promise<User[]> {
+    return await this.findAll();
+  }
+
   async remove(id: number): Promise<void> {
     const token = this.auth.getAccessToken();
 

@@ -62,7 +62,7 @@ export class UserUpdateComponent {
   async loadUsers() {
     this.loading = true;
     try {
-      this.users = await this.userService.findAll();
+      this.users = await this.userService.findAllActive();
       this.filteredUsers = [...this.users];
       this.loading = false;
     } catch (error: any) {

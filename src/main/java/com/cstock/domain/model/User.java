@@ -1,6 +1,7 @@
 package com.cstock.domain.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,6 +50,10 @@ public class User {
 	@NotNull
 	@Column(name = "birth_date")
 	private LocalDate birthDate;
+	@Column(nullable = false)
+    private Boolean active = true;
+	@Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "enterprise_id")
 	private Enterprise enterprise;
@@ -59,6 +64,11 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	@JsonIgnore
 	private List<StockMovement> stockMovement;
+	
+	public User() {
+	        this.active = true;
+	   }
+	
 	public Long getId() {
 		return id;
 	}
@@ -112,6 +122,18 @@ public class User {
 	}
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
+	}
+	public Boolean getActive() {
+		return active;
+	}
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+	public LocalDateTime getDeletedAt() {
+		return deletedAt;
+	}
+	public void setDeletedAt(LocalDateTime deletedAt) {
+		this.deletedAt = deletedAt;
 	}
 	@Override
 	public int hashCode() {

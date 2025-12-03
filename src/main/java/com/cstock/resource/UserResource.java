@@ -46,7 +46,7 @@ public class UserResource {
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
     public List<User> list(){
-        return userRepository.findAll();
+        return userService.findAllActive();
     }
     
     @GetMapping("/by-email/{email}")
@@ -61,7 +61,7 @@ public class UserResource {
     
     @GetMapping("/enterprise/{enterpriseId}")
     public ResponseEntity<List<User>> findByEnterpriseId(@PathVariable Long enterpriseId) {
-        List<User> users = userService.findByEnterpriseId(enterpriseId);
+        List<User> users = userService.findActiveByEnterpriseId(enterpriseId);
         return ResponseEntity.ok(users);
     }
     
@@ -103,11 +103,8 @@ public class UserResource {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
     public ResponseEntity<User> findById(@PathVariable Long id){
-        Optional<User> user = userRepository.findById(id);
-        if(user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        }
-        return ResponseEntity.notFound().build();
+        User user = userService.findActiveUserById(id);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{id}")

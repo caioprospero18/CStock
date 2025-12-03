@@ -21,9 +21,10 @@ export class User {
   position!: string;
   birthDate!: string;
   enterprise = new Enterprise();
+  active?: boolean;
+  deletedAt?: string;
 
   static toCreateJson(user: User): any {
-    console.log('📤 CREATE JSON - Dados para criação:');
 
     const json: any = {
       userName: user.userName,
@@ -64,8 +65,8 @@ export class User {
     return json;
   }
 
-  static toJson(user: User): any {
-    return this.toCreateJson(user);
+  isActive(): boolean {
+    return this.active !== false; 
   }
 }
 

@@ -1,18 +1,17 @@
 package com.cstock.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.cstock.domain.model.Enterprise;
 import com.cstock.domain.model.Permission;
-import com.cstock.domain.model.User;
 import com.cstock.domain.model.Position;
+import com.cstock.domain.model.User;
 import com.cstock.dto.UserUpdateDTO;
 import com.cstock.repository.PermissionRepository;
 import com.cstock.repository.UserRepository;
@@ -152,15 +151,30 @@ public class UserService {
 		return userSaved;
 	}
 	
-	public User findByEmail(String email) {
-	    return userRepository.findByEmail(email)
-	        .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com email: " + email));
-	}
-	
 	public void delete(Long id) {
-	    User user = findUserById(id);
-	    userRepository.delete(user);
-	}
+        User user = findUserById(id);
+        user.setActive(false);
+        user.setDeletedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
+	
+	public User findActiveUserById(Long id) {
+        return userRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new EmptyResultDataAccessException(1));
+    }
+    
+    public User findByEmail(String email) {
+        return userRepository.findByEmailAndActiveTrue(email)
+            .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com email: " + email));
+    }
+    
+    public List<User> findAllActive() {
+        return userRepository.findByActiveTrue();
+    }
+    
+    public List<User> findActiveByEnterpriseId(Long enterpriseId) {
+        return userRepository.findByEnterpriseIdAndActiveTrue(enterpriseId);
+    }
 	
 	public List<User> findAll() {
 	    return userRepository.findAll();
