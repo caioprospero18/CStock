@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15.4-alpine
+    container_name: cstock-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: cstock
+      POSTGRES_USER: cstock
+      POSTGRES_PASSWORD: cstock
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: cstock-api
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cstock
+      SPRING_DATASOURCE_USERNAME: cstock
+      SPRING_DATASOURCE_PASSWORD: cstock
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_FLYWAY_ENABLED: true
+
+volumes:
+  postgres_data:
