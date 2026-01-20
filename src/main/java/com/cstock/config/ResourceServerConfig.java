@@ -36,7 +36,7 @@ public class ResourceServerConfig {
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/oauth2/**", "/login/**", "/.well-known/**").permitAll()
+                .requestMatchers("/oauth2/**", "/login/**", "/.well-known/**", "/api/auth/demo-login").permitAll()
                 .requestMatchers("/", "/home", "/login", "/assets/**", "/public/**", 
                                "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**",
                                "/api/reports/test-daily", "/api/reports/test-monthly", "/api/reports/debug").permitAll()

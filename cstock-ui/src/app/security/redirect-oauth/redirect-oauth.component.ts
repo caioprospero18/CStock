@@ -38,16 +38,14 @@ export class RedirectOauthComponent implements OnInit {
 
   private async initOAuthRedirect(): Promise<void> {
     try {
-      // RECUPERA o code_verifier que já foi armazenado pelo AuthService
-      const codeVerifier = this.storageService.getItem('pkce_code_verifier');
 
-      console.log('Code verifier recuperado no redirect:', codeVerifier);
+      const codeVerifier = this.storageService.getItem('pkce_code_verifier');
 
       if (!codeVerifier) {
         throw new Error('Code verifier não encontrado no storage');
       }
 
-      // Gera o challenge a partir do verifier existente
+
       const codeChallenge = await this.authService.generateCodeChallenge(codeVerifier);
 
       const params = new URLSearchParams({
@@ -60,15 +58,12 @@ export class RedirectOauthComponent implements OnInit {
       });
 
       const authUrl = `http://localhost:8080/oauth2/authorize?${params.toString()}`;
-      console.log('Redirecionando para:', authUrl);
 
-      // Usa assign para manter cookies de sessão
       window.location.assign(authUrl);
 
     } catch (error) {
       console.error('Erro no redirecionamento OAuth:', error);
 
-      // Em caso de erro, redireciona para home
       setTimeout(() => {
         window.location.href = '/home';
       }, 3000);

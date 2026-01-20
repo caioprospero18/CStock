@@ -15,12 +15,9 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-            "http://localhost:4200",
-            "https://localhost:4200",  
-            "http://local-cstock.com:8000",
-            "https://local-cstock.com:8000",
-            "http://localhost:8080"
-        ));
+        	    "http://localhost:4200",
+        	    "https://SEU-FRONTEND.onrender.com"
+        	));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

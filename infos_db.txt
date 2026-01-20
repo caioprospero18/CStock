@@ -1,0 +1,6 @@
+Hostname: dpg-d4umpkbuibrs73f3envg-a
+Port: 5432
+Database: cstock_db
+Username: cstock_db_user
+Password: TQljlP5KAN01BRPlHH5WJs9eoBa8y7dn
+Internal Database URL: postgresql://cstock_db_user:TQljlP5KAN01BRPlHH5WJs9eoBa8y7dn@dpg-d4umpkbuibrs73f3envg-a/cstock_db

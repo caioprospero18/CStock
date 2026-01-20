@@ -11,6 +11,8 @@
     <div class="login">
       <h1>Login</h1>
     </div>
+
+
     <form (ngSubmit)="login()" #loginForm="ngForm">
       <input pInputText type="email" placeholder="E-mail" (input)="onFieldInput()"
              [(ngModel)]="username" name="username" [disabled]="loading" required>
@@ -23,6 +25,26 @@
               [label]="loading ? 'Carregando...' : 'Entrar'">
       </button>
     </form>
+
+    <div class="demo-section">
+      <div class="divider">
+        <h3>Ou</h3>
+      </div>
+
+      <button pButton
+        severity="help"
+        type="button"
+        [disabled]="loading"
+        (click)="demoLogin()"
+        [label]="loading ? 'Carregando...' : 'Testar'"
+        style="width: 100%; margin-bottom: 10px;">
+      </button>
+
+      <p class="demo-note">
+        <i class="pi pi-info-circle" style="margin-right: 5px;"></i>
+        Acesso com dados fictícios para avaliação
+      </p>
+    </div>
   </div>
 </main>
 

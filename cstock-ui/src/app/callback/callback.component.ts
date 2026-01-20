@@ -2,6 +2,7 @@ import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../security/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-callback',
@@ -24,6 +25,7 @@ export class CallbackComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
+    private messageService: MessageService,
     @Inject(PLATFORM_ID) platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(platformId);
@@ -55,6 +57,17 @@ export class CallbackComponent implements OnInit {
           }
 
           await this.authService.exchangeCodeForToken(code);
+
+          const isDemo = sessionStorage.getItem('IS_DEMO_LOGIN');
+          if (isDemo === 'true') {
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Modo de demonstração',
+              detail: 'Algumas funcionalidades do sistema estão desabilitadas na versão de teste.',
+              sticky: true
+            });
+            sessionStorage.removeItem('IS_DEMO_LOGIN');
+          }
 
           this.router.navigate(['/products']);
 

@@ -45,3 +45,22 @@ button:hover{
   background-color: rgb(100, 138, 128) !important;
   border-color: rgb(100, 138, 128) !important;
 }
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 1.2rem 0;
+  color: #666;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #ddd;
+}
+
+.divider h3 {
+  margin: 0 10px;
+}

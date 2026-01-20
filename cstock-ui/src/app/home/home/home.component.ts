@@ -2,6 +2,8 @@ import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { AuthService, UserPayload } from '../../security/auth.service';
+import { HttpClient } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-home',
@@ -19,7 +21,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -142,5 +145,21 @@ export class HomeComponent implements OnInit {
     if (this.attemptedLogin) {
       this.attemptedLogin = false;
     }
+  }
+
+  async demoLogin(): Promise<void> {
+    sessionStorage.setItem('IS_DEMO_LOGIN', 'true');
+
+    const codeVerifier = this.authService.generateCodeVerifier();
+    this.authService.setInSessionStorage('pkce_code_verifier', codeVerifier);
+
+    const codeChallenge = await this.authService.generateCodeChallenge(codeVerifier);
+
+    const url =
+      `http://localhost:8080/api/auth/demo-login?` +
+      `code_challenge=${encodeURIComponent(codeChallenge)}&` +
+      `code_challenge_method=S256`;
+
+    window.location.href = url;
   }
 }
