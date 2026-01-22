@@ -1,9 +1,10 @@
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { Component, OnInit } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { AuthService, UserPayload } from '../../security/auth.service';
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
-
 
 @Component({
   selector: 'app-home',
@@ -18,32 +19,50 @@ export class HomeComponent implements OnInit {
   canRegisterEnterprise = false;
   attemptedLogin = false;
 
+  private isBrowser: boolean;
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private messageService: MessageService,
-    private http: HttpClient
-  ) {}
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) platformId: Object
+  ) {
+    this.isBrowser = isPlatformBrowser(platformId);
+  }
 
   ngOnInit(): void {
-    this.checkForAuthError();
+
+    if (this.isBrowser) {
+      this.checkForAuthError();
+    }
 
     const user: UserPayload | null = this.authService.jwtPayload;
     if (user) {
-      this.currentUserName = user.name ?? user.preferred_username ?? user.sub ?? '';
+      this.currentUserName =
+        user.name ??
+        user.preferred_username ??
+        user.sub ??
+        '';
 
-      const rolesRaw = user.roles ?? (user['authorities'] ?? undefined);
-      if (Array.isArray(rolesRaw)) {
-        this.canRegisterEnterprise = rolesRaw.includes('ROLE_REGISTER_ENTERPRISE');
-      } else if (typeof rolesRaw === 'string') {
-        this.canRegisterEnterprise = rolesRaw.split(',').map(r => r.trim()).includes('ROLE_REGISTER_ENTERPRISE');
-      } else {
-        this.canRegisterEnterprise = false;
-      }
+      const rolesRaw = user.roles ?? user.authorities;
+
+      const roles: string[] = Array.isArray(rolesRaw)
+        ? rolesRaw
+        : typeof rolesRaw === 'string'
+          ? rolesRaw.split(',').map((r: string) => r.trim())
+          : [];
+
+      this.canRegisterEnterprise = roles.includes('ROLE_REGISTER_ENTERPRISE');
     }
   }
 
   private checkForAuthError(): void {
+
+    if (!this.isBrowser) {
+      return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const error = urlParams.get('error');
 
@@ -62,66 +81,66 @@ export class HomeComponent implements OnInit {
     this.attemptedLogin = true;
 
     if (!this.username || !this.password) {
-        this.messageService.add({
-            severity: 'warn',
-            summary: 'Atenção',
-            detail: 'Preencha todos os campos'
-        });
-        return;
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Atenção',
+        detail: 'Preencha todos os campos'
+      });
+      return;
     }
+
+    if (!this.isBrowser) return;
 
     this.loading = true;
 
     try {
-        const codeVerifier = this.authService.generateCodeVerifier();
-        const codeChallenge = await this.authService.generateCodeChallenge(codeVerifier);
-        this.authService.setInSessionStorage('pkce_code_verifier', codeVerifier);
+      const codeVerifier = this.authService.generateCodeVerifier();
+      this.authService.setInSessionStorage('pkce_code_verifier', codeVerifier);
 
-        const redirectUrl = `http://localhost:8080/login?` +
-            `username=${encodeURIComponent(this.username)}&` +
-            `password=${encodeURIComponent(this.password)}&` +
-            `code_challenge=${encodeURIComponent(codeChallenge)}&` +
-            `code_challenge_method=S256`;
+      const codeChallenge =
+        await this.authService.generateCodeChallenge(codeVerifier);
 
-        window.location.href = redirectUrl;
+      const redirectUrl =
+        `${environment.authServerUrl}/login?` +
+        `username=${encodeURIComponent(this.username)}&` +
+        `password=${encodeURIComponent(this.password)}&` +
+        `code_challenge=${encodeURIComponent(codeChallenge)}&` +
+        `code_challenge_method=S256`;
 
-    } catch (error) {
-        console.error('Login error:', error);
-        this.messageService.add({
-            severity: 'error',
-            summary: 'Erro',
-            detail: 'Erro no login. Tente novamente.'
-        });
-        this.loading = false;
+      window.location.href = redirectUrl;
+
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: 'Erro no login. Tente novamente.'
+      });
+      this.loading = false;
     }
   }
 
-  private submitFormToSpring(username: string, password: string, codeChallenge: string): void {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'http://localhost:8080/login';
+  async demoLogin(): Promise<void> {
+    if (!this.isBrowser) return;
 
-    const addHiddenField = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-    };
+    this.authService.setInSessionStorage('IS_DEMO_LOGIN', 'true');
 
-    addHiddenField('username', username);
-    addHiddenField('password', password);
-    addHiddenField('code_challenge', codeChallenge);
-    addHiddenField('code_challenge_method', 'S256');
+    const codeVerifier = this.authService.generateCodeVerifier();
+    this.authService.setInSessionStorage('pkce_code_verifier', codeVerifier);
 
-    console.log('Submetendo form com code_challenge:', codeChallenge);
+    const codeChallenge =
+      await this.authService.generateCodeChallenge(codeVerifier);
 
-    document.body.appendChild(form);
-    form.submit();
+    const url =
+      `${environment.authServerUrl}/api/auth/demo-login?` +
+      `code_challenge=${encodeURIComponent(codeChallenge)}&` +
+      `code_challenge_method=S256`;
+
+    window.location.href = url;
   }
 
   logout(): void {
     this.authService.logout();
+
     this.messageService.add({
       severity: 'success',
       summary: 'Logout',
@@ -145,21 +164,5 @@ export class HomeComponent implements OnInit {
     if (this.attemptedLogin) {
       this.attemptedLogin = false;
     }
-  }
-
-  async demoLogin(): Promise<void> {
-    sessionStorage.setItem('IS_DEMO_LOGIN', 'true');
-
-    const codeVerifier = this.authService.generateCodeVerifier();
-    this.authService.setInSessionStorage('pkce_code_verifier', codeVerifier);
-
-    const codeChallenge = await this.authService.generateCodeChallenge(codeVerifier);
-
-    const url =
-      `http://localhost:8080/api/auth/demo-login?` +
-      `code_challenge=${encodeURIComponent(codeChallenge)}&` +
-      `code_challenge_method=S256`;
-
-    window.location.href = url;
   }
 }

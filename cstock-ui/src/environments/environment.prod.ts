@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://seuservidor.com.br/api',
-  authServerUrl: 'https://seuservidor.com.br',
-  redirectUri: 'https://seuapp.com.br/callback',
+  apiUrl: 'https://cstock-ky4b.onrender.com',
+  authServerUrl: 'https://cstock-ky4b.onrender.com',
+  redirectUri: 'http://localhost:4200/callback',
   clientId: 'cstock-ui'
 };
