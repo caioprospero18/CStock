@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { Enterprise } from '../core/models';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EnterpriseService {
-  private readonly enterprisesUrl = 'http://localhost:8080/enterprises';
+  private readonly enterprisesUrl = `${environment.apiUrl}/enterprises`;
 
   constructor(private http: HttpClient) { }
 

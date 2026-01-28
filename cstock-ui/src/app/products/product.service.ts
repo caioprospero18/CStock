@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from '../security/auth.service';
 import { Product } from '../core/models';
+import { environment } from '../../environments/environment';
 
 export interface ProductFilter {
   productName?: string;
@@ -12,7 +13,7 @@ export interface ProductFilter {
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly productsUrl = 'http://localhost:8080/products';
+  private readonly productsUrl = `${environment.apiUrl}/products`;
 
   constructor(
     private http: HttpClient,

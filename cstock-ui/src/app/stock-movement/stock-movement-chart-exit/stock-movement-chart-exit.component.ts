@@ -79,7 +79,9 @@ export class StockMovementChartExitComponent implements OnInit, OnDestroy {
       this.topExits = exits || [];
       this.topClients = clients || [];
       this.clientStats = clientStats || { totalClients: 0, activeClients: 0 };
-      this.topRevenue = this.stockMovementChartService.calculateTopRevenue(topProducts || {});
+      this.topRevenue = this.stockMovementChartService.calculateTopRevenue(
+        (topProducts ?? {}) as { [productName: string]: number }
+      );
 
       this.updateCharts();
     } catch (error) {

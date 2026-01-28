@@ -21,7 +21,10 @@ export class RevenueService {
 
       return {
         totalRevenue: totalRevenue || 0,
-        productRevenues: this.convertProductRevenues(topProducts || {}, products)
+        productRevenues: this.convertProductRevenues(
+          (topProducts ?? {}) as { [productName: string]: number },
+          products
+        )
       };
 
     } catch (error) {

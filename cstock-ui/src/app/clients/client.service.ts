@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Client } from '../core/models';
 import { AuthService } from '../security/auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClientService {
-  private readonly clientsUrl = 'http://localhost:8080/clients';
+  private readonly clientsUrl = `${environment.apiUrl}/clients`;
 
   constructor(
     private http: HttpClient,

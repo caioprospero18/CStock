@@ -95,11 +95,11 @@ export class StockMovementListComponent implements OnInit {
   }
 
   getMovementTypeLabel(type: string): string {
-    return this.stockMovementService.getMovementTypeLabel(type);
+    return type === 'ENTRY' ? 'Entrada' : 'Saída';
   }
 
   getMovementTypeClass(type: string): string {
-    return this.stockMovementService.getMovementTypeClass(type);
+    return type === 'ENTRY' ? 'movement-entry' : 'movement-exit';
   }
 
   getQuantityDisplay(movement: StockMovement): string {
