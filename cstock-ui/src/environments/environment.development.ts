@@ -3,5 +3,6 @@ export const environment = {
   apiUrl: 'http://localhost:8080',
   authServerUrl: 'http://localhost:8080',
   redirectUri: 'http://localhost:4200/callback',
+  authServerDomain: 'localhost:8080',
   clientId: 'cstock-ui'
 };

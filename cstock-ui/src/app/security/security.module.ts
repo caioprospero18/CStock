@@ -6,7 +6,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AuthGuard } from './auth.guard';
 import { CStockHttpInterceptor } from './cstock-http.interceptor';
 import { AuthService } from './auth.service';
-import { RedirectOauthComponent } from './redirect-oauth/redirect-oauth.component';
+import { environment } from '../../environments/environment';
 
 export function tokenGetter(): string | null {
   return localStorage.getItem('access_token');
@@ -15,17 +15,16 @@ export function tokenGetter(): string | null {
 @NgModule({
   declarations: [
     AuthorizedComponent,
-    RedirectOauthComponent
   ],
   imports: [
     CommonModule,
     JwtModule.forRoot({
       config: {
         tokenGetter,
-        allowedDomains: [/localhost:8080/],
+        allowedDomains: [environment.authServerDomain],
         disallowedRoutes: [
-          'http://localhost:8080/oauth2/token',
-          'http://localhost:8080/oauth2/authorize'
+          `${environment.authServerUrl}/oauth2/token`,
+          `${environment.authServerUrl}/oauth2/authorize`
         ]
       }
     })

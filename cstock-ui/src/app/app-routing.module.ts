@@ -13,7 +13,6 @@ import { UserRegisterComponent } from './users/user-register/user-register.compo
 import { UserUpdateComponent } from './users/user-update/user-update.component';
 import { EnterpriseUpdateComponent } from './enterprises/enterprise-update/enterprise-update.component';
 import { CallbackComponent } from './callback/callback.component';
-import { RedirectOauthComponent } from './security/redirect-oauth/redirect-oauth.component';
 import { StockEntryComponent } from './stock-movement/stock-entry/stock-entry.component';
 import { StockMovementChartEntryComponent } from './stock-movement/stock-movement-chart-entry/stock-movement-chart-entry.component';
 import { StockMovementChartExitComponent } from './stock-movement/stock-movement-chart-exit/stock-movement-chart-exit.component';
@@ -27,8 +26,6 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
 
   { path: 'callback', component: CallbackComponent },
-
-   { path: 'redirect-oauth', component: RedirectOauthComponent },
 
   { path: 'enterprises/new', component: EnterpriseRegisterComponent },
   { path: 'users/new', component: UserRegisterComponent },

@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../security/auth.service';
 import { MessageService } from 'primeng/api';
-
+import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-callback',
   template: `
@@ -49,6 +49,13 @@ export class CallbackComponent implements OnInit {
       if (code) {
         try {
           const verifier = this.authService.getFromSessionStorage('pkce_code_verifier');
+          console.group('🔐 OAuth CALLBACK DEBUG');
+          console.log('AUTH CODE:', code);
+          console.log('PKCE VERIFIER:', verifier);
+          console.log('REDIRECT URI:', environment.redirectUri);
+          console.log('CLIENT ID:', environment.clientId);
+          console.log('TOKEN ENDPOINT:', `${environment.authServerUrl}/oauth2/token`);
+          console.groupEnd();
 
           if (!verifier) {
             this.error = 'Sessão expirada. Faça login novamente.';

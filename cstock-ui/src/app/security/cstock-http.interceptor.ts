@@ -12,27 +12,29 @@ export class CStockHttpInterceptor implements HttpInterceptor {
   constructor(private auth: AuthService) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-
-    if (req.url.includes('/oauth2/token')) {
+    if (
+      req.url.includes('/oauth2/token') ||
+      req.url.includes('/oauth2/authorize')
+    ) {
       return next.handle(req);
     }
 
     const token = this.auth.getAccessToken();
 
-    if (token) {
-      const authReq = this.addToken(req, token);
-
-      return next.handle(authReq).pipe(
-        catchError(error => {
-          if (error.status === 401 && !this.isRefreshing) {
-            return this.handle401Error(req, next);
-          }
-          return throwError(() => error);
-        })
-      );
+    if (!token) {
+      return next.handle(req);
     }
 
-    return next.handle(req);
+    const authReq = this.addToken(req, token);
+
+    return next.handle(authReq).pipe(
+      catchError(error => {
+        if (error.status === 401 && !this.isRefreshing) {
+          return this.handle401Error(req, next);
+        }
+        return throwError(() => error);
+      })
+    );
   }
 
   private addToken(req: HttpRequest<any>, token: string): HttpRequest<any> {
