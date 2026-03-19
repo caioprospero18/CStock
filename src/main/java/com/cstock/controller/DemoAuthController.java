@@ -34,6 +34,7 @@ public class DemoAuthController {
             @RequestParam("code_challenge") String codeChallenge,
             @RequestParam(value = "code_challenge_method", defaultValue = "S256") String method,
             HttpSession session) {
+    	System.out.println("FRONTEND URL: " + frontendUrl);
 
         try {
             Authentication auth = authenticationManager.authenticate(

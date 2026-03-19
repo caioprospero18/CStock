@@ -36,6 +36,7 @@ public class LoginController {
             @RequestParam("code_challenge") String codeChallenge,
             @RequestParam(defaultValue = "S256") String codeChallengeMethod,
             HttpSession session) {
+    	System.out.println("FRONTEND URL: " + frontendUrl);
 
         try {
             Authentication auth = authenticationManager.authenticate(
