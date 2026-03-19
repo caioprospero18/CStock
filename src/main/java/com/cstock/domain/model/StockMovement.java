@@ -1,7 +1,7 @@
 package com.cstock.domain.model;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -34,7 +34,7 @@ public class StockMovement {
 	@NotNull
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
 	@Column(name = "movement_date")
-	private OffsetDateTime movementDate;
+	private LocalDateTime movementDate;
 	@NotNull
 	@Min(1)
 	private int quantity;
@@ -65,10 +65,10 @@ public class StockMovement {
 	public void setMovementType(MovementType movementType) {
 		this.movementType = movementType;
 	}
-	public OffsetDateTime getMovementDate() {
+	public LocalDateTime getMovementDate() {
 		return movementDate;
 	}
-	public void setMovementDate(OffsetDateTime movementDate) {
+	public void setMovementDate(LocalDateTime movementDate) {
 		this.movementDate = movementDate;
 	}
 	public int getQuantity() {

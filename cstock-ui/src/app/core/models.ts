@@ -66,7 +66,7 @@ export class User {
   }
 
   isActive(): boolean {
-    return this.active !== false; 
+    return this.active !== false;
   }
 }
 
@@ -151,7 +151,7 @@ export class StockMovement {
 
     const json: any = {
       movementType: stockMovement.movementType,
-      movementDate: stockMovement.movementDate.toISOString(),
+      movementDate: StockMovement.formatDate(stockMovement.movementDate),
       quantity: stockMovement.quantity,
       observation: stockMovement.observation,
       user: { id: stockMovement.user.id },
@@ -163,6 +163,12 @@ export class StockMovement {
     }
 
     return json;
+  }
+  static formatDate(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+
+    return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} ` +
+          `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
 }
 

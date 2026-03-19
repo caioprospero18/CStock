@@ -68,7 +68,7 @@ export class StockMovementService {
     return lastValueFrom(
       this.http.post<StockMovement>(
         this.stockMovementsUrl,
-        movement,
+        StockMovement.toJson(movement),
         { headers: this.authHeaders() }
       )
     );

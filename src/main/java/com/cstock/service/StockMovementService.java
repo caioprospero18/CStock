@@ -1,17 +1,19 @@
 package com.cstock.service;
 
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+
 import com.cstock.domain.model.MovementType;
 import com.cstock.domain.model.Product;
 import com.cstock.domain.model.StockMovement;
@@ -137,13 +139,13 @@ public class StockMovementService {
 	}
 
 	private List<StockMovement> filterExitMovementsByPeriod(List<StockMovement> movements, String period) {
-		OffsetDateTime startDate = calculateStartDate(period);
+		LocalDateTime startDate = calculateStartDate(period);
 		return movements.stream().filter(m -> m.getMovementType() == MovementType.EXIT)
 				.filter(m -> m.getMovementDate().isAfter(startDate)).collect(Collectors.toList());
 	}
 
-	private OffsetDateTime calculateStartDate(String period) {
-		OffsetDateTime now = OffsetDateTime.now();
+	private LocalDateTime calculateStartDate(String period) {
+		LocalDateTime now = LocalDateTime.now();
 		switch (period.toUpperCase()) {
 		case "24H":
 			return now.minusHours(24);
