@@ -1,6 +1,7 @@
 package com.cstock.service;
 
-import java.time.LocalDateTime;
+
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,13 +137,13 @@ public class StockMovementService {
 	}
 
 	private List<StockMovement> filterExitMovementsByPeriod(List<StockMovement> movements, String period) {
-		LocalDateTime startDate = calculateStartDate(period);
+		OffsetDateTime startDate = calculateStartDate(period);
 		return movements.stream().filter(m -> m.getMovementType() == MovementType.EXIT)
 				.filter(m -> m.getMovementDate().isAfter(startDate)).collect(Collectors.toList());
 	}
 
-	private LocalDateTime calculateStartDate(String period) {
-		LocalDateTime now = LocalDateTime.now();
+	private OffsetDateTime calculateStartDate(String period) {
+		OffsetDateTime now = OffsetDateTime.now();
 		switch (period.toUpperCase()) {
 		case "24H":
 			return now.minusHours(24);
