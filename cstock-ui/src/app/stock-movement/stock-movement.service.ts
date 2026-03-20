@@ -37,6 +37,11 @@ export class StockMovementService {
     movement.quantity = 0;
     movement.observation = '';
 
+    const userId = this.auth.getUserId(); 
+    if (userId) {
+      movement.user = { id: userId } as any;
+    }
+
     if (productId) {
       movement.product = { id: productId } as any;
     }

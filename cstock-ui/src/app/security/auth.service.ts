@@ -111,6 +111,16 @@ export class AuthService {
     return localStorage.getItem(this.ACCESS_TOKEN_KEY);
   }
 
+  getUserId(): number | null {
+    return this.userPayload?.user_id
+        ?? Number(this.userPayload?.sub)
+        ?? null;
+  }
+
+  getEnterpriseId(): number | null {
+    return this.userPayload?.enterprise_id ?? null;
+  }
+
   async getNewAccessToken(): Promise<string | null> {
     if (!this.isBrowser) return null;
 
