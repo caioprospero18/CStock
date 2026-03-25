@@ -88,7 +88,7 @@ public class ProductService {
         }
         
         Long enterpriseId = user.getEnterprise().getId();
-        return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId);
+        return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId, Sort.by(Sort.Direction.ASC, "id"));
     }
     
     public List<Product> search(ProductFilter productFilter) {
@@ -96,6 +96,6 @@ public class ProductService {
     }
     
     public List<Product> findByEnterpriseId(Long enterpriseId) {
-        return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId);
+        return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId, Sort.by(Sort.Direction.ASC, "id"));
     }
 }

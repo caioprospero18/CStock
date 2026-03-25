@@ -147,6 +147,32 @@ export class StockMovementService {
         return false;
       }
 
+      if (filters.period) {
+        const movementDate = moment(m.movementDate, 'DD/MM/YYYY HH:mm:ss');
+        if (!movementDate.isValid()) return false;
+
+        const now = moment();
+        let startDate;
+
+        switch (filters.period) {
+          case '24h':
+            startDate = now.clone().subtract(24, 'hours');
+            break;
+          case '7d':
+            startDate = now.clone().subtract(7, 'days');
+            break;
+          case '30d':
+            startDate = now.clone().subtract(30, 'days');
+            break;
+          default:
+            startDate = null;
+        }
+
+        if (startDate && movementDate.isBefore(startDate)) {
+          return false;
+        }
+      }
+
       return true;
     });
   }

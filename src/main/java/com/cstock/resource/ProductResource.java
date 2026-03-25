@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +38,7 @@ public class ProductResource {
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
     public List<Product> list(){
-        return productRepository.findByActiveTrue();
+        return productRepository.findByActiveTrue(Sort.by(Sort.Direction.ASC, "id"));
     }
     
     @GetMapping("/{id}")
@@ -52,13 +53,16 @@ public class ProductResource {
     
     @GetMapping("/enterprise/{enterpriseId}")
     public List<Product> listByEnterprise(@PathVariable Long enterpriseId) {
-        return productRepository.findByEnterpriseIdAndActiveTrue(enterpriseId);
+        return productRepository.findByEnterpriseIdAndActiveTrue(
+            enterpriseId,
+            Sort.by(Sort.Direction.ASC, "id")
+        );
     }
     
     @GetMapping("/search")
     @PreAuthorize("hasAuthority('ROLE_SEARCH_PRODUCT') and hasAuthority('SCOPE_read')")
     public List<Product> search(ProductFilter productFilter) {
-        return productRepository.filter(productFilter, null);
+        return productRepository.filter(productFilter, Sort.by("id"));
     }
     
     @PostMapping
