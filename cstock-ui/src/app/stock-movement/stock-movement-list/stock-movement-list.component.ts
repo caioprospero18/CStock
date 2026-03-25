@@ -86,7 +86,7 @@ export class StockMovementListComponent implements OnInit {
     return this.stockMovementService.getMovementValue(movement);
   }
 
-  formatDate(date: Date): string {
+  formatDate(date: string): string {
     return this.stockMovementService.formatMovementDate(date);
   }
 

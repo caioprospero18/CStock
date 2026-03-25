@@ -243,10 +243,20 @@ export class StockMovementChartService {
   private parseDate(dateStr: string): Date {
     if (!dateStr) return new Date(0);
 
-    const [datePart, timePart] = dateStr.split(' ');
+    if (dateStr.includes('T')) {
+      return new Date(dateStr);
+    }
+
+    const parts = dateStr.split(' ');
+    if (parts.length < 2) return new Date(0);
+
+    const [datePart, timePart] = parts;
+
     const [day, month, year] = datePart.split('/').map(Number);
     const [hour, minute, second] = timePart.split(':').map(Number);
 
-    return new Date(year, month - 1, day, hour, minute, second);
+    if (!day || !month || !year) return new Date(0);
+
+    return new Date(year, month - 1, day, hour || 0, minute || 0, second || 0);
   }
 }
