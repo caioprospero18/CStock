@@ -111,7 +111,7 @@ export class Product {
 export class StockMovement {
   id?: number;
   movementType: string = '';
-  movementDate: Date = new Date();
+  movementDate: string = '';
   quantity!: number;
   observation!: string;
   user!: User;
@@ -137,7 +137,7 @@ export class StockMovement {
       this.product.enterprise.id = enterpriseId;
     }
 
-    this.movementDate = new Date();
+    this.movementDate = StockMovement.formatDate(new Date());
   }
 
   static toJson(stockMovement: StockMovement): any {
@@ -151,7 +151,7 @@ export class StockMovement {
 
     const json: any = {
       movementType: stockMovement.movementType,
-      movementDate: StockMovement.formatDate(stockMovement.movementDate),
+      movementDate: stockMovement.movementDate,
       quantity: stockMovement.quantity,
       observation: stockMovement.observation,
       user: { id: stockMovement.user.id },

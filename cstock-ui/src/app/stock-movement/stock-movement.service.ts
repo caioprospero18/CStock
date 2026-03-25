@@ -4,6 +4,7 @@ import { environment } from '../../environments/environment';
 import { AuthService } from '../security/auth.service';
 import { Observable, lastValueFrom } from 'rxjs';
 import { StockMovement } from '../core/models';
+import moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -33,11 +34,11 @@ export class StockMovementService {
     const movement = new StockMovement();
 
     movement.movementType = movementType;
-    movement.movementDate = new Date();
+    movement.movementDate = StockMovement.formatDate(new Date());
     movement.quantity = 0;
     movement.observation = '';
 
-    const userId = this.auth.getUserId(); 
+    const userId = this.auth.getUserId();
     if (userId) {
       movement.user = { id: userId } as any;
     }
@@ -154,9 +155,10 @@ export class StockMovementService {
     return movement.quantity.toString();
   }
 
-  formatMovementDate(date: Date): string {
-    return new Date(date).toLocaleString('pt-BR');
-  }
+  formatMovementDate(date: string): string {
+    const m = moment(date, 'DD/MM/YYYY HH:mm:ss');
+    return m.isValid() ? m.format('DD/MM/YYYY HH:mm:ss') : date;
+}
 
   getClientName(movement: StockMovement): string {
     return movement.client?.clientName || '-';

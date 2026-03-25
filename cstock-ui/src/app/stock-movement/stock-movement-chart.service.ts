@@ -52,7 +52,8 @@ export class StockMovementChartService {
 
     return movements.filter((movement: StockMovement) => {
       if (!movement.movementDate) return false;
-      return movement.movementDate >= startDate;
+      const movementDate = this.parseDate(movement.movementDate);
+      return movementDate >= startDate;
     });
   }
 
@@ -194,7 +195,7 @@ export class StockMovementChartService {
         .filter((movement: StockMovement) =>
           movement.movementType === 'EXIT' &&
           movement.client?.id &&
-          movement.movementDate >= thirtyDaysAgo
+          this.parseDate(movement.movementDate) >= thirtyDaysAgo
         )
         .forEach((movement: StockMovement) => {
           if (movement.client?.id) {
@@ -237,5 +238,15 @@ export class StockMovementChartService {
       minute: '2-digit',
       second: '2-digit'
     });
+  }
+
+  private parseDate(dateStr: string): Date {
+    if (!dateStr) return new Date(0);
+
+    const [datePart, timePart] = dateStr.split(' ');
+    const [day, month, year] = datePart.split('/').map(Number);
+    const [hour, minute, second] = timePart.split(':').map(Number);
+
+    return new Date(year, month - 1, day, hour, minute, second);
   }
 }
