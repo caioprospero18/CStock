@@ -45,8 +45,19 @@ public class UserResource {
 
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_SEARCH_USER') and hasAuthority('SCOPE_read')")
-    public List<User> list(){
-        return userService.findAllActive();
+    public List<User> list() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authentication.getPrincipal();
+
+        boolean admin = isAdmin(authentication);
+
+        if (admin) {
+            return userService.findAllActive(); 
+        } else {
+            Long enterpriseId = jwt.getClaim("enterprise_id");
+            return userService.findActiveByEnterpriseId(enterpriseId);
+        }
     }
     
     @GetMapping("/by-email/{email}")
