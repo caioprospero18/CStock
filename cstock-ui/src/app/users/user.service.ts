@@ -19,30 +19,15 @@ export class UserService {
   async findAll(): Promise<User[]> {
     const token = this.auth.getAccessToken();
 
-    if (!token) {
-      throw new Error('Usuário não autenticado');
-    }
-
     const headers = new HttpHeaders()
       .append('Authorization', `Bearer ${token}`)
       .append('Content-Type', 'application/json');
 
-    try {
-      const isAdmin = this.auth.isAdmin();
-      let url = this.usersUrl;
+    const response = await this.http
+      .get<User[]>(this.usersUrl, { headers })
+      .toPromise();
 
-      if (!isAdmin) {
-        const enterpriseId = this.auth.jwtPayload?.['enterprise_id'];
-        if (enterpriseId) {
-          url = `${this.usersUrl}/enterprise/${enterpriseId}`;
-        }
-      }
-
-      const response = await this.http.get<User[]>(url, { headers }).toPromise();
-      return response || [];
-    } catch (error) {
-      throw error;
-    }
+    return response || [];
   }
 
   async findByEnterprise(enterpriseId: number): Promise<User[]> {

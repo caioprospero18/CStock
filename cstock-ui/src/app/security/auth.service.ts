@@ -92,7 +92,7 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.hasRole('ROLE_ADMIN');
+    return this.hasRole('ROLE_REGISTER_ENTERPRISE');
   }
 
   hasRole(role: string): boolean {
